@@ -69,8 +69,10 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
                 TextFormField(
                   controller: _serviceNameController,
                   decoration: const InputDecoration(
-                    labelText: '服务名称 *',
+                    labelText: '服务名称',
                     hintText: '请输入订阅服务名称',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.title),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -87,9 +89,14 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
                   children: [
                     Text('图标选择', style: TextStyle(fontWeight: FontWeight.bold)),
                     SizedBox(width: 8),
-                    Icon(Icons.image, color: Colors.grey),
+                    Icon(Icons.image_outlined, color: Colors.grey),
                     SizedBox(width: 8),
-                    Text('(后续可选择或上传图标)', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                    Expanded(
+                      child: Text('(后续可选择或上传图标)', 
+                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                        overflow: TextOverflow.fade,
+                      ),
+                    ),
                   ],
                 ),
                 
@@ -99,7 +106,9 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
                 DropdownButtonFormField<String>(
                   value: _selectedSubscriptionType,
                   decoration: const InputDecoration(
-                    labelText: '订阅类型 *',
+                    labelText: '订阅类型',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.category),
                   ),
                   items: _subscriptionTypes.map((String type) {
                     return DropdownMenuItem<String>(
@@ -127,9 +136,11 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
                   controller: _priceController,
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                   decoration: const InputDecoration(
-                    labelText: '价格 *',
+                    labelText: '价格',
                     hintText: '请输入价格',
                     prefixText: '¥ ',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.attach_money),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -148,7 +159,9 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
                 DropdownButtonFormField<String>(
                   value: _selectedBillingCycle,
                   decoration: const InputDecoration(
-                    labelText: '计费周期 *',
+                    labelText: '计费周期',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.repeat_outlined),
                   ),
                   items: _billingCycles.map((String cycle) {
                     return DropdownMenuItem<String>(
@@ -175,8 +188,10 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
                 TextFormField(
                   controller: _nextPaymentDateController,
                   decoration: const InputDecoration(
-                    labelText: '下次付费日期 *',
+                    labelText: '下次付费日期',
                     hintText: '请选择日期',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.calendar_today),
                   ),
                   readOnly: true,
                   onTap: () async {
@@ -205,19 +220,40 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
                 const SizedBox(height: 16),
                 
                 // 自动续费选项
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('是否开启自动续费'),
-                    Switch(
-                      value: _autoRenewal,
-                      onChanged: (value) {
-                        setState(() {
-                          _autoRenewal = value;
-                        });
-                      },
+                Card(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(
+                      color: Theme.of(context).dividerColor.withOpacity(0.5),
+                      width: 1,
                     ),
-                  ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Expanded(
+                          child: Text(
+                            '是否开启自动续费',
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                        Switch(
+                          value: _autoRenewal,
+                          onChanged: (value) {
+                            setState(() {
+                              _autoRenewal = value;
+                            });
+                          },
+                          activeColor: Theme.of(context).colorScheme.primary,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
                 
                 const SizedBox(height: 16),
@@ -230,6 +266,7 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
                     labelText: '备注 (可选)',
                     hintText: '请输入备注信息',
                     border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.note_outlined),
                   ),
                 ),
               ],
@@ -271,6 +308,11 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
               );
             }
           },
+          style: ElevatedButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
           child: const Text('保存'),
         ),
       ],
