@@ -1,13 +1,25 @@
 import 'package:flutter/material.dart';
+import 'add_subscription_dialog.dart';
+import 'subscription.dart';
 
 class AddButton extends StatelessWidget {
-  const AddButton({super.key});
+  final Function(Subscription)? onSubscriptionAdded;
+  
+  const AddButton({super.key, this.onSubscriptionAdded});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // 点击事件暂时不做
+        // 点击事件，弹出添加订阅对话框
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AddSubscriptionDialog(
+              onSubscriptionAdded: onSubscriptionAdded,
+            );
+          },
+        );
       },
       child: Container(
         width: 56.0,
