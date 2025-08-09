@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'home_screen.dart';
 import 'statistics_screen.dart';
 import 'notifications_screen.dart';
 import 'profile_screen.dart';
 import 'add_button.dart';
+import 'subscription_provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => SubscriptionProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -19,6 +26,7 @@ class MyApp extends StatelessWidget {
       title: 'Subscription Manager',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
       ),
       home: const MainScreen(),
     );
@@ -74,7 +82,15 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ],
       ),
-      floatingActionButton: const AddButton(),
+      floatingActionButton: Consumer<SubscriptionProvider>(
+        builder: (context, subscriptionProvider, child) {
+          return AddButton(
+            onSubscriptionAdded: (subscription) {
+              subscriptionProvider.addSubscription(subscription);
+            },
+          );
+        },
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
