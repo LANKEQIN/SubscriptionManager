@@ -2,6 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'subscription.dart';
 import 'subscription_provider.dart';
+import 'notifications_screen.dart';
+import 'add_subscription_dialog.dart'; // 添加此行
+
+class NotificationsScreen extends StatelessWidget {
+  const NotificationsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('提醒'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: Navigator.of(context).pop,
+        ),
+      ),
+      body: const Center(
+        child: Text('这里是提醒页面'),
+      ),
+    );
+  }
+}
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -16,14 +38,54 @@ class HomeScreen extends StatelessWidget {
           centerTitle: false,
           actions: [
             // 提醒铃铛图标
-            IconButton(
-              icon: const Icon(Icons.notifications_outlined),
-              onPressed: () {
-                // 跳转到提醒页面
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('跳转到提醒页面')),
+            Consumer<SubscriptionProvider>(
+              builder: (context, provider, child) {
+                final upcomingCount = provider.upcomingSubscriptions.length;
+                final hasUnread = provider.hasUnreadNotifications && upcomingCount > 0;
+                return Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.notifications_outlined),
+                      onPressed: () {
+                        // 标记提醒为已读
+                        provider.markNotificationsAsRead();
+                        // 导航到提醒页面
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const NotificationsScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    if (hasUnread)
+                      Positioned(
+                        right: 8,
+                        top: 8,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            '${upcomingCount > 99 ? '99+' : upcomingCount}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
                 );
-                // 在实际应用中，这里应该导航到提醒页面
               },
             ),
             // 用户头像
@@ -69,6 +131,152 @@ class HomeScreen extends StatelessWidget {
                               itemBuilder: (context, index) {
                                 return SubscriptionCard(
                                   subscription: subscriptions[index],
+                                  onEdit: (subscription) {
+                                    _showEditDialog(context, subscription, subscriptionProvider);
+                                  },
+                                );
+                              },
+                            );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showEditDialog(BuildContext context, Subscription subscription, SubscriptionProvider provider) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return EditSubscriptionDialog(
+          subscription: subscription,
+          onSubscriptionUpdated: (updatedSubscription) {
+            provider.updateSubscription(updatedSubscription);
+          },
+          onSubscriptionDeleted: (id) {
+            provider.removeSubscription(id);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('订阅删除成功')),
+            );
+          },
+        );
+      },
+    );
+  }
+
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // 顶部标题栏
+        AppBar(
+          title: const Text('会员制管理'),
+          centerTitle: false,
+          actions: [
+            // 提醒铃铛图标
+            Consumer<SubscriptionProvider>(
+              builder: (context, provider, child) {
+                final upcomingCount = provider.upcomingSubscriptions.length;
+                final hasUnread = provider.hasUnreadNotifications && upcomingCount > 0;
+                return Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.notifications_outlined),
+                      onPressed: () {
+                        // 标记提醒为已读
+                        provider.markNotificationsAsRead();
+                        // 导航到提醒页面
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const NotificationsScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    if (hasUnread)
+                      Positioned(
+                        right: 8,
+                        top: 8,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            '${upcomingCount > 99 ? '99+' : upcomingCount}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
+            // 用户头像
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: CircleAvatar(
+                radius: 16,
+                backgroundColor: Colors.grey,
+                child: Icon(
+                  Icons.person_outline,
+                  size: 18,
+                ),
+              ),
+            ),
+          ],
+        ),
+        // 主页面内容
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 添加统计卡片
+                _buildStatisticsCard(context),
+                const SizedBox(height: 16),
+                const Text(
+                  '所有订阅',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: Consumer<SubscriptionProvider>(
+                    builder: (context, subscriptionProvider, child) {
+                      final subscriptions = subscriptionProvider.subscriptions;
+                      return subscriptions.isEmpty
+                          ? _buildEmptyState()
+                          : ListView.builder(
+                              itemCount: subscriptions.length,
+                              itemBuilder: (context, index) {
+                                return SubscriptionCard(
+                                  subscription: subscriptions[index],
+                                  onEdit: (subscription) {
+                                    _showEditDialog(context, subscription, subscriptionProvider);
+                                  },
                                 );
                               },
                             );
@@ -111,6 +319,26 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void _showEditDialog(BuildContext context, Subscription subscription, SubscriptionProvider provider) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return EditSubscriptionDialog(
+          subscription: subscription,
+          onSubscriptionUpdated: (updatedSubscription) {
+            provider.updateSubscription(updatedSubscription);
+          },
+          onSubscriptionDeleted: (id) {
+            provider.removeSubscription(id);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('订阅删除成功')),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -223,8 +451,9 @@ class HomeScreen extends StatelessWidget {
 
 class SubscriptionCard extends StatelessWidget {
   final Subscription subscription;
+  final Function(Subscription)? onEdit; // 添加此行
 
-  const SubscriptionCard({super.key, required this.subscription});
+  const SubscriptionCard({super.key, required this.subscription, this.onEdit});
 
   @override
   Widget build(BuildContext context) {
@@ -238,97 +467,104 @@ class SubscriptionCard extends StatelessWidget {
           width: 1,
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            // 左侧图标
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: () {
+          // 点击事件可以保留用于查看详情等功能
+        },
+        onLongPress: onEdit != null ? () {
+          onEdit!(subscription);
+        } : null,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              // 左侧图标
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: subscription.icon != null
+                    ? Icon(
+                        IconData(int.parse(subscription.icon!), fontFamily: 'MaterialIcons'),
+                        color: Theme.of(context).colorScheme.primary,
+                      )
+                    : Icon(
+                        Icons.subscriptions_outlined,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
               ),
-              child: subscription.icon != null
-                  ? Icon(
-                      IconData(int.parse(subscription.icon!), fontFamily: 'MaterialIcons'),
-                      color: Theme.of(context).colorScheme.primary,
-                    )
-                  : Icon(
-                      Icons.subscriptions_outlined,
-                      color: Theme.of(context).colorScheme.primary,
+              const SizedBox(width: 16),
+              // 中间信息
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      subscription.name,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-            ),
-            const SizedBox(width: 16),
-            // 中间信息
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                    const SizedBox(height: 4),
+                    Text(
+                      subscription.formattedPrice,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subscription.renewalStatus,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: subscription.autoRenewal
+                            ? Colors.green
+                            : subscription.daysUntilPayment <= 7
+                                ? Colors.red
+                                : Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // 右侧信息
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    subscription.name,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                    '下次付费',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
                   Text(
-                    subscription.formattedPrice,
+                    '${subscription.nextPaymentDate.month}月${subscription.nextPaymentDate.day}日',
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    subscription.renewalStatus,
+                    '${subscription.nextPaymentDate.year}',
                     style: TextStyle(
-                      fontSize: 14,
-                      color: subscription.autoRenewal
-                          ? Colors.green
-                          : subscription.daysUntilPayment <= 7
-                              ? Colors.red
-                              : Colors.grey,
+                      fontSize: 12,
+                      color: Colors.grey[500],
                     ),
                   ),
                 ],
               ),
-            ),
-            // 右侧信息
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '下次付费',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
-                ),
-                Text(
-                  '${subscription.nextPaymentDate.month}月${subscription.nextPaymentDate.day}日',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${subscription.nextPaymentDate.year}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[500],
-                  ),
-                ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
-}
