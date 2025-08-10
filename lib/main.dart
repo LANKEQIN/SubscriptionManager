@@ -9,10 +9,16 @@ import 'add_button.dart';
 import 'add_subscription_dialog.dart';
 import 'subscription_provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // 创建SubscriptionProvider实例并加载数据
+  final provider = SubscriptionProvider();
+  await provider.loadFromPrefs();
+  
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => SubscriptionProvider(),
+    ChangeNotifierProvider.value(
+      value: provider,
       child: const MyApp(),
     ),
   );
