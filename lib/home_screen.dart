@@ -18,7 +18,13 @@ class HomeScreen extends StatelessWidget {
             // 提醒铃铛图标
             IconButton(
               icon: const Icon(Icons.notifications_outlined),
-              onPressed: null,
+              onPressed: () {
+                // 跳转到提醒页面
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('跳转到提醒页面')),
+                );
+                // 在实际应用中，这里应该导航到提醒页面
+              },
             ),
             // 用户头像
             const Padding(
@@ -244,10 +250,15 @@ class SubscriptionCard extends StatelessWidget {
                 color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                Icons.subscriptions_outlined,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+              child: subscription.icon != null
+                  ? Icon(
+                      IconData(int.parse(subscription.icon!), fontFamily: 'MaterialIcons'),
+                      color: Theme.of(context).colorScheme.primary,
+                    )
+                  : Icon(
+                      Icons.subscriptions_outlined,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
             ),
             const SizedBox(width: 16),
             // 中间信息
@@ -299,7 +310,7 @@ class SubscriptionCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${subscription.nextPaymentDate.month.toString().padLeft(2, '0')}/${subscription.nextPaymentDate.day.toString().padLeft(2, '0')}',
+                  '${subscription.nextPaymentDate.month}月${subscription.nextPaymentDate.day}日',
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,

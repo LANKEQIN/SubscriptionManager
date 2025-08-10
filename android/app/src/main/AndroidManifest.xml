@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="subscription_manager"
+        android:label="会员制管理"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

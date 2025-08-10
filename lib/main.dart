@@ -116,9 +116,23 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+          if (index == 2) {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AddSubscriptionDialog(
+                  onSubscriptionAdded: (subscription) {
+                    Provider.of<SubscriptionProvider>(context, listen: false)
+                        .addSubscription(subscription);
+                  },
+                );
+              },
+            );
+          } else {
+            setState(() {
+              _currentIndex = index;
+            });
+          }
         },
         destinations: const [
           NavigationDestination(
@@ -132,6 +146,11 @@ class _MainScreenState extends State<MainScreen> {
             label: '统计',
           ),
           NavigationDestination(
+            icon: Icon(Icons.add_circle_outline),
+            selectedIcon: Icon(Icons.add_circle),
+            label: '添加',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.notifications_outlined),
             selectedIcon: Icon(Icons.notifications),
             label: '提醒',
@@ -143,16 +162,6 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ],
       ),
-      floatingActionButton: Consumer<SubscriptionProvider>(
-        builder: (context, subscriptionProvider, child) {
-          return AddButton(
-            onSubscriptionAdded: (subscription) {
-              subscriptionProvider.addSubscription(subscription);
-            },
-          );
-        },
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 }

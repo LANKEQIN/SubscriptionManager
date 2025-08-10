@@ -134,7 +134,7 @@ class SubscriptionProvider with ChangeNotifier {
       return _monthlyHistories.firstWhere(
         (history) => history.year == previousYear && history.month == previousMonth
       );
-    } catch (e) {
+    } on StateError {
       return null;
     }
   }

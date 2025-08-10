@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'subscription.dart';
-import 'dart:math';
 
 class AddSubscriptionDialog extends StatefulWidget {
   final Function(Subscription)? onSubscriptionAdded;
@@ -23,6 +22,7 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
   // 下拉选项值
   String? _selectedSubscriptionType;
   String? _selectedBillingCycle;
+  IconData? _selectedIcon;
   
   // 自动续费开关值
   bool _autoRenewal = true;
@@ -42,6 +42,98 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
     '每年',
     '一次性'
   ];
+  
+  // 图标选项
+  final List<IconData> _iconOptions = [
+    Icons.music_note,
+    Icons.movie,
+    Icons.games,
+    Icons.phone_iphone,
+    Icons.computer,
+    Icons.tv,
+    Icons.book,
+    Icons.fitness_center,
+    Icons.fastfood,
+    Icons.local_shipping,
+    Icons.home,
+    Icons.account_balance,
+  ];
+
+  void _showIconPickerDialog() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return DraggableScrollableSheet(
+          expand: false,
+          builder: (context, scrollController) {
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: 8.0),
+                      child: Text(
+                        '选择图标',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const Divider(),
+                  Expanded(
+                    child: GridView.builder(
+                      controller: scrollController,
+                      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 64,
+                        childAspectRatio: 1,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                      ),
+                      itemCount: _iconOptions.length,
+                      itemBuilder: (context, index) {
+                        final icon = _iconOptions[index];
+                        return InkWell(
+                          onTap: () {
+                            setState(() {
+                              _selectedIcon = icon;
+                            });
+                            Navigator.pop(context);
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: icon == _selectedIcon
+                                  ? Theme.of(context).colorScheme.primaryContainer
+                                  : Theme.of(context).colorScheme.surface,
+                            ),
+                            child: Icon(
+                              icon,
+                              size: 32,
+                              color: icon == _selectedIcon
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context).iconTheme.color,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
   @override
   void dispose() {
@@ -51,6 +143,61 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
     _nextPaymentDateController.dispose();
     _notesController.dispose();
     super.dispose();
+  }
+  
+  void _showIconPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: 300,
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                '选择图标',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: GridView.count(
+                  crossAxisCount: 4,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  children: _iconOptions.map((icon) {
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedIcon = icon;
+                        });
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: _selectedIcon == icon 
+                              ? Theme.of(context).colorScheme.primary.withOpacity(0.2) 
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          icon,
+                          size: 30,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -84,16 +231,35 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
                 
                 const SizedBox(height: 16),
                 
-                // 图标选择 (简化版 - 后续可扩展)
-                const Row(
+                // 图标选择
+                Row(
                   children: [
-                    Text('图标选择', style: TextStyle(fontWeight: FontWeight.bold)),
-                    SizedBox(width: 8),
-                    Icon(Icons.image_outlined, color: Colors.grey),
-                    SizedBox(width: 8),
+                    const Text('图标选择', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: () {
+                        _showIconPicker(context);
+                      },
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          _selectedIcon ?? Icons.help_outline,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
                     Expanded(
-                      child: Text('(后续可选择或上传图标)', 
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                      child: Text(
+                        _selectedIcon != null 
+                          ? '已选择图标' 
+                          : '请选择图标',
+                        style: const TextStyle(color: Colors.grey, fontSize: 12),
                         overflow: TextOverflow.fade,
                       ),
                     ),
@@ -286,8 +452,8 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
             if (_formKey.currentState!.validate()) {
               // 表单验证通过，创建订阅对象
               final subscription = Subscription(
-                id: Random().nextInt(100000).toString(),
                 name: _serviceNameController.text,
+                icon: _selectedIcon?.codePoint.toString(),
                 type: _selectedSubscriptionType!,
                 price: double.parse(_priceController.text),
                 billingCycle: _selectedBillingCycle!,
@@ -296,8 +462,8 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
                 notes: _notesController.text.isNotEmpty ? _notesController.text : null,
               );
               
-              // 调用回调函数传递新订阅
-              widget.onSubscriptionAdded?.call(subscription);
+              // 调用回调函数传递新订阅，包含图标信息
+              widget.onSubscriptionAdded?.call(subscription.copyWith(icon: _selectedIcon?.codePoint.toString()));
               
               // 关闭对话框
               Navigator.of(context).pop();

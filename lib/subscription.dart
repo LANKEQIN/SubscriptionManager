@@ -1,3 +1,5 @@
+import 'package:uuid/uuid.dart';
+
 class Subscription {
   final String id;
   final String name;
@@ -10,7 +12,7 @@ class Subscription {
   final String? notes;
 
   Subscription({
-    required this.id,
+    String? id,
     required this.name,
     this.icon,
     required this.type,
@@ -19,7 +21,7 @@ class Subscription {
     required this.nextPaymentDate,
     required this.autoRenewal,
     this.notes,
-  });
+  }) : id = id ?? const Uuid().v4();
 
   /// 创建一个Subscription实例的副本，用于更新操作
   Subscription copyWith({
