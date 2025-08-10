@@ -98,6 +98,14 @@ class SubscriptionProvider with ChangeNotifier {
   void addSubscription(Subscription subscription) {
     _subscriptions.add(subscription);
     _updateCurrentMonthHistory();
+    
+    // 检查是否需要设置未读通知状态
+    final now = DateTime.now();
+    final difference = subscription.nextPaymentDate.difference(now);
+    if (difference.inDays <= 7 && difference.inDays >= 0 && !_hasUnreadNotifications) {
+      _hasUnreadNotifications = true;
+    }
+    
     _saveToPrefs(); // 保存数据
     notifyListeners();
   }
@@ -168,12 +176,6 @@ class SubscriptionProvider with ChangeNotifier {
       final difference = subscription.nextPaymentDate.difference(now);
       return difference.inDays <= 7 && difference.inDays >= 0;
     }).toList();
-    
-    // 如果有即将到期的订阅且当前没有未读提醒，则设置未读提醒状态
-    if (upcoming.isNotEmpty && !_hasUnreadNotifications) {
-      _hasUnreadNotifications = true;
-      notifyListeners();
-    }
     
     upcoming.sort((a, b) => a.nextPaymentDate.compareTo(b.nextPaymentDate));
     return upcoming;
@@ -262,6 +264,20 @@ class SubscriptionProvider with ChangeNotifier {
   void markNotificationsAsRead() {
     _hasUnreadNotifications = false;
     notifyListeners();
+  }
+  
+  // 重置未读通知状态（用于在添加新订阅时检查是否需要显示通知）
+  void resetUnreadNotificationStatus() {
+    final upcoming = _subscriptions.where((subscription) {
+      final now = DateTime.now();
+      final difference = subscription.nextPaymentDate.difference(now);
+      return difference.inDays <= 7 && difference.inDays >= 0;
+    }).toList();
+    
+    if (upcoming.isNotEmpty && !_hasUnreadNotifications) {
+      _hasUnreadNotifications = true;
+      notifyListeners();
+    }
   }
 
 }
