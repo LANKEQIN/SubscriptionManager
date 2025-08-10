@@ -17,12 +17,16 @@ class SubscriptionProvider with ChangeNotifier {
   
   // 主题颜色，默认为null表示使用系统动态颜色或默认蓝色
   Color? _themeColor;
+  
+  // 提醒查看状态，默认为false（未查看）
+  bool _hasUnreadNotifications = false;
 
   List<Subscription> get subscriptions => _subscriptions;
   List<MonthlyHistory> get monthlyHistories => _monthlyHistories;
   ThemeMode get themeMode => _themeMode;
   double get fontSize => _fontSize;
   Color? get themeColor => _themeColor;
+  bool get hasUnreadNotifications => _hasUnreadNotifications;
 
   // 初始化数据
   Future<void> loadFromPrefs() async {
@@ -165,6 +169,12 @@ class SubscriptionProvider with ChangeNotifier {
       return difference.inDays <= 7 && difference.inDays >= 0;
     }).toList();
     
+    // 如果有即将到期的订阅且当前没有未读提醒，则设置未读提醒状态
+    if (upcoming.isNotEmpty && !_hasUnreadNotifications) {
+      _hasUnreadNotifications = true;
+      notifyListeners();
+    }
+    
     upcoming.sort((a, b) => a.nextPaymentDate.compareTo(b.nextPaymentDate));
     return upcoming;
   }
@@ -247,4 +257,11 @@ class SubscriptionProvider with ChangeNotifier {
     _saveToPrefs(); // 保存数据
     notifyListeners();
   }
+  
+  // 标记提醒为已读
+  void markNotificationsAsRead() {
+    _hasUnreadNotifications = false;
+    notifyListeners();
+  }
+
 }
