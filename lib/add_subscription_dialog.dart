@@ -40,6 +40,7 @@ class _EditSubscriptionDialogState extends State<EditSubscriptionDialog> {
   // 下拉选项值
   String? _selectedSubscriptionType;
   String? _selectedBillingCycle;
+  String? _selectedCurrency = 'CNY'; // 新增货币选择，默认为人民币
   IconData? _selectedIcon;
   
   // 自动续费开关值
@@ -60,6 +61,23 @@ class _EditSubscriptionDialogState extends State<EditSubscriptionDialog> {
     '每年',
     '一次性'
   ];
+  
+  // 货币选项
+  final Map<String, String> _currencies = {
+    'CNY': '人民币 ¥',
+    'USD': '美元 \$',
+    'EUR': '欧元 €',
+    'GBP': '英镑 £',
+    'JPY': '日元 ¥',
+    'KRW': '韩元 ₩',
+    'INR': '印度卢比 ₹',
+    'RUB': '卢布 ₽',
+    'AUD': '澳元 A\$',
+    'CAD': '加元 C\$',
+    'HKD': '港币 HK\$',
+    'TWD': '新台币 NT\$',
+    'SGD': '新加坡元 S\$',
+  };
   
   // 图标选项
   final List<IconData> _iconOptions = [
@@ -82,6 +100,9 @@ class _EditSubscriptionDialogState extends State<EditSubscriptionDialog> {
     super.initState();
     _selectedSubscriptionType = widget.subscription.type;
     _selectedBillingCycle = widget.subscription.billingCycle;
+    
+    // 初始化货币选择
+    _selectedCurrency = widget.subscription.currency ?? 'CNY';
     
     // 解析图标
     if (widget.subscription.icon != null) {
@@ -367,7 +388,6 @@ class _EditSubscriptionDialogState extends State<EditSubscriptionDialog> {
                   decoration: const InputDecoration(
                     labelText: '价格',
                     hintText: '请输入价格',
-                    prefixText: '¥ ',
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.attach_money),
                   ),
@@ -377,6 +397,35 @@ class _EditSubscriptionDialogState extends State<EditSubscriptionDialog> {
                     }
                     if (double.tryParse(value) == null) {
                       return '请输入有效数字';
+                    }
+                    return null;
+                  },
+                ),
+                
+                const SizedBox(height: 16),
+                
+                // 货币选择
+                DropdownButtonFormField<String>(
+                  value: _selectedCurrency,
+                  decoration: const InputDecoration(
+                    labelText: '货币',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.currency_yen),
+                  ),
+                  items: _currencies.entries.map((entry) {
+                    return DropdownMenuItem<String>(
+                      value: entry.key,
+                      child: Text('${entry.value}'), // 显示货币全称和符号
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedCurrency = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return '请选择货币';
                     }
                     return null;
                   },
@@ -568,6 +617,7 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
   // 下拉选项值
   String? _selectedSubscriptionType;
   String? _selectedBillingCycle;
+  String? _selectedCurrency = 'CNY'; // 新增货币选择，默认为人民币
   IconData? _selectedIcon;
   
   // 自动续费开关值
@@ -588,6 +638,23 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
     '每年',
     '一次性'
   ];
+  
+  // 货币选项
+  final Map<String, String> _currencies = {
+    'CNY': '人民币 ¥',
+    'USD': '美元 \$',
+    'EUR': '欧元 €',
+    'GBP': '英镑 £',
+    'JPY': '日元 ¥',
+    'KRW': '韩元 ₩',
+    'INR': '印度卢比 ₹',
+    'RUB': '卢布 ₽',
+    'AUD': '澳元 A\$',
+    'CAD': '加元 C\$',
+    'HKD': '港币 HK\$',
+    'TWD': '新台币 NT\$',
+    'SGD': '新加坡元 S\$',
+  };
   
   // 图标选项
   final List<IconData> _iconOptions = [
@@ -850,7 +917,6 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
                   decoration: const InputDecoration(
                     labelText: '价格',
                     hintText: '请输入价格',
-                    prefixText: '¥ ',
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.attach_money),
                   ),
@@ -860,6 +926,35 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
                     }
                     if (double.tryParse(value) == null) {
                       return '请输入有效数字';
+                    }
+                    return null;
+                  },
+                ),
+                
+                const SizedBox(height: 16),
+                
+                // 货币选择
+                DropdownButtonFormField<String>(
+                  value: _selectedCurrency,
+                  decoration: const InputDecoration(
+                    labelText: '货币',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.currency_yen),
+                  ),
+                  items: _currencies.entries.map((entry) {
+                    return DropdownMenuItem<String>(
+                      value: entry.key,
+                      child: Text('${entry.value}'), // 显示货币全称和符号
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedCurrency = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return '请选择货币';
                     }
                     return null;
                   },
@@ -1002,6 +1097,7 @@ class _AddSubscriptionDialogState extends State<AddSubscriptionDialog> {
                 icon: _selectedIcon?.codePoint.toString(),
                 type: _selectedSubscriptionType!,
                 price: double.parse(_priceController.text),
+                currency: _selectedCurrency ?? 'CNY', // 添加货币信息
                 billingCycle: _selectedBillingCycle!,
                 nextPaymentDate: DateTime.parse(_nextPaymentDateController.text),
                 autoRenewal: _autoRenewal,
