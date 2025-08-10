@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import 'subscription.dart';
 import 'monthly_history.dart';
 
@@ -22,10 +24,77 @@ class SubscriptionProvider with ChangeNotifier {
   double get fontSize => _fontSize;
   Color? get themeColor => _themeColor;
 
+  // 初始化数据
+  Future<void> loadFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    
+    // 加载订阅数据
+    final subscriptionsString = prefs.getString('subscriptions');
+    if (subscriptionsString != null) {
+      final List<dynamic> subscriptionsJson = json.decode(subscriptionsString);
+      _subscriptions = subscriptionsJson
+          .map((json) => Subscription.fromMap(json))
+          .toList();
+    } else {
+      _subscriptions = [];
+    }
+    
+    // 加载月度历史数据
+    final monthlyHistoriesString = prefs.getString('monthlyHistories');
+    if (monthlyHistoriesString != null) {
+      final List<dynamic> monthlyHistoriesJson = json.decode(monthlyHistoriesString);
+      _monthlyHistories = monthlyHistoriesJson
+          .map((json) => MonthlyHistory.fromMap(json))
+          .toList();
+    } else {
+      _monthlyHistories = [];
+    }
+    
+    // 加载主题模式
+    final themeModeIndex = prefs.getInt('themeMode') ?? 0;
+    _themeMode = ThemeMode.values[themeModeIndex];
+    
+    // 加载字体大小
+    _fontSize = prefs.getDouble('fontSize') ?? 16.0;
+    
+    // 加载主题颜色
+    final themeColorValue = prefs.getInt('themeColor');
+    _themeColor = themeColorValue != null ? Color(themeColorValue) : null;
+    
+    notifyListeners();
+  }
+
+  // 保存数据到SharedPreferences
+  Future<void> _saveToPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    
+    // 保存订阅数据
+    final subscriptionsJson = _subscriptions.map((s) => s.toMap()).toList();
+    prefs.setString('subscriptions', json.encode(subscriptionsJson));
+    
+    // 保存月度历史数据
+    final monthlyHistoriesJson = _monthlyHistories.map((h) => h.toMap()).toList();
+    prefs.setString('monthlyHistories', json.encode(monthlyHistoriesJson));
+    
+    // 保存主题模式
+    prefs.setInt('themeMode', _themeMode.index);
+    
+    // 保存字体大小
+    prefs.setDouble('fontSize', _fontSize);
+    
+    // 保存主题颜色
+    if (_themeColor != null) {
+      prefs.setInt('themeColor', _themeColor!.value);
+    } else {
+      prefs.remove('themeColor');
+    }
+  }
+
   // 添加订阅
   void addSubscription(Subscription subscription) {
     _subscriptions.add(subscription);
     _updateCurrentMonthHistory();
+    _saveToPrefs(); // 保存数据
     notifyListeners();
   }
 
@@ -33,6 +102,7 @@ class SubscriptionProvider with ChangeNotifier {
   void removeSubscription(String id) {
     _subscriptions.removeWhere((subscription) => subscription.id == id);
     _updateCurrentMonthHistory();
+    _saveToPrefs(); // 保存数据
     notifyListeners();
   }
 
@@ -42,6 +112,7 @@ class SubscriptionProvider with ChangeNotifier {
     if (index != -1) {
       _subscriptions[index] = updatedSubscription;
       _updateCurrentMonthHistory();
+      _saveToPrefs(); // 保存数据
       notifyListeners();
     }
   }
@@ -159,18 +230,21 @@ class SubscriptionProvider with ChangeNotifier {
   // 更新主题模式
   void updateThemeMode(ThemeMode mode) {
     _themeMode = mode;
+    _saveToPrefs(); // 保存数据
     notifyListeners();
   }
   
   // 更新字体大小
   void updateFontSize(double size) {
     _fontSize = size;
+    _saveToPrefs(); // 保存数据
     notifyListeners();
   }
   
   // 更新主题颜色
   void updateThemeColor(Color? color) {
     _themeColor = color;
+    _saveToPrefs(); // 保存数据
     notifyListeners();
   }
 }

@@ -38,6 +38,7 @@ dependencies:
   dynamic_color: ^1.6.8
   uuid: ^4.2.1
   pie_chart: ^5.1.0
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:
