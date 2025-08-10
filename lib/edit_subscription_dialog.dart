@@ -55,19 +55,19 @@ class _EditSubscriptionDialogState extends State<EditSubscriptionDialog> {
   
   // 货币选项
   final Map<String, String> _currencies = {
-    'CNY': '人民币 ¥',
-    'USD': '美元 \$',
-    'EUR': '欧元 €',
-    'GBP': '英镑 £',
-    'JPY': '日元 ¥',
-    'KRW': '韩元 ₩',
-    'INR': '印度卢比 ₹',
-    'RUB': '卢布 ₽',
-    'AUD': '澳元 A\$',
-    'CAD': '加元 C\$',
-    'HKD': '港币 HK\$',
-    'TWD': '新台币 NT\$',
-    'SGD': '新加坡元 S\$',
+    'CNY': '人民币 (CN¥)',
+    'USD': '美元 (US\$)',
+    'EUR': '欧元 (€)',
+    'GBP': '英镑 (£)',
+    'JPY': '日元 (JP¥)',
+    'KRW': '韩元 (₩)',
+    'INR': '印度卢比 (₹)',
+    'RUB': '卢布 (₽)',
+    'AUD': '澳元 (A\$)',
+    'CAD': '加元 (C\$)',
+    'HKD': '港币 (HK\$)',
+    'TWD': '新台币 (NT\$)',
+    'SGD': '新加坡元 (S\$)',
   };
 
   @override

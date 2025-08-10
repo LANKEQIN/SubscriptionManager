@@ -112,13 +112,59 @@ class Subscription {
     
     final symbol = currencySymbols[currency] ?? currency;
     
+    // 添加国家/地区代码以区分货币
+    String formattedSymbol = symbol;
+    switch (currency) {
+      case 'CNY':
+        formattedSymbol = 'CN¥';
+        break;
+      case 'USD':
+        formattedSymbol = 'US\$';
+        break;
+      case 'EUR':
+        formattedSymbol = '€';
+        break;
+      case 'GBP':
+        formattedSymbol = '£';
+        break;
+      case 'JPY':
+        formattedSymbol = 'JP¥';
+        break;
+      case 'KRW':
+        formattedSymbol = '₩';
+        break;
+      case 'INR':
+        formattedSymbol = '₹';
+        break;
+      case 'RUB':
+        formattedSymbol = '₽';
+        break;
+      case 'AUD':
+        formattedSymbol = 'A\$';
+        break;
+      case 'CAD':
+        formattedSymbol = 'C\$';
+        break;
+      case 'HKD':
+        formattedSymbol = 'HK\$';
+        break;
+      case 'TWD':
+        formattedSymbol = 'NT\$';
+        break;
+      case 'SGD':
+        formattedSymbol = 'S\$';
+        break;
+      default:
+        formattedSymbol = symbol;
+    }
+    
     switch (billingCycle) {
       case '每月':
-        return '$symbol${price.toStringAsFixed(2)}/月';
+        return '$formattedSymbol${price.toStringAsFixed(2)}/月';
       case '每年':
-        return '$symbol${price.toStringAsFixed(2)}/年';
+        return '$formattedSymbol${price.toStringAsFixed(2)}/年';
       default:
-        return '$symbol${price.toStringAsFixed(2)}';
+        return '$formattedSymbol${price.toStringAsFixed(2)}';
     }
   }
 
