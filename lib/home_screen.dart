@@ -17,8 +17,14 @@ class HomeScreen extends StatelessWidget {
           actions: [
             // 提醒铃铛图标
             IconButton(
-              icon: const Icon(Icons.notifications),
-              onPressed: null,
+              icon: const Icon(Icons.notifications_outlined),
+              onPressed: () {
+                // 跳转到提醒页面
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('跳转到提醒页面')),
+                );
+                // 在实际应用中，这里应该导航到提醒页面
+              },
             ),
             // 用户头像
             const Padding(
@@ -27,7 +33,7 @@ class HomeScreen extends StatelessWidget {
                 radius: 16,
                 backgroundColor: Colors.grey,
                 child: Icon(
-                  Icons.person,
+                  Icons.person_outline,
                   size: 18,
                 ),
               ),
@@ -57,15 +63,7 @@ class HomeScreen extends StatelessWidget {
                     builder: (context, subscriptionProvider, child) {
                       final subscriptions = subscriptionProvider.subscriptions;
                       return subscriptions.isEmpty
-                          ? const Center(
-                              child: Text(
-                                '暂无订阅，请添加',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            )
+                          ? _buildEmptyState()
                           : ListView.builder(
                               itemCount: subscriptions.length,
                               itemBuilder: (context, index) {
@@ -85,12 +83,44 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.subscriptions_outlined,
+            size: 64,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            '暂无订阅',
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            '点击下方按钮添加您的第一个订阅',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildStatisticsCard(BuildContext context) {
     return Card(
-      elevation: 4,
+      elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
+      color: Theme.of(context).colorScheme.primaryContainer,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Consumer<SubscriptionProvider>(
@@ -122,7 +152,7 @@ class HomeScreen extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -200,6 +230,14 @@ class SubscriptionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: Theme.of(context).dividerColor.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Row(
@@ -209,13 +247,18 @@ class SubscriptionCard extends StatelessWidget {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: Colors.deepPurple[100],
-                borderRadius: BorderRadius.circular(8),
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                Icons.subscriptions,
-                color: Colors.deepPurple,
-              ),
+              child: subscription.icon != null
+                  ? Icon(
+                      IconData(int.parse(subscription.icon!), fontFamily: 'MaterialIcons'),
+                      color: Theme.of(context).colorScheme.primary,
+                    )
+                  : Icon(
+                      Icons.subscriptions_outlined,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
             ),
             const SizedBox(width: 16),
             // 中间信息
@@ -229,6 +272,8 @@ class SubscriptionCard extends StatelessWidget {
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -265,10 +310,18 @@ class SubscriptionCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${subscription.nextPaymentDate.year}/${subscription.nextPaymentDate.month.toString().padLeft(2, '0')}/${subscription.nextPaymentDate.day.toString().padLeft(2, '0')}',
+                  '${subscription.nextPaymentDate.month}月${subscription.nextPaymentDate.day}日',
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${subscription.nextPaymentDate.year}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[500],
                   ),
                 ),
               ],

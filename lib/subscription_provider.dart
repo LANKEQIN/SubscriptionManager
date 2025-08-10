@@ -1,13 +1,26 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'subscription.dart';
 import 'monthly_history.dart';
 
 class SubscriptionProvider with ChangeNotifier {
   List<Subscription> _subscriptions = [];
   List<MonthlyHistory> _monthlyHistories = [];
+  
+  // 主题模式，默认跟随系统
+  ThemeMode _themeMode = ThemeMode.system;
+  
+  // 字体大小，默认16
+  double _fontSize = 16.0;
+  
+  // 主题颜色，默认为null表示使用系统动态颜色或默认蓝色
+  Color? _themeColor;
 
   List<Subscription> get subscriptions => _subscriptions;
   List<MonthlyHistory> get monthlyHistories => _monthlyHistories;
+  ThemeMode get themeMode => _themeMode;
+  double get fontSize => _fontSize;
+  Color? get themeColor => _themeColor;
 
   // 添加订阅
   void addSubscription(Subscription subscription) {
@@ -121,7 +134,7 @@ class SubscriptionProvider with ChangeNotifier {
       return _monthlyHistories.firstWhere(
         (history) => history.year == previousYear && history.month == previousMonth
       );
-    } catch (e) {
+    } on StateError {
       return null;
     }
   }
@@ -141,5 +154,23 @@ class SubscriptionProvider with ChangeNotifier {
     }
     
     return ((currentCost - previousCost) / previousCost) * 100;
+  }
+  
+  // 更新主题模式
+  void updateThemeMode(ThemeMode mode) {
+    _themeMode = mode;
+    notifyListeners();
+  }
+  
+  // 更新字体大小
+  void updateFontSize(double size) {
+    _fontSize = size;
+    notifyListeners();
+  }
+  
+  // 更新主题颜色
+  void updateThemeColor(Color? color) {
+    _themeColor = color;
+    notifyListeners();
   }
 }

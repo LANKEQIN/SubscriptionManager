@@ -24,11 +24,20 @@ class AddButton extends StatelessWidget {
       child: Container(
         width: 56.0,
         height: 56.0,
-        decoration: const BoxDecoration(
+        margin: const EdgeInsets.only(bottom: 8.0), // 添加底部边距使按钮更居中
+        decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: Colors.deepPurple,
+          color: Theme.of(context).colorScheme.primary,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 1,
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
-        child: const Icon(
+        child: Icon(
           Icons.add,
           color: Colors.white,
           size: 36.0,
