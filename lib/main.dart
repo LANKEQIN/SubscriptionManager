@@ -114,7 +114,7 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       body: _pages[_currentIndex],
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
+        selectedIndex: _currentIndex > 1 ? _currentIndex + 1 : _currentIndex,
         onDestinationSelected: (index) {
           if (index == 2) {
             showDialog(
@@ -130,7 +130,8 @@ class _MainScreenState extends State<MainScreen> {
             );
           } else {
             setState(() {
-              _currentIndex = index;
+              // 调整索引以匹配页面列表
+              _currentIndex = index > 2 ? index - 1 : index;
             });
           }
         },
