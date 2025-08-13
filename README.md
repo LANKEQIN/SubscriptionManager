@@ -111,7 +111,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 | 主页 | 统计数据 | 通知 | 添加订阅 |
 |------|----------|------|----------|
-| ![主页](screenshots/home.png) | ![统计数据](screenshots/stats.png) | ![通知](screenshots/notifications.png) | ![添加订阅](screenshots/add.png) |
+| ![主页](screenshots/home.jpg) | ![统计数据](screenshots/stats.jpg) | ![通知](screenshots/notifications.jpg) | ![添加订阅](screenshots/add.jpg) |
 
 ### 技术栈
 
