@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'dart:async';
 import 'subscription.dart';
 import 'monthly_history.dart';
 
@@ -20,6 +21,9 @@ class SubscriptionProvider with ChangeNotifier {
   
   // 提醒查看状态，默认为false（未查看）
   bool _hasUnreadNotifications = false;
+
+  // 用于防抖的定时器
+  Timer? _saveTimer;
 
   List<Subscription> get subscriptions => _subscriptions;
   List<MonthlyHistory> get monthlyHistories => _monthlyHistories;
@@ -68,30 +72,36 @@ class SubscriptionProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // 保存数据到SharedPreferences
-  Future<void> _saveToPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
+  // 保存数据到SharedPreferences - 添加防抖机制
+  Future<void> _saveToPrefs([Duration delay = const Duration(milliseconds: 500)]) async {
+    // 取消之前的定时器
+    _saveTimer?.cancel();
     
-    // 保存订阅数据
-    final subscriptionsJson = _subscriptions.map((s) => s.toMap()).toList();
-    prefs.setString('subscriptions', json.encode(subscriptionsJson));
-    
-    // 保存月度历史数据
-    final monthlyHistoriesJson = _monthlyHistories.map((h) => h.toMap()).toList();
-    prefs.setString('monthlyHistories', json.encode(monthlyHistoriesJson));
-    
-    // 保存主题模式
-    prefs.setInt('themeMode', _themeMode.index);
-    
-    // 保存字体大小
-    prefs.setDouble('fontSize', _fontSize);
-    
-    // 保存主题颜色
-    if (_themeColor != null) {
-      prefs.setInt('themeColor', _themeColor!.value);
-    } else {
-      prefs.remove('themeColor');
-    }
+    // 创建新的定时器
+    _saveTimer = Timer(delay, () async {
+      final prefs = await SharedPreferences.getInstance();
+      
+      // 保存订阅数据
+      final subscriptionsJson = _subscriptions.map((s) => s.toMap()).toList();
+      prefs.setString('subscriptions', json.encode(subscriptionsJson));
+      
+      // 保存月度历史数据
+      final monthlyHistoriesJson = _monthlyHistories.map((h) => h.toMap()).toList();
+      prefs.setString('monthlyHistories', json.encode(monthlyHistoriesJson));
+      
+      // 保存主题模式
+      prefs.setInt('themeMode', _themeMode.index);
+      
+      // 保存字体大小
+      prefs.setDouble('fontSize', _fontSize);
+      
+      // 保存主题颜色
+      if (_themeColor != null) {
+        prefs.setInt('themeColor', _themeColor!.value);
+      } else {
+        prefs.remove('themeColor');
+      }
+    });
   }
 
   // 添加订阅
@@ -281,6 +291,13 @@ class SubscriptionProvider with ChangeNotifier {
       _hasUnreadNotifications = true;
       notifyListeners();
     }
+  }
+
+  // 释放资源
+  @override
+  void dispose() {
+    _saveTimer?.cancel();
+    super.dispose();
   }
 
 }
