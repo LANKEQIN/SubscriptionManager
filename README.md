@@ -1,6 +1,10 @@
 # Subscription Manager 订阅管理器
 
-[English Version](#english) | [中文版本](#中文)
+Please select your preferred language:
+请选择您的语言：
+
+- [English Version](README_en.md)
+- [中文版本](README_zh.md)
 
 <span id="english"></span>
 ## English
@@ -22,7 +26,7 @@ Subscription Manager is a cross-platform mobile application built with Flutter t
 
 | Home Screen | Statistics | Notifications | Add Subscription |
 |-------------|------------|---------------|------------------|
-| ![Home Screen](screenshots/home.png) | ![Statistics](screenshots/stats.png) | ![Notifications](screenshots/notifications.png) | ![Add Subscription](screenshots/add.png) |
+| ![Home Screen](screenshots/home.jpg) | ![Statistics](screenshots/stats.jpg) | ![Notifications](screenshots/notifications.jpg) | ![Add Subscription](screenshots/add.jpg) |
 
 ### Tech Stack
 
@@ -85,10 +89,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-### License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ---
 
 <span id="中文"></span>
@@ -111,7 +111,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 | 主页 | 统计数据 | 通知 | 添加订阅 |
 |------|----------|------|----------|
-| ![主页](screenshots/home.png) | ![统计数据](screenshots/stats.png) | ![通知](screenshots/notifications.png) | ![添加订阅](screenshots/add.png) |
+| ![主页](screenshots/home.jpg) | ![统计数据](screenshots/stats.jpg) | ![通知](screenshots/notifications.jpg) | ![添加订阅](screenshots/add.jpg) |
 
 ### 技术栈
 
@@ -174,6 +174,4 @@ lib/
 4. 推送到分支 (`git push origin feature/AmazingFeature`)
 5. 打开 Pull Request
 
-### 许可证
 
-该项目采用MIT许可证 - 详情请见[LICENSE](LICENSE)文件。
