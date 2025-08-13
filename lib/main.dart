@@ -120,26 +120,11 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       body: _pages[_currentIndex],
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex > 1 ? _currentIndex + 1 : _currentIndex,
+        selectedIndex: _currentIndex,
         onDestinationSelected: (index) {
-          if (index == 2) {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AddSubscriptionDialog(
-                  onSubscriptionAdded: (subscription) {
-                    Provider.of<SubscriptionProvider>(context, listen: false)
-                        .addSubscription(subscription);
-                  },
-                );
-              },
-            );
-          } else {
-            setState(() {
-              // 调整索引以匹配页面列表
-              _currentIndex = index > 2 ? index - 1 : index;
-            });
-          }
+          setState(() {
+            _currentIndex = index;
+          });
         },
         destinations: const [
           NavigationDestination(
@@ -151,11 +136,6 @@ class _MainScreenState extends State<MainScreen> {
             icon: Icon(Icons.bar_chart_outlined),
             selectedIcon: Icon(Icons.bar_chart),
             label: '统计',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.add_circle_outline),
-            selectedIcon: Icon(Icons.add_circle),
-            label: '添加',
           ),
           NavigationDestination(
             icon: Icon(Icons.notifications_outlined),
