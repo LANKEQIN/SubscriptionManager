@@ -22,7 +22,7 @@ Subscription Manager is a cross-platform mobile application built with Flutter t
 
 | Home Screen | Statistics | Notifications | Add Subscription |
 |-------------|------------|---------------|------------------|
-| ![Home Screen](screenshots/home.png) | ![Statistics](screenshots/stats.png) | ![Notifications](screenshots/notifications.png) | ![Add Subscription](screenshots/add.png) |
+| ![Home Screen](screenshots/home.jpg) | ![Statistics](screenshots/stats.jpg) | ![Notifications](screenshots/notifications.jpg) | ![Add Subscription](screenshots/add.jpg) |
 
 ### Tech Stack
 
