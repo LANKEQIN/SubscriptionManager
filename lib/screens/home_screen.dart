@@ -31,7 +31,7 @@ class HomeScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // 统计信息卡片
-                    const StatisticsCard(),
+                    const HomeStatisticsCard(),
                     
                     // 间隔
                     const SizedBox(height: 16),
@@ -49,7 +49,9 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     
                     // 订阅项目列表
-                    const SubscriptionList(),
+                    const Expanded(
+                      child: SubscriptionList(),
+                    ),
                   ],
                 ),
               ),
@@ -57,18 +59,8 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
         
-        // 右下角添加按钮
-        Positioned(
-          right: 16,
-          bottom: 16,
-          child: AddButton(
-            onSubscriptionAdded: (subscription) {
-              // 当添加新订阅时，通过Provider更新订阅列表
-              Provider.of<SubscriptionProvider>(context, listen: false)
-                  .addSubscription(subscription);
-            },
-          ),
-        ),
+        // 添加订阅按钮（浮动在右下角）
+        const AddButton(),
       ],
     );
   }

@@ -2,14 +2,38 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/subscription_provider.dart';
 
-class StatisticsCard extends StatefulWidget {
-  const StatisticsCard({super.key});
+class StatisticsCard extends StatelessWidget {
+  final Widget child;
+
+  const StatisticsCard({
+    super.key,
+    required this.child,
+  });
 
   @override
-  State<StatisticsCard> createState() => _StatisticsCardState();
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      color: Theme.of(context).colorScheme.primaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: child,
+      ),
+    );
+  }
 }
 
-class _StatisticsCardState extends State<StatisticsCard> {
+class HomeStatisticsCard extends StatefulWidget {
+  const HomeStatisticsCard({super.key});
+
+  @override
+  State<HomeStatisticsCard> createState() => _HomeStatisticsCardState();
+}
+
+class _HomeStatisticsCardState extends State<HomeStatisticsCard> {
   bool _isLoading = true;
 
   @override

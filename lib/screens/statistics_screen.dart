@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/subscription_provider.dart';
-import 'package:pie_chart/pie_chart.dart';
+import '../widgets/statistics_card.dart';
+import '../utils/currency_constants.dart';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
@@ -11,201 +12,233 @@ class StatisticsScreen extends StatefulWidget {
 }
 
 class _StatisticsScreenState extends State<StatisticsScreen> {
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    // 模拟加载延迟
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    });
-  }
+  // 货币选项
+  static final Map<String, String> _currencies = {
+    'CNY': '人民币 (CN¥)',
+    'USD': '美元 (US\$)',
+    'EUR': '欧元 (€)',
+    'GBP': '英镑 (£)',
+    'JPY': '日元 (JP¥)',
+    'KRW': '韩元 (₩)',
+    'INR': '印度卢比 (₹)',
+    'RUB': '卢布 (₽)',
+    'AUD': '澳元 (A\$)',
+    'CAD': '加元 (C\$)',
+    'HKD': '港币 (HK\$)',
+    'TWD': '新台币 (NT\$)',
+    'SGD': '新加坡元 (S\$)',
+  };
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('统计'),
-        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.swap_horiz),
+            onPressed: () => _showCurrencySelector(context),
+          ),
+        ],
       ),
-      body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : Consumer<SubscriptionProvider>(
-              builder: (context, provider, child) {
-                // 按类型分组统计
-                final typeStats = <String, double>{};
-                final typeCounts = <String, int>{};
-                
-                for (var subscription in provider.subscriptions) {
-                  if (typeStats.containsKey(subscription.type)) {
-                    typeStats[subscription.type] = 
-                        typeStats[subscription.type]! + subscription.price;
-                    typeCounts[subscription.type] = typeCounts[subscription.type]! + 1;
-                  } else {
-                    typeStats[subscription.type] = subscription.price;
-                    typeCounts[subscription.type] = 1;
-                  }
-                }
-                
-                // 准备饼图数据
-                final dataMap = <String, double>{};
-                typeStats.forEach((key, value) {
-                  dataMap[key] = value;
-                });
-                
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    bool isSmallScreen = constraints.maxWidth < 400;
-                    double chartSize = isSmallScreen 
-                        ? constraints.maxWidth * 0.7 
-                        : constraints.maxWidth / 2.7;
-                    
-                    return Padding(
-                      padding: EdgeInsets.all(isSmallScreen ? 12.0 : 16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '订阅类型分布',
-                            style: TextStyle(
-                              fontSize: isSmallScreen ? 20 : 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          if (dataMap.isNotEmpty)
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: PieChart(
-                                      dataMap: dataMap,
-                                      animationDuration: const Duration(milliseconds: 800),
-                                      chartLegendSpacing: isSmallScreen ? 20 : 32,
-                                      chartRadius: chartSize,
-                                      colorList: [
-                                        Colors.blue,
-                                        Colors.red,
-                                        Colors.green,
-                                        Colors.orange,
-                                        Colors.purple,
-                                        Colors.teal,
-                                        Colors.pink,
-                                      ],
-                                      initialAngleInDegree: 0,
-                                      chartType: ChartType.disc,
-                                      legendOptions: LegendOptions(
-                                        showLegendsInRow: false,
-                                        legendPosition: LegendPosition.right,
-                                        showLegends: true,
-                                        legendShape: BoxShape.circle,
-                                        legendTextStyle: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: isSmallScreen ? 12 : 14,
-                                        ),
-                                      ),
-                                      chartValuesOptions: const ChartValuesOptions(
-                                        showChartValueBackground: true,
-                                        showChartValues: true,
-                                        showChartValuesInPercentage: false,
-                                        showChartValuesOutside: false,
-                                        decimalPlaces: 2,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          else
-                            Expanded(
-                              child: Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.insert_chart_outlined,
-                                      size: isSmallScreen ? 48 : 64,
-                                      color: Colors.grey[400],
-                                    ),
-                                    const SizedBox(height: 16),
-                                    Text(
-                                      '暂无数据',
-                                      style: TextStyle(
-                                        fontSize: isSmallScreen ? 16 : 18,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      '添加订阅后将在此显示统计信息',
-                                      style: TextStyle(
-                                        fontSize: isSmallScreen ? 12 : 14,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          const SizedBox(height: 16),
-                          Card(
-                            child: Padding(
-                              padding: EdgeInsets.all(isSmallScreen ? 12.0 : 16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '统计概览',
-                                    style: TextStyle(
-                                      fontSize: isSmallScreen ? 16 : 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  _buildStatItem('订阅总数', '${provider.subscriptionCount}个', isSmallScreen),
-                                  const SizedBox(height: 8),
-                                  _buildStatItem('月度支出', '¥${provider.monthlyCost.toStringAsFixed(2)}', isSmallScreen),
-                                  const SizedBox(height: 8),
-                                  _buildStatItem('年度支出', '¥${provider.yearlyCost.toStringAsFixed(2)}', isSmallScreen),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
+      body: Consumer<SubscriptionProvider>(
+        builder: (context, provider, child) {
+          return ListView(
+            padding: const EdgeInsets.all(16.0),
+            children: [
+              // 统计概览卡片
+              StatisticsCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      '统计概览',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
-                    );
-                  },
-                );
-              },
-            ),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildStatItem('订阅总数', '${provider.subscriptionCount}个'),
+                    const SizedBox(height: 8),
+                    _buildStatItem(
+                      '月度支出', 
+                      '${_getCurrencySymbol(provider.baseCurrency)}${provider.monthlyCost.toStringAsFixed(2)}'
+                    ),
+                    const SizedBox(height: 8),
+                    _buildStatItem(
+                      '年度支出', 
+                      '${_getCurrencySymbol(provider.baseCurrency)}${provider.yearlyCost.toStringAsFixed(2)}'
+                    ),
+                  ],
+                ),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // 类型分布卡片
+              StatisticsCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      '类型分布',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildTypeDistribution(provider),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
   
-  Widget _buildStatItem(String label, String value, bool isSmallScreen) {
+  Widget _buildStatItem(String label, String value) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
-          style: TextStyle(
-            fontSize: isSmallScreen ? 14 : 16,
+          style: const TextStyle(
+            fontSize: 16,
           ),
         ),
         Text(
           value,
-          style: TextStyle(
-            fontSize: isSmallScreen ? 14 : 16,
+          style: const TextStyle(
+            fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
         ),
       ],
+    );
+  }
+  
+  // 构建类型分布图表
+  Widget _buildTypeDistribution(SubscriptionProvider provider) {
+    final typeStats = provider.getTypeStats();
+    if (typeStats.isEmpty) {
+      return const Center(
+        child: Text('暂无数据'),
+      );
+    }
+    
+    final total = typeStats.values.fold(0.0, (sum, item) => sum + item);
+    if (total == 0) {
+      return const Center(
+        child: Text('暂无数据'),
+      );
+    }
+    
+    // 按值排序，从大到小
+    final sortedEntries = typeStats.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    
+    return Column(
+      children: sortedEntries.map((entry) {
+        final percentage = (entry.value / total) * 100;
+        return _buildTypeItem(entry.key, entry.value, percentage, provider.baseCurrency);
+      }).toList(),
+    );
+  }
+  
+  // 构建单个类型项
+  Widget _buildTypeItem(String type, double value, double percentage, String currency) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                type,
+                style: const TextStyle(
+                  fontSize: 16,
+                ),
+              ),
+              Text(
+                '${_getCurrencySymbol(currency)}${value.toStringAsFixed(2)} (${percentage.toStringAsFixed(1)}%)',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: percentage / 100,
+              minHeight: 8,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  // 获取货币符号
+  String _getCurrencySymbol(String currencyCode) {
+    return currencySymbols[currencyCode] ?? currencyCode;
+  }
+  
+  // 显示货币选择对话框
+  void _showCurrencySelector(BuildContext context) {
+    final provider = Provider.of<SubscriptionProvider>(context, listen: false);
+    
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                '选择基准货币',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 300,
+                child: ListView.builder(
+                  itemCount: _currencies.length,
+                  itemBuilder: (context, index) {
+                    final currencyCode = _currencies.keys.elementAt(index);
+                    final currencyName = _currencies.values.elementAt(index);
+                    
+                    return RadioListTile<String>(
+                      title: Text(currencyName),
+                      value: currencyCode,
+                      groupValue: provider.baseCurrency,
+                      onChanged: (value) {
+                        if (value != null) {
+                          provider.setBaseCurrency(value);
+                          Navigator.of(context).pop();
+                        }
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
