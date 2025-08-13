@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'subscription.dart';
-import 'subscription_provider.dart';
-import 'edit_subscription_dialog.dart';
+import '../models/subscription.dart';
+import '../providers/subscription_provider.dart';
+import '../dialogs/edit_subscription_dialog.dart';
 import 'home_app_bar.dart';
-import 'statistics_card.dart';
-import 'subscription_list.dart';
-import 'add_button.dart';
+import '../widgets/statistics_card.dart';
+import '../widgets/subscription_list.dart';
+import '../widgets/add_button.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

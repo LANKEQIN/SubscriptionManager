@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'subscription_provider.dart';
+import '../providers/subscription_provider.dart';
 import 'package:pie_chart/pie_chart.dart';
 
 class StatisticsScreen extends StatelessWidget {

@@ -1,7 +1,7 @@
 import 'package:uuid/uuid.dart';
-import 'currency_constants.dart';
+import '../utils/currency_constants.dart';
 import 'package:flutter/material.dart';
-import 'icon_utils.dart';
+import '../utils/icon_utils.dart';
 
 class Subscription {
   final String id;

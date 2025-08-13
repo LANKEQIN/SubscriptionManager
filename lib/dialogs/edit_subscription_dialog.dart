@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'subscription.dart';
+import '../models/subscription.dart';
 import 'subscription_form.dart';
 
 class EditSubscriptionDialog extends StatefulWidget {

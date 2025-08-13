@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'add_subscription_dialog.dart';
-import 'subscription.dart';
+import '../dialogs/add_subscription_dialog.dart';
+import '../models/subscription.dart';
 
 class AddButton extends StatelessWidget {
   final Function(Subscription)? onSubscriptionAdded;

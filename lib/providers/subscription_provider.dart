@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:async';
-import 'subscription.dart';
-import 'monthly_history.dart';
+import '../models/subscription.dart';
+import '../screens/monthly_history.dart';
 
 class SubscriptionProvider with ChangeNotifier {
   List<Subscription> _subscriptions = [];

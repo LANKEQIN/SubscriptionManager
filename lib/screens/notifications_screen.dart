@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'subscription_provider.dart';
-import 'subscription.dart';
-import 'icon_utils.dart';
+import '../providers/subscription_provider.dart';
+import '../models/subscription.dart';
+import '../utils/icon_utils.dart';
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});

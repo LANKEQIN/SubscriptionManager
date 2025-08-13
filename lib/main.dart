@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dynamic_color/dynamic_color.dart';
-import 'home_screen.dart';
-import 'statistics_screen.dart';
-import 'notifications_screen.dart';
-import 'profile_screen.dart';
-import 'add_button.dart';
-import 'add_subscription_dialog.dart';
-import 'subscription_provider.dart';
+import 'screens/home_screen.dart';
+import 'screens/statistics_screen.dart';
+import 'screens/notifications_screen.dart';
+import 'screens/profile_screen.dart';
+import 'widgets/add_button.dart';
+import 'dialogs/add_subscription_dialog.dart';
+import 'providers/subscription_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

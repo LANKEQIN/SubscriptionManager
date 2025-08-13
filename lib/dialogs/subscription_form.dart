@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'icon_picker.dart';
+import '../utils/icon_picker.dart';
 
 class SubscriptionForm extends StatefulWidget {
   final SubscriptionFormData? initialData;
