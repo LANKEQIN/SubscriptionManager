@@ -93,13 +93,13 @@ class Subscription {
 
   /// 格式化价格显示
   String get formattedPrice {
-    // 根据货币代码获取货币符号
-    final currencySymbols = {
-      'CNY': '¥',
-      'USD': '\$',
+    // 根据货币代码获取货币符号和标识
+    final currencyMap = {
+      'CNY': 'CN¥',
+      'USD': 'US\$',
       'EUR': '€',
       'GBP': '£',
-      'JPY': '¥',
+      'JPY': 'JP¥',
       'KRW': '₩',
       'INR': '₹',
       'RUB': '₽',
@@ -110,61 +110,15 @@ class Subscription {
       'SGD': 'S\$',
     };
     
-    final symbol = currencySymbols[currency] ?? currency;
-    
-    // 添加国家/地区代码以区分货币
-    String formattedSymbol = symbol;
-    switch (currency) {
-      case 'CNY':
-        formattedSymbol = 'CN¥';
-        break;
-      case 'USD':
-        formattedSymbol = 'US\$';
-        break;
-      case 'EUR':
-        formattedSymbol = '€';
-        break;
-      case 'GBP':
-        formattedSymbol = '£';
-        break;
-      case 'JPY':
-        formattedSymbol = 'JP¥';
-        break;
-      case 'KRW':
-        formattedSymbol = '₩';
-        break;
-      case 'INR':
-        formattedSymbol = '₹';
-        break;
-      case 'RUB':
-        formattedSymbol = '₽';
-        break;
-      case 'AUD':
-        formattedSymbol = 'A\$';
-        break;
-      case 'CAD':
-        formattedSymbol = 'C\$';
-        break;
-      case 'HKD':
-        formattedSymbol = 'HK\$';
-        break;
-      case 'TWD':
-        formattedSymbol = 'NT\$';
-        break;
-      case 'SGD':
-        formattedSymbol = 'S\$';
-        break;
-      default:
-        formattedSymbol = symbol;
-    }
+    final symbol = currencyMap[currency] ?? currency;
     
     switch (billingCycle) {
       case '每月':
-        return '$formattedSymbol${price.toStringAsFixed(2)}/月';
+        return '$symbol${price.toStringAsFixed(2)}/月';
       case '每年':
-        return '$formattedSymbol${price.toStringAsFixed(2)}/年';
+        return '$symbol${price.toStringAsFixed(2)}/年';
       default:
-        return '$formattedSymbol${price.toStringAsFixed(2)}';
+        return '$symbol${price.toStringAsFixed(2)}';
     }
   }
 

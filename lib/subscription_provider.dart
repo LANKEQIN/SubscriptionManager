@@ -133,7 +133,7 @@ class SubscriptionProvider with ChangeNotifier {
   Subscription? getSubscriptionById(String id) {
     try {
       return _subscriptions.firstWhere((subscription) => subscription.id == id);
-    } catch (e) {
+    } on StateError {
       return null;
     }
   }
@@ -141,32 +141,35 @@ class SubscriptionProvider with ChangeNotifier {
   // 获取订阅总数
   int get subscriptionCount => _subscriptions.length;
 
-  // 获取月度总费用
-  double get monthlyCost {
+  // 计算指定计费周期的订阅总费用
+  double _calculateCostByBillingCycle(String billingCycle, {bool monthlyRate = false}) {
     double total = 0;
-    for (var subscription in _subscriptions) {
-      if (subscription.billingCycle == '每月') {
-        total += subscription.price;
-      } else if (subscription.billingCycle == '每年') {
+    final subscriptions = _subscriptions.where((s) => s.billingCycle == billingCycle);
+    
+    for (var subscription in subscriptions) {
+      if (monthlyRate && billingCycle == '每年') {
         total += subscription.price / 12;
+      } else if (!monthlyRate && billingCycle == '每月') {
+        total += subscription.price * 12;
+      } else {
+        total += subscription.price;
       }
     }
+    
     return total;
+  }
+
+  // 获取月度总费用
+  double get monthlyCost {
+    return _calculateCostByBillingCycle('每月') + 
+           _calculateCostByBillingCycle('每年', monthlyRate: true);
   }
 
   // 获取年度总费用
   double get yearlyCost {
-    double total = 0;
-    for (var subscription in _subscriptions) {
-      if (subscription.billingCycle == '每月') {
-        total += subscription.price * 12;
-      } else if (subscription.billingCycle == '每年') {
-        total += subscription.price;
-      } else if (subscription.billingCycle == '一次性') {
-        total += subscription.price;
-      }
-    }
-    return total;
+    return _calculateCostByBillingCycle('每月', monthlyRate: false) + 
+           _calculateCostByBillingCycle('每年') + 
+           _calculateCostByBillingCycle('一次性');
   }
 
   // 获取即将到期的订阅（7天内）

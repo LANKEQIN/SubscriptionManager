@@ -124,10 +124,19 @@ class NotificationsScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: subscription.icon != null
-                  ? Icon(
-                      IconData(int.parse(subscription.icon!), fontFamily: 'MaterialIcons'),
-                      color: Theme.of(context).colorScheme.primary,
-                    )
+                  ? (() {
+                      try {
+                        return Icon(
+                          IconData(int.parse(subscription.icon!), fontFamily: 'MaterialIcons'),
+                          color: Theme.of(context).colorScheme.primary,
+                        );
+                      } catch (e) {
+                        return Icon(
+                          Icons.subscriptions_outlined,
+                          color: Theme.of(context).colorScheme.primary,
+                        );
+                      }
+                    }())
                   : Icon(
                       Icons.subscriptions_outlined,
                       color: Theme.of(context).colorScheme.primary,
