@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'subscription_provider.dart';
+import '../providers/subscription_provider.dart';
 import 'subscription_card.dart';
-import 'edit_subscription_dialog.dart';
-import 'subscription.dart';
+import '../dialogs/edit_subscription_dialog.dart';
+import '../models/subscription.dart';
 
 class SubscriptionList extends StatelessWidget {
   const SubscriptionList({super.key});
@@ -84,6 +84,8 @@ class SubscriptionList extends StatelessWidget {
     );
   }
 }
+
+
 
 
 

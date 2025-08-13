@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'icon_picker.dart';
+import '../utils/icon_picker.dart';
+import '../utils/subscription_constants.dart';
 
 class SubscriptionForm extends StatefulWidget {
   final SubscriptionFormData? initialData;
@@ -37,20 +38,56 @@ class SubscriptionFormState extends State<SubscriptionForm> {
   late bool _autoRenewal;
 
   // 订阅类型选项
-  static final List<String> _subscriptionTypes = [
-    '娱乐',
-    '工作',
-    '生活',
-    '学习',
-    '其他'
-  ];
+  static final List<String> _subscriptionTypes = SubscriptionConstants.SUBSCRIPTION_TYPES;
 
   // 计费周期选项
-  static final List<String> _billingCycles = [
-    '每月',
-    '每年',
-    '一次性'
-  ];
+  static final List<String> _billingCycles = SubscriptionConstants.BILLING_CYCLES;
+
+  // 表单校验工具方法
+  String? _validateServiceName(String? value) {
+    if (value == null || value.isEmpty) {
+      return '请输入服务名称';
+    }
+    return null;
+  }
+
+  String? _validatePrice(String? value) {
+    if (value == null || value.isEmpty) {
+      return '请输入价格';
+    }
+    if (double.tryParse(value) == null) {
+      return '请输入有效数字';
+    }
+    return null;
+  }
+
+  String? _validateSubscriptionType(String? value) {
+    if (value == null || value.isEmpty) {
+      return '请选择订阅类型';
+    }
+    return null;
+  }
+
+  String? _validateCurrency(String? value) {
+    if (value == null || value.isEmpty) {
+      return '请选择货币';
+    }
+    return null;
+  }
+
+  String? _validateBillingCycle(String? value) {
+    if (value == null || value.isEmpty) {
+      return '请选择计费周期';
+    }
+    return null;
+  }
+
+  String? _validateNextPaymentDate(String? value) {
+    if (value == null || value.isEmpty) {
+      return '请选择下次付费日期';
+    }
+    return null;
+  }
 
   // 货币选项
   static final Map<String, String> _currencies = {
@@ -127,12 +164,7 @@ class SubscriptionFormState extends State<SubscriptionForm> {
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.title),
               ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return '请输入服务名称';
-                }
-                return null;
-              },
+              validator: _validateServiceName,
             ),
 
             const SizedBox(height: 16),
@@ -168,12 +200,7 @@ class SubscriptionFormState extends State<SubscriptionForm> {
                   _selectedSubscriptionType = value;
                 });
               },
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return '请选择订阅类型';
-                }
-                return null;
-              },
+              validator: _validateSubscriptionType,
             ),
 
             const SizedBox(height: 16),
@@ -188,15 +215,7 @@ class SubscriptionFormState extends State<SubscriptionForm> {
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.attach_money),
               ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return '请输入价格';
-                }
-                if (double.tryParse(value) == null) {
-                  return '请输入有效数字';
-                }
-                return null;
-              },
+              validator: _validatePrice,
             ),
 
             const SizedBox(height: 16),
@@ -220,12 +239,7 @@ class SubscriptionFormState extends State<SubscriptionForm> {
                   _selectedCurrency = value;
                 });
               },
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return '请选择货币';
-                }
-                return null;
-              },
+              validator: _validateCurrency,
             ),
 
             const SizedBox(height: 16),
@@ -249,12 +263,7 @@ class SubscriptionFormState extends State<SubscriptionForm> {
                   _selectedBillingCycle = value;
                 });
               },
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return '请选择计费周期';
-                }
-                return null;
-              },
+              validator: _validateBillingCycle,
             ),
 
             const SizedBox(height: 16),
@@ -284,12 +293,7 @@ class SubscriptionFormState extends State<SubscriptionForm> {
                   });
                 }
               },
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return '请选择下次付费日期';
-                }
-                return null;
-              },
+              validator: _validateNextPaymentDate,
             ),
 
             const SizedBox(height: 16),

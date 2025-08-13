@@ -1,0 +1,15 @@
+const Map<String, String> currencySymbols = {
+  'CNY': 'CN¥',
+  'USD': 'US\$',
+  'EUR': '€',
+  'GBP': '£',
+  'JPY': 'JP¥',
+  'KRW': '₩',
+  'INR': '₹',
+  'RUB': '₽',
+  'AUD': 'A\$',
+  'CAD': 'C\$',
+  'HKD': 'HK\$',
+  'TWD': 'NT\$',
+  'SGD': 'S\$',
+};

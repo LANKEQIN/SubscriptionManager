@@ -1,4 +1,14 @@
 import 'package:uuid/uuid.dart';
+import '../utils/currency_constants.dart';
+import 'package:flutter/material.dart';
+import '../utils/icon_utils.dart';
+import '../utils/subscription_constants.dart';
+
+/// 价格格式化常量
+class PriceFormatConstants {
+  static const String monthlySuffix = '/月';
+  static const String yearlySuffix = '/年';
+}
 
 class Subscription {
   final String id;
@@ -93,30 +103,14 @@ class Subscription {
 
   /// 格式化价格显示
   String get formattedPrice {
-    // 根据货币代码获取货币符号和标识
-    final currencyMap = {
-      'CNY': 'CN¥',
-      'USD': 'US\$',
-      'EUR': '€',
-      'GBP': '£',
-      'JPY': 'JP¥',
-      'KRW': '₩',
-      'INR': '₹',
-      'RUB': '₽',
-      'AUD': 'A\$',
-      'CAD': 'C\$',
-      'HKD': 'HK\$',
-      'TWD': 'NT\$',
-      'SGD': 'S\$',
-    };
-    
-    final symbol = currencyMap[currency] ?? currency;
+    // 使用外部定义的货币符号映射
+    final symbol = currencySymbols[currency] ?? currency;
     
     switch (billingCycle) {
-      case '每月':
-        return '$symbol${price.toStringAsFixed(2)}/月';
-      case '每年':
-        return '$symbol${price.toStringAsFixed(2)}/年';
+      case SubscriptionConstants.BILLING_CYCLE_MONTHLY:
+        return '$symbol${price.toStringAsFixed(2)}${PriceFormatConstants.monthlySuffix}';
+      case SubscriptionConstants.BILLING_CYCLE_YEARLY:
+        return '$symbol${price.toStringAsFixed(2)}${PriceFormatConstants.yearlySuffix}';
       default:
         return '$symbol${price.toStringAsFixed(2)}';
     }
@@ -135,6 +129,11 @@ class Subscription {
     } else {
       return '自动续费';
     }
+  }
+
+  /// 获取订阅图标
+  IconData get iconData {
+    return IconUtils.getIconData(icon);
   }
 
   @override

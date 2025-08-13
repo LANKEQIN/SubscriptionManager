@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'subscription_provider.dart';
-import 'subscription.dart';
+import '../providers/subscription_provider.dart';
+import '../models/subscription.dart';
+import '../utils/icon_utils.dart';
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
@@ -123,24 +124,7 @@ class NotificationsScreen extends StatelessWidget {
                 color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: subscription.icon != null
-                  ? (() {
-                      try {
-                        return Icon(
-                          IconData(int.parse(subscription.icon!), fontFamily: 'MaterialIcons'),
-                          color: Theme.of(context).colorScheme.primary,
-                        );
-                      } catch (e) {
-                        return Icon(
-                          Icons.subscriptions_outlined,
-                          color: Theme.of(context).colorScheme.primary,
-                        );
-                      }
-                    }())
-                  : Icon(
-                      Icons.subscriptions_outlined,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+              child: IconUtils.buildSubscriptionIcon(context, subscription.icon),
             ),
             const SizedBox(width: 16),
             // 中间信息

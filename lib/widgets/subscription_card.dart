@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'subscription.dart';
+import '../models/subscription.dart';
+import '../utils/icon_utils.dart';
 
 class SubscriptionCard extends StatelessWidget {
   final Subscription subscription;
@@ -40,25 +41,7 @@ class SubscriptionCard extends StatelessWidget {
                   color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: subscription.icon != null
-                    ? (() {
-                        try {
-                          return Icon(
-                            IconData(int.parse(subscription.icon!),
-                                fontFamily: 'MaterialIcons'),
-                            color: Theme.of(context).colorScheme.primary,
-                          );
-                        } catch (e) {
-                          return Icon(
-                            Icons.subscriptions_outlined,
-                            color: Theme.of(context).colorScheme.primary,
-                          );
-                        }
-                      }())
-                    : Icon(
-                        Icons.subscriptions_outlined,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                child: IconUtils.buildSubscriptionIcon(context, subscription.icon),
               ),
               const SizedBox(width: 16),
               // 中间信息
@@ -132,4 +115,5 @@ class SubscriptionCard extends StatelessWidget {
       ),
     );
   }
+
 }

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dynamic_color/dynamic_color.dart';
-import 'home_screen.dart';
-import 'statistics_screen.dart';
-import 'notifications_screen.dart';
-import 'profile_screen.dart';
-import 'add_button.dart';
-import 'add_subscription_dialog.dart';
-import 'subscription_provider.dart';
+import 'screens/home_screen.dart';
+import 'screens/statistics_screen.dart';
+import 'screens/notifications_screen.dart';
+import 'screens/profile_screen.dart';
+import 'widgets/add_button.dart';
+import 'dialogs/add_subscription_dialog.dart';
+import 'providers/subscription_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,15 +27,47 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  // 定义常量
+  static const List<String> _fontFamilies = ['HarmonyOS Sans', 'Segoe UI', 'Roboto', 'sans-serif'];
+
+  // 统一字体尺寸计算方法
+  double _calculateFontSize(double baseSize, int increment) {
+    return baseSize + increment;
+  }
+
   // 提取文本主题样式为单独函数，避免重复代码
   TextTheme _buildTextTheme(double fontSize) {
     return TextTheme(
-      bodyMedium: TextStyle(fontSize: fontSize, fontFamily: 'HarmonyOS Sans', fontFamilyFallback: ['Segoe UI', 'Roboto', 'sans-serif']),
-      bodyLarge: TextStyle(fontSize: fontSize + 2, fontFamily: 'HarmonyOS Sans', fontFamilyFallback: ['Segoe UI', 'Roboto', 'sans-serif']),
-      bodySmall: TextStyle(fontSize: fontSize - 2, fontFamily: 'HarmonyOS Sans', fontFamilyFallback: ['Segoe UI', 'Roboto', 'sans-serif']),
-      titleLarge: TextStyle(fontSize: fontSize + 6, fontFamily: 'HarmonyOS Sans', fontFamilyFallback: ['Segoe UI', 'Roboto', 'sans-serif']),
-      titleMedium: TextStyle(fontSize: fontSize + 4, fontFamily: 'HarmonyOS Sans', fontFamilyFallback: ['Segoe UI', 'Roboto', 'sans-serif']),
-      titleSmall: TextStyle(fontSize: fontSize + 2, fontFamily: 'HarmonyOS Sans', fontFamilyFallback: ['Segoe UI', 'Roboto', 'sans-serif']),
+      bodyMedium: TextStyle(
+        fontSize: _calculateFontSize(fontSize, 0),
+        fontFamily: _fontFamilies[0],
+        fontFamilyFallback: _fontFamilies.sublist(1),
+      ),
+      bodyLarge: TextStyle(
+        fontSize: _calculateFontSize(fontSize, 2),
+        fontFamily: _fontFamilies[0],
+        fontFamilyFallback: _fontFamilies.sublist(1),
+      ),
+      bodySmall: TextStyle(
+        fontSize: _calculateFontSize(fontSize, -2),
+        fontFamily: _fontFamilies[0],
+        fontFamilyFallback: _fontFamilies.sublist(1),
+      ),
+      titleLarge: TextStyle(
+        fontSize: _calculateFontSize(fontSize, 6),
+        fontFamily: _fontFamilies[0],
+        fontFamilyFallback: _fontFamilies.sublist(1),
+      ),
+      titleMedium: TextStyle(
+        fontSize: _calculateFontSize(fontSize, 4),
+        fontFamily: _fontFamilies[0],
+        fontFamilyFallback: _fontFamilies.sublist(1),
+      ),
+      titleSmall: TextStyle(
+        fontSize: _calculateFontSize(fontSize, 2),
+        fontFamily: _fontFamilies[0],
+        fontFamilyFallback: _fontFamilies.sublist(1),
+      ),
     );
   }
 

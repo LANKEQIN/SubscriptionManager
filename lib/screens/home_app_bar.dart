@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'subscription_provider.dart';
+import '../providers/subscription_provider.dart';
 import 'notifications_screen.dart';
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
