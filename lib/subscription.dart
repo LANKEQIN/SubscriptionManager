@@ -1,5 +1,7 @@
 import 'package:uuid/uuid.dart';
 import 'currency_constants.dart';
+import 'package:flutter/material.dart';
+import 'icon_utils.dart';
 
 class Subscription {
   final String id;
@@ -120,6 +122,11 @@ class Subscription {
     } else {
       return '自动续费';
     }
+  }
+
+  /// 获取订阅图标
+  IconData get iconData {
+    return IconUtils.getIconData(icon);
   }
 
   @override

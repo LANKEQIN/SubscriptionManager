@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'icon_utils.dart';
 
 class IconPicker extends StatefulWidget {
   final IconData? selectedIcon;
@@ -15,126 +16,95 @@ class IconPicker extends StatefulWidget {
 }
 
 class _IconPickerState extends State<IconPicker> {
-  // 图标选项
-  final List<IconData> _iconOptions = [
-    Icons.music_note,
-    Icons.movie,
-    Icons.games,
-    Icons.phone_iphone,
-    Icons.computer,
-    Icons.tv,
-    Icons.book,
-    Icons.fitness_center,
-    Icons.fastfood,
-    Icons.local_shipping,
-    Icons.home,
-    Icons.account_balance,
+  // 常用图标列表
+  final List<IconData> _commonIcons = [
+    Icons.subscriptions_outlined,
+    Icons.video_library_outlined,
+    Icons.music_note_outlined,
+    Icons.book_outlined,
+    Icons.phone_iphone_outlined,
+    Icons.computer_outlined,
+    Icons.cloud_outlined,
+    Icons.games_outlined,
+    Icons.movie_outlined,
+    Icons.tv_outlined,
+    Icons.sports_esports_outlined,
+    Icons.shopping_cart_outlined,
+    Icons.fastfood_outlined,
+    Icons.local_gas_station_outlined,
+    Icons.directions_car_outlined,
+    Icons.home_outlined,
+    Icons.pets_outlined,
+    Icons.health_and_safety_outlined,
+    Icons.fitness_center_outlined,
+    Icons.business_outlined,
   ];
 
-  void _showIconPickerDialog(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return DraggableScrollableSheet(
-          expand: false,
-          builder: (context, scrollController) {
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Center(
-                    child: Padding(
-                      padding: EdgeInsets.only(bottom: 8.0),
-                      child: Text(
-                        '选择图标',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const Divider(),
-                  Expanded(
-                    child: GridView.builder(
-                      controller: scrollController,
-                      gridDelegate:
-                          const SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 64,
-                        childAspectRatio: 1,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                      ),
-                      itemCount: _iconOptions.length,
-                      itemBuilder: (context, index) {
-                        final icon = _iconOptions[index];
-                        return InkWell(
-                          onTap: () {
-                            widget.onIconSelected(icon);
-                            Navigator.pop(context);
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color: icon == widget.selectedIcon
-                                  ? Theme.of(context).colorScheme.primaryContainer
-                                  : Theme.of(context).colorScheme.surface,
-                            ),
-                            child: Icon(
-                              icon,
-                              size: 32,
-                              color: icon == widget.selectedIcon
-                                  ? Theme.of(context).colorScheme.primary
-                                  : Theme.of(context).iconTheme.color,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
+  IconData? _selectedIcon;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIcon = widget.selectedIcon;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('图标选择', style: TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(width: 8),
-        GestureDetector(
-          onTap: () {
-            _showIconPickerDialog(context);
-          },
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              widget.selectedIcon ?? Icons.help_outline,
-              color: Theme.of(context).colorScheme.primary,
-            ),
+        const Text(
+          '选择图标',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            widget.selectedIcon != null ? '已选择图标' : '请选择图标',
-            style: const TextStyle(color: Colors.grey, fontSize: 12),
-            overflow: TextOverflow.fade,
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 60,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: _commonIcons.length,
+            itemBuilder: (context, index) {
+              final icon = _commonIcons[index];
+              final isSelected = _selectedIcon == icon;
+              
+              return Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedIcon = icon;
+                    });
+                    widget.onIconSelected(icon);
+                  },
+                  child: Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: isSelected 
+                          ? Theme.of(context).colorScheme.primary 
+                          : Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isSelected 
+                            ? Theme.of(context).colorScheme.primary 
+                            : Theme.of(context).dividerColor,
+                        width: 2,
+                      ),
+                    ),
+                    child: Icon(
+                      icon,
+                      color: isSelected 
+                          ? Theme.of(context).colorScheme.onPrimary 
+                          : Theme.of(context).colorScheme.onSurface,
+                      size: 24,
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ],
