@@ -89,10 +89,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-### License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ---
 
 <span id="中文"></span>
@@ -178,7 +174,4 @@ lib/
 4. 推送到分支 (`git push origin feature/AmazingFeature`)
 5. 打开 Pull Request
 
-### 许可证
-
-该项目采用MIT许可证 - 详情请见[LICENSE](LICENSE)文件。
 

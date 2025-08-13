@@ -79,7 +79,3 @@ lib/
 3. 提交您的更改 (`git commit -m 'Add some AmazingFeature'`)
 4. 推送到分支 (`git push origin feature/AmazingFeature`)
 5. 打开 Pull Request
-
-## 许可证
-
-该项目采用MIT许可证 - 详情请见[LICENSE](LICENSE)文件。
