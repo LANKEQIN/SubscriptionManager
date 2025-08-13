@@ -8,14 +8,40 @@ import '../models/subscription.dart';
 /// 订阅列表组件
 /// 显示所有订阅的列表，支持空状态显示和编辑功能
 
-class SubscriptionList extends StatelessWidget {
+class SubscriptionList extends StatefulWidget {
   const SubscriptionList({super.key});
+
+  @override
+  State<SubscriptionList> createState() => _SubscriptionListState();
+}
+
+class _SubscriptionListState extends State<SubscriptionList> {
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // 模拟加载延迟
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Consumer<SubscriptionProvider>(
         builder: (context, subscriptionProvider, child) {
+          if (_isLoading) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
           final subscriptions = subscriptionProvider.subscriptions;
           return subscriptions.isEmpty
               ? _buildEmptyState()
@@ -39,31 +65,43 @@ class SubscriptionList extends StatelessWidget {
   /// 当没有订阅时显示的提示信息
   Widget _buildEmptyState() {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.subscriptions_outlined,
-            size: 64,
-            color: Colors.grey[400],
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            '暂无订阅',
-            style: TextStyle(
-              fontSize: 18,
-              color: Colors.grey,
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            '点击下方按钮添加您的第一个订阅',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
-            ),
-          ),
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          bool isSmallScreen = constraints.maxWidth < 350;
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.subscriptions_outlined,
+                size: isSmallScreen ? 48 : 64,
+                color: Colors.grey[400],
+              ),
+              SizedBox(height: isSmallScreen ? 12 : 16),
+              Text(
+                '暂无订阅',
+                style: TextStyle(
+                  fontSize: isSmallScreen ? 16 : 18,
+                  color: Colors.grey,
+                ),
+              ),
+              SizedBox(height: isSmallScreen ? 6 : 8),
+              Text(
+                '点击下方按钮添加您的第一个订阅',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: isSmallScreen ? 12 : 14,
+                  color: Colors.grey,
+                ),
+              ),
+              SizedBox(height: isSmallScreen ? 12 : 16),
+              Icon(
+                Icons.arrow_downward,
+                size: isSmallScreen ? 24 : 32,
+                color: Colors.grey[400],
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -91,8 +129,4 @@ class SubscriptionList extends StatelessWidget {
     );
   }
 }
-
-
-
-
 

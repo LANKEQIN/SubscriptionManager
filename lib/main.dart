@@ -160,35 +160,45 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _pages[_currentIndex],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+      bottomNavigationBar: LayoutBuilder(
+        builder: (context, constraints) {
+          bool isSmallScreen = constraints.maxWidth < 350;
+          double iconSize = isSmallScreen ? 20 : 24;
+          double labelSize = isSmallScreen ? 10 : 12;
+          
+          return NavigationBar(
+            selectedIndex: _currentIndex,
+            onDestinationSelected: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+            destinations: [
+              NavigationDestination(
+                icon: Icon(Icons.home_outlined, size: iconSize),
+                selectedIcon: Icon(Icons.home, size: iconSize),
+                label: '首页',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.bar_chart_outlined, size: iconSize),
+                selectedIcon: Icon(Icons.bar_chart, size: iconSize),
+                label: '统计',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.notifications_outlined, size: iconSize),
+                selectedIcon: Icon(Icons.notifications, size: iconSize),
+                label: '提醒',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.person_outlined, size: iconSize),
+                selectedIcon: Icon(Icons.person, size: iconSize),
+                label: '我的',
+              ),
+            ],
+            labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+            height: isSmallScreen ? 60 : 80,
+          );
         },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: '首页',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.bar_chart_outlined),
-            selectedIcon: Icon(Icons.bar_chart),
-            label: '统计',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.notifications_outlined),
-            selectedIcon: Icon(Icons.notifications),
-            label: '提醒',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outlined),
-            selectedIcon: Icon(Icons.person),
-            label: '我的',
-          ),
-        ],
       ),
     );
   }
