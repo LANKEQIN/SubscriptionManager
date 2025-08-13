@@ -27,6 +27,18 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  // 提取文本主题样式为单独函数，避免重复代码
+  TextTheme _buildTextTheme(double fontSize) {
+    return TextTheme(
+      bodyMedium: TextStyle(fontSize: fontSize, fontFamily: 'HarmonyOS Sans', fontFamilyFallback: ['Segoe UI', 'Roboto', 'sans-serif']),
+      bodyLarge: TextStyle(fontSize: fontSize + 2, fontFamily: 'HarmonyOS Sans', fontFamilyFallback: ['Segoe UI', 'Roboto', 'sans-serif']),
+      bodySmall: TextStyle(fontSize: fontSize - 2, fontFamily: 'HarmonyOS Sans', fontFamilyFallback: ['Segoe UI', 'Roboto', 'sans-serif']),
+      titleLarge: TextStyle(fontSize: fontSize + 6, fontFamily: 'HarmonyOS Sans', fontFamilyFallback: ['Segoe UI', 'Roboto', 'sans-serif']),
+      titleMedium: TextStyle(fontSize: fontSize + 4, fontFamily: 'HarmonyOS Sans', fontFamilyFallback: ['Segoe UI', 'Roboto', 'sans-serif']),
+      titleSmall: TextStyle(fontSize: fontSize + 2, fontFamily: 'HarmonyOS Sans', fontFamilyFallback: ['Segoe UI', 'Roboto', 'sans-serif']),
+    );
+  }
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -67,27 +79,13 @@ class MyApp extends StatelessWidget {
                 colorScheme: lightColorScheme,
                 useMaterial3: true,
                 fontFamily: 'HarmonyOS Sans',
-                textTheme: TextTheme(
-                  bodyMedium: TextStyle(fontSize: provider.fontSize, fontFamily: 'HarmonyOS Sans', fontFamilyFallback: ['Segoe UI', 'Roboto', 'sans-serif']),
-                  bodyLarge: TextStyle(fontSize: provider.fontSize + 2, fontFamily: 'HarmonyOS Sans', fontFamilyFallback: ['Segoe UI', 'Roboto', 'sans-serif']),
-                  bodySmall: TextStyle(fontSize: provider.fontSize - 2, fontFamily: 'HarmonyOS Sans', fontFamilyFallback: ['Segoe UI', 'Roboto', 'sans-serif']),
-                  titleLarge: TextStyle(fontSize: provider.fontSize + 6, fontFamily: 'HarmonyOS Sans', fontFamilyFallback: ['Segoe UI', 'Roboto', 'sans-serif']),
-                  titleMedium: TextStyle(fontSize: provider.fontSize + 4, fontFamily: 'HarmonyOS Sans', fontFamilyFallback: ['Segoe UI', 'Roboto', 'sans-serif']),
-                  titleSmall: TextStyle(fontSize: provider.fontSize + 2, fontFamily: 'HarmonyOS Sans', fontFamilyFallback: ['Segoe UI', 'Roboto', 'sans-serif']),
-                ),
+                textTheme: _buildTextTheme(provider.fontSize),
               ),
               darkTheme: ThemeData(
                 colorScheme: darkColorScheme,
                 useMaterial3: true,
                 fontFamily: 'HarmonyOS Sans',
-                textTheme: TextTheme(
-                  bodyMedium: TextStyle(fontSize: provider.fontSize, fontFamily: 'HarmonyOS Sans', fontFamilyFallback: ['Segoe UI', 'Roboto', 'sans-serif']),
-                  bodyLarge: TextStyle(fontSize: provider.fontSize + 2, fontFamily: 'HarmonyOS Sans', fontFamilyFallback: ['Segoe UI', 'Roboto', 'sans-serif']),
-                  bodySmall: TextStyle(fontSize: provider.fontSize - 2, fontFamily: 'HarmonyOS Sans', fontFamilyFallback: ['Segoe UI', 'Roboto', 'sans-serif']),
-                  titleLarge: TextStyle(fontSize: provider.fontSize + 6, fontFamily: 'HarmonyOS Sans', fontFamilyFallback: ['Segoe UI', 'Roboto', 'sans-serif']),
-                  titleMedium: TextStyle(fontSize: provider.fontSize + 4, fontFamily: 'HarmonyOS Sans', fontFamilyFallback: ['Segoe UI', 'Roboto', 'sans-serif']),
-                  titleSmall: TextStyle(fontSize: provider.fontSize + 2, fontFamily: 'HarmonyOS Sans', fontFamilyFallback: ['Segoe UI', 'Roboto', 'sans-serif']),
-                ),
+                textTheme: _buildTextTheme(provider.fontSize),
               ),
               themeMode: provider.themeMode,
               home: const MainScreen(),
