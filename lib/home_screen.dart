@@ -2,8 +2,89 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'subscription.dart';
 import 'subscription_provider.dart';
-import 'notifications_screen.dart';
-import 'add_subscription_dialog.dart'; // 添加此行
+import 'edit_subscription_dialog.dart';
+import 'home_app_bar.dart';
+import 'statistics_card.dart';
+import 'subscription_list.dart';
+
+class SubscriptionList extends StatelessWidget {
+  const SubscriptionList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Consumer<SubscriptionProvider>(
+        builder: (context, subscriptionProvider, child) {
+          final subscriptions = subscriptionProvider.subscriptions;
+          return subscriptions.isEmpty
+              ? _buildEmptyState()
+              : ListView.builder(
+                  itemCount: subscriptions.length,
+                  itemBuilder: (context, index) {
+                    return SubscriptionCard(
+                      subscription: subscriptions[index],
+                      onEdit: (subscription) {
+                        _showEditDialog(context, subscription, subscriptionProvider);
+                      },
+                    );
+                  },
+                );
+        },
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.subscriptions_outlined,
+            size: 64,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            '暂无订阅',
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            '点击下方按钮添加您的第一个订阅',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditDialog(BuildContext context, Subscription subscription, SubscriptionProvider provider) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return EditSubscriptionDialog(
+          subscription: subscription,
+          onSubscriptionUpdated: (updatedSubscription) {
+            provider.updateSubscription(updatedSubscription);
+          },
+          onSubscriptionDeleted: (id) {
+            provider.removeSubscription(id);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('订阅删除成功')),
+            );
+          },
+        );
+      },
+    );
+  }
+}
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -12,76 +93,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // 顶部标题栏
-        AppBar(
-          title: const Text('会员制管理'),
-          centerTitle: false,
-          actions: [
-            // 提醒铃铛图标
-            Consumer<SubscriptionProvider>(
-              builder: (context, provider, child) {
-                final upcomingCount = provider.upcomingSubscriptions.length;
-                final hasUnread = provider.hasUnreadNotifications && upcomingCount > 0;
-                return Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.notifications_outlined),
-                      onPressed: () {
-                        // 标记提醒为已读
-                        provider.markNotificationsAsRead();
-                        // 导航到提醒页面
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const NotificationsScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                    if (hasUnread)
-                      Positioned(
-                        right: 8,
-                        top: 8,
-                        child: Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          constraints: const BoxConstraints(
-                            minWidth: 16,
-                            minHeight: 16,
-                          ),
-                          child: Text(
-                            '${upcomingCount > 99 ? '99+' : upcomingCount}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                  ],
-                );
-              },
-            ),
-            // 用户头像
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: CircleAvatar(
-                radius: 16,
-                backgroundColor: Colors.grey,
-                child: Icon(
-                  Icons.person_outline,
-                  size: 18,
-                ),
-              ),
-            ),
-          ],
-        ),
+        const HomeAppBar(),
         // 主页面内容
         Expanded(
           child: Padding(
@@ -90,7 +102,7 @@ class HomeScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // 添加统计卡片
-                _buildStatisticsCard(context),
+                const StatisticsCard(),
                 const SizedBox(height: 16),
                 const Text(
                   '所有订阅',
@@ -100,26 +112,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                Expanded(
-                  child: Consumer<SubscriptionProvider>(
-                    builder: (context, subscriptionProvider, child) {
-                      final subscriptions = subscriptionProvider.subscriptions;
-                      return subscriptions.isEmpty
-                          ? _buildEmptyState()
-                          : ListView.builder(
-                              itemCount: subscriptions.length,
-                              itemBuilder: (context, index) {
-                                return SubscriptionCard(
-                                  subscription: subscriptions[index],
-                                  onEdit: (subscription) {
-                                    _showEditDialog(context, subscription, subscriptionProvider);
-                                  },
-                                );
-                              },
-                            );
-                    },
-                  ),
-                ),
+                const SubscriptionList(),
               ],
             ),
           ),
@@ -415,6 +408,10 @@ class SubscriptionCard extends StatelessWidget {
     );
   }
 }
+
+
+
+
 
 
 
