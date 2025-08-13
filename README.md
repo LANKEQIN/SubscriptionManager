@@ -1,6 +1,10 @@
 # Subscription Manager 订阅管理器
 
-[English Version](#english) | [中文版本](#中文)
+Please select your preferred language:
+请选择您的语言：
+
+- [English Version](README_en.md)
+- [中文版本](README_zh.md)
 
 <span id="english"></span>
 ## English
@@ -177,3 +181,4 @@ lib/
 ### 许可证
 
 该项目采用MIT许可证 - 详情请见[LICENSE](LICENSE)文件。
+
