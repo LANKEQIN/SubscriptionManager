@@ -1,4 +1,5 @@
 import 'package:uuid/uuid.dart';
+import 'currency_constants.dart';
 
 class Subscription {
   final String id;
@@ -93,24 +94,8 @@ class Subscription {
 
   /// 格式化价格显示
   String get formattedPrice {
-    // 根据货币代码获取货币符号和标识
-    final currencyMap = {
-      'CNY': 'CN¥',
-      'USD': 'US\$',
-      'EUR': '€',
-      'GBP': '£',
-      'JPY': 'JP¥',
-      'KRW': '₩',
-      'INR': '₹',
-      'RUB': '₽',
-      'AUD': 'A\$',
-      'CAD': 'C\$',
-      'HKD': 'HK\$',
-      'TWD': 'NT\$',
-      'SGD': 'S\$',
-    };
-    
-    final symbol = currencyMap[currency] ?? currency;
+    // 使用外部定义的货币符号映射
+    final symbol = currencySymbols[currency] ?? currency;
     
     switch (billingCycle) {
       case '每月':
