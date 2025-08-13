@@ -6,41 +6,60 @@ import 'dart:async';
 import '../models/subscription.dart';
 import '../screens/monthly_history.dart';
 
+/// 订阅状态管理器
+/// 使用Provider进行状态管理，负责处理订阅数据的增删改查以及持久化存储
 class SubscriptionProvider with ChangeNotifier {
+  /// 存储所有订阅的列表
   List<Subscription> _subscriptions = [];
+  
+  /// 存储月度历史记录的列表
   List<MonthlyHistory> _monthlyHistories = [];
   
-  // 主题模式，默认跟随系统
+  /// 主题模式，默认跟随系统
   ThemeMode _themeMode = ThemeMode.system;
   
-  // 字体大小，默认16
+  /// 字体大小，默认16
   double _fontSize = 16.0;
   
-  // 主题颜色，默认为null表示使用系统动态颜色或默认蓝色
+  /// 主题颜色，默认为null表示使用系统动态颜色或默认蓝色
   Color? _themeColor;
   
-  // 提醒查看状态，默认为false（未查看）
+  /// 提醒查看状态，默认为false（未查看）
   bool _hasUnreadNotifications = false;
 
-  // 用于防抖的定时器
+  /// 用于防抖的定时器，避免频繁保存数据
   Timer? _saveTimer;
   
-  // 用于批量通知的定时器
+  /// 用于批量通知的定时器，避免频繁更新UI
   Timer? _notifyTimer;
   
-  // 缓存计算结果
+  /// 缓存计算结果，提高性能
   double? _cachedMonthlyCost;
   double? _cachedYearlyCost;
-  bool _isDataDirty = true; // 标记数据是否已更改但尚未重新计算
+  
+  /// 标记数据是否已更改但尚未重新计算
+  bool _isDataDirty = true;
 
+  /// 获取订阅列表
   List<Subscription> get subscriptions => _subscriptions;
+  
+  /// 获取月度历史记录列表
   List<MonthlyHistory> get monthlyHistories => _monthlyHistories;
+  
+  /// 获取当前主题模式
   ThemeMode get themeMode => _themeMode;
+  
+  /// 获取当前字体大小
   double get fontSize => _fontSize;
+  
+  /// 获取当前主题颜色
   Color? get themeColor => _themeColor;
+  
+  /// 获取是否有未读通知
   bool get hasUnreadNotifications => _hasUnreadNotifications;
 
-  // 初始化数据
+  /// 初始化数据
+  /// 从SharedPreferences加载所有数据
   Future<void> loadFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     
@@ -83,7 +102,8 @@ class SubscriptionProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // 保存数据到SharedPreferences - 添加防抖机制
+  /// 保存数据到SharedPreferences - 添加防抖机制
+  /// 避免频繁写入磁盘，提高性能
   Future<void> _saveToPrefs([Duration delay = const Duration(milliseconds: 500)]) async {
     // 取消之前的定时器
     _saveTimer?.cancel();
@@ -94,7 +114,8 @@ class SubscriptionProvider with ChangeNotifier {
     });
   }
   
-  // 实际执行保存操作的方法
+  /// 实际执行保存操作的方法
+  /// 将所有数据保存到SharedPreferences
   Future<void> _performSave() async {
     final prefs = await SharedPreferences.getInstance();
     
@@ -120,7 +141,8 @@ class SubscriptionProvider with ChangeNotifier {
     }
   }
   
-  // 批量通知监听器，避免频繁更新UI
+  /// 批量通知监听器，避免频繁更新UI
+  /// 使用防抖机制优化性能
   void _notifyListenersDebounced([Duration delay = const Duration(milliseconds: 100)]) {
     // 取消之前的定时器
     _notifyTimer?.cancel();
@@ -131,7 +153,8 @@ class SubscriptionProvider with ChangeNotifier {
     });
   }
 
-  // 添加订阅
+  /// 添加订阅
+  /// 将新订阅添加到列表中，并保存数据
   void addSubscription(Subscription subscription) {
     _subscriptions.add(subscription);
     _updateCurrentMonthHistory();
@@ -150,7 +173,8 @@ class SubscriptionProvider with ChangeNotifier {
     _notifyListenersDebounced();
   }
 
-  // 删除订阅
+  /// 删除订阅
+  /// 根据ID从列表中删除订阅，并保存数据
   void removeSubscription(String id) {
     _subscriptions.removeWhere((subscription) => subscription.id == id);
     _updateCurrentMonthHistory();
@@ -162,7 +186,8 @@ class SubscriptionProvider with ChangeNotifier {
     _notifyListenersDebounced();
   }
 
-  // 更新订阅
+  /// 更新订阅
+  /// 根据ID查找并更新订阅信息
   void updateSubscription(Subscription updatedSubscription) {
     final index = _subscriptions.indexWhere((subscription) => subscription.id == updatedSubscription.id);
     if (index != -1) {
@@ -177,7 +202,8 @@ class SubscriptionProvider with ChangeNotifier {
     }
   }
 
-  // 根据ID获取订阅
+  /// 根据ID获取订阅
+  /// 返回指定ID的订阅，如果不存在则返回null
   Subscription? getSubscriptionById(String id) {
     try {
       return _subscriptions.firstWhere((subscription) => subscription.id == id);
@@ -186,10 +212,11 @@ class SubscriptionProvider with ChangeNotifier {
     }
   }
 
-  // 获取订阅总数
+  /// 获取订阅总数
   int get subscriptionCount => _subscriptions.length;
 
-  // 计算指定计费周期的订阅总费用
+  /// 计算指定计费周期的订阅总费用
+  /// 可以根据monthlyRate参数决定是否将年费转换为月费计算
   double _calculateCostByBillingCycle(String billingCycle, {bool monthlyRate = false}) {
     double total = 0;
     final subscriptions = _subscriptions.where((s) => s.billingCycle == billingCycle);
@@ -207,7 +234,8 @@ class SubscriptionProvider with ChangeNotifier {
     return total;
   }
 
-  // 获取月度总费用
+  /// 获取月度总费用
+  /// 计算所有订阅的月度总费用，包含按月和按年计费的订阅
   double get monthlyCost {
     // 如果数据未更改，直接返回缓存的结果
     if (!_isDataDirty && _cachedMonthlyCost != null) {
@@ -222,7 +250,8 @@ class SubscriptionProvider with ChangeNotifier {
     return _cachedMonthlyCost!;
   }
 
-  // 获取年度总费用
+  /// 获取年度总费用
+  /// 计算所有订阅的年度总费用
   double get yearlyCost {
     // 如果数据未更改，直接返回缓存的结果
     if (!_isDataDirty && _cachedYearlyCost != null) {
@@ -237,7 +266,8 @@ class SubscriptionProvider with ChangeNotifier {
     return _cachedYearlyCost!;
   }
 
-  // 获取即将到期的订阅（7天内）
+  /// 获取即将到期的订阅（7天内）
+  /// 返回7天内即将到期的订阅列表，按时间排序
   List<Subscription> get upcomingSubscriptions {
     final now = DateTime.now();
     final upcoming = _subscriptions.where((subscription) {
@@ -249,7 +279,8 @@ class SubscriptionProvider with ChangeNotifier {
     return upcoming;
   }
 
-  // 更新当前月份历史记录
+  /// 更新当前月份历史记录
+  /// 在添加、删除或更新订阅时更新当前月份的历史记录
   void _updateCurrentMonthHistory() {
     final now = DateTime.now();
     final currentYear = now.year;
@@ -275,7 +306,8 @@ class SubscriptionProvider with ChangeNotifier {
     }
   }
 
-  // 获取上个月的历史记录
+  /// 获取上个月的历史记录
+  /// 返回上个月的历史记录，如果不存在则返回null
   MonthlyHistory? getPreviousMonthHistory() {
     final now = DateTime.now();
     final previousMonth = now.month == 1 ? 12 : now.month - 1;
@@ -290,7 +322,8 @@ class SubscriptionProvider with ChangeNotifier {
     }
   }
 
-  // 计算与上个月相比的变化百分比
+  /// 计算与上个月相比的变化百分比
+  /// 返回月度费用与上个月相比的变化百分比
   double getMonthlyCostChangePercentage() {
     final previousMonthHistory = getPreviousMonthHistory();
     if (previousMonthHistory == null) {
@@ -307,34 +340,39 @@ class SubscriptionProvider with ChangeNotifier {
     return ((currentCost - previousCost) / previousCost) * 100;
   }
   
-  // 更新主题模式
+  /// 更新主题模式
+  /// 更改应用的主题模式（浅色/深色/跟随系统）
   void updateThemeMode(ThemeMode mode) {
     _themeMode = mode;
     _saveToPrefs(); // 保存数据
     notifyListeners();
   }
   
-  // 更新字体大小
+  /// 更新字体大小
+  /// 更改应用的字体大小
   void updateFontSize(double size) {
     _fontSize = size;
     _saveToPrefs(); // 保存数据
     notifyListeners();
   }
   
-  // 更新主题颜色
+  /// 更新主题颜色
+  /// 更改应用的主题颜色
   void updateThemeColor(Color? color) {
     _themeColor = color;
     _saveToPrefs(); // 保存数据
     notifyListeners();
   }
   
-  // 标记提醒为已读
+  /// 标记提醒为已读
+  /// 将未读通知状态设置为已读
   void markNotificationsAsRead() {
     _hasUnreadNotifications = false;
     notifyListeners();
   }
   
-  // 重置未读通知状态（用于在添加新订阅时检查是否需要显示通知）
+  /// 重置未读通知状态
+  /// 用于在添加新订阅时检查是否需要显示通知
   void resetUnreadNotificationStatus() {
     final upcoming = _subscriptions.where((subscription) {
       final now = DateTime.now();
@@ -348,7 +386,8 @@ class SubscriptionProvider with ChangeNotifier {
     }
   }
 
-  // 释放资源
+  /// 释放资源
+  /// 在对象销毁时取消所有定时器
   @override
   void dispose() {
     _saveTimer?.cancel();

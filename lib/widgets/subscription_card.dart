@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import '../models/subscription.dart';
 import '../utils/icon_utils.dart';
 
+/// 订阅卡片组件
+/// 显示单个订阅的详细信息，包括图标、名称、价格和到期时间
 class SubscriptionCard extends StatelessWidget {
+  /// 要显示的订阅对象
   final Subscription subscription;
+  
+  /// 编辑回调函数
   final Function(Subscription)? onEdit;
 
   const SubscriptionCard({super.key, required this.subscription, this.onEdit});

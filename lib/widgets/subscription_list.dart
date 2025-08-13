@@ -5,6 +5,9 @@ import 'subscription_card.dart';
 import '../dialogs/edit_subscription_dialog.dart';
 import '../models/subscription.dart';
 
+/// 订阅列表组件
+/// 显示所有订阅的列表，支持空状态显示和编辑功能
+
 class SubscriptionList extends StatelessWidget {
   const SubscriptionList({super.key});
 
@@ -32,6 +35,8 @@ class SubscriptionList extends StatelessWidget {
     );
   }
 
+  /// 构建空状态视图
+  /// 当没有订阅时显示的提示信息
   Widget _buildEmptyState() {
     return Center(
       child: Column(
@@ -63,6 +68,8 @@ class SubscriptionList extends StatelessWidget {
     );
   }
 
+  /// 显示编辑对话框
+  /// 当用户点击订阅项时弹出编辑对话框
   void _showEditDialog(BuildContext context, Subscription subscription,
       SubscriptionProvider provider) {
     showDialog(

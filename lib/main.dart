@@ -9,6 +9,8 @@ import 'widgets/add_button.dart';
 import 'dialogs/add_subscription_dialog.dart';
 import 'providers/subscription_provider.dart';
 
+/// 应用程序入口点
+/// 初始化并运行整个应用程序
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
@@ -24,6 +26,8 @@ void main() async {
   );
 }
 
+/// 主应用程序类
+/// 配置应用程序的主题、路由和整体结构
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -129,6 +133,8 @@ class MyApp extends StatelessWidget {
   }
 }
 
+/// 主屏幕组件
+/// 包含底部导航栏和各个页面的容器
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -136,7 +142,10 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
+/// 主屏幕状态类
+/// 管理当前选中的页面和底部导航栏状态
 class _MainScreenState extends State<MainScreen> {
+  /// 当前选中的页面索引
   int _currentIndex = 0;
 
   // 页面列表
