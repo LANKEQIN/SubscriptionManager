@@ -79,29 +79,34 @@ class SubscriptionProvider with ChangeNotifier {
     
     // 创建新的定时器
     _saveTimer = Timer(delay, () async {
-      final prefs = await SharedPreferences.getInstance();
-      
-      // 保存订阅数据
-      final subscriptionsJson = _subscriptions.map((s) => s.toMap()).toList();
-      prefs.setString('subscriptions', json.encode(subscriptionsJson));
-      
-      // 保存月度历史数据
-      final monthlyHistoriesJson = _monthlyHistories.map((h) => h.toMap()).toList();
-      prefs.setString('monthlyHistories', json.encode(monthlyHistoriesJson));
-      
-      // 保存主题模式
-      prefs.setInt('themeMode', _themeMode.index);
-      
-      // 保存字体大小
-      prefs.setDouble('fontSize', _fontSize);
-      
-      // 保存主题颜色
-      if (_themeColor != null) {
-        prefs.setInt('themeColor', _themeColor!.value);
-      } else {
-        prefs.remove('themeColor');
-      }
+      _performSave(); // 将保存操作提取到独立方法中
     });
+  }
+  
+  // 实际执行保存操作的方法
+  Future<void> _performSave() async {
+    final prefs = await SharedPreferences.getInstance();
+    
+    // 保存订阅数据
+    final subscriptionsJson = _subscriptions.map((s) => s.toMap()).toList();
+    prefs.setString('subscriptions', json.encode(subscriptionsJson));
+    
+    // 保存月度历史数据
+    final monthlyHistoriesJson = _monthlyHistories.map((h) => h.toMap()).toList();
+    prefs.setString('monthlyHistories', json.encode(monthlyHistoriesJson));
+    
+    // 保存主题模式
+    prefs.setInt('themeMode', _themeMode.index);
+    
+    // 保存字体大小
+    prefs.setDouble('fontSize', _fontSize);
+    
+    // 保存主题颜色
+    if (_themeColor != null) {
+      prefs.setInt('themeColor', _themeColor!.value);
+    } else {
+      prefs.remove('themeColor');
+    }
   }
 
   // 添加订阅
