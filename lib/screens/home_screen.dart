@@ -60,7 +60,11 @@ class HomeScreen extends StatelessWidget {
         ),
         
         // 添加订阅按钮（浮动在右下角）
-        const AddButton(),
+        const Positioned(
+          right: 16,
+          bottom: 16,
+          child: AddButton(),
+        ),
       ],
     );
   }
