@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../dialogs/add_subscription_dialog.dart';
 import '../models/subscription.dart';
+import '../providers/subscription_provider.dart';
 
 class AddButton extends StatelessWidget {
-  final Function(Subscription)? onSubscriptionAdded;
-  
-  const AddButton({super.key, this.onSubscriptionAdded});
+  const AddButton({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +16,11 @@ class AddButton extends StatelessWidget {
           context: context,
           builder: (BuildContext context) {
             return AddSubscriptionDialog(
-              onSubscriptionAdded: onSubscriptionAdded,
+              onSubscriptionAdded: (subscription) {
+                // 获取SubscriptionProvider并添加订阅
+                Provider.of<SubscriptionProvider>(context, listen: false)
+                    .addSubscription(subscription);
+              },
             );
           },
         );
