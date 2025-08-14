@@ -5,30 +5,59 @@ import '../utils/icon_utils.dart';
 import '../utils/subscription_constants.dart';
 
 /// 价格格式化常量
+/// 提供订阅价格显示的后缀格式
 class PriceFormatConstants {
+  /// 每月订阅的价格后缀
   static const String monthlySuffix = '/月';
+  
+  /// 每年订阅的价格后缀
   static const String yearlySuffix = '/年';
 }
 
+/// 订阅模型类
+/// 用于表示一个订阅服务的完整信息
 class Subscription {
+  /// 订阅的唯一标识符
   final String id;
+  
+  /// 订阅名称
   final String name;
+  
+  /// 订阅图标（可选）
   final String? icon;
+  
+  /// 订阅类型
   final String type;
+  
+  /// 订阅价格
   final double price;
-  final String currency; // 新增货币字段，默认为CNY
-  final String billingCycle; // 每月/每年/一次性
+  
+  /// 货币类型，默认为CNY
+  final String currency;
+  
+  /// 计费周期：每月/每年/一次性
+  final String billingCycle;
+  
+  /// 下次付款日期
   final DateTime nextPaymentDate;
+  
+  /// 是否自动续费
   final bool autoRenewal;
+  
+  /// 备注信息（可选）
   final String? notes;
 
+  /// 构造函数
+  /// 创建一个新的订阅实例
+  /// 如果未提供id，则自动生成UUID
+  /// currency默认为'CNY'
   Subscription({
     String? id,
     required this.name,
     this.icon,
     required this.type,
     required this.price,
-    this.currency = 'CNY', // 默认货币为人民币
+    this.currency = 'CNY',
     required this.billingCycle,
     required this.nextPaymentDate,
     required this.autoRenewal,
@@ -36,6 +65,7 @@ class Subscription {
   }) : id = id ?? const Uuid().v4();
 
   /// 创建一个Subscription实例的副本，用于更新操作
+  /// 允许只更新指定的字段，其他字段保持不变
   Subscription copyWith({
     String? id,
     String? name,
@@ -62,7 +92,7 @@ class Subscription {
     );
   }
 
-  /// 将Subscription对象转换为Map，便于存储
+  /// 将Subscription对象转换为Map，便于存储到SharedPreferences
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -79,6 +109,7 @@ class Subscription {
   }
 
   /// 从Map创建Subscription对象
+  /// 用于从SharedPreferences恢复数据
   factory Subscription.fromMap(Map<String, dynamic> map) {
     return Subscription(
       id: map['id'],
@@ -95,6 +126,7 @@ class Subscription {
   }
 
   /// 计算下次付款前剩余天数
+  /// 返回距离下次付款的天数，负数表示已过期
   int get daysUntilPayment {
     final now = DateTime.now();
     final difference = nextPaymentDate.difference(now);
@@ -102,6 +134,7 @@ class Subscription {
   }
 
   /// 格式化价格显示
+  /// 根据计费周期和货币类型格式化显示价格
   String get formattedPrice {
     // 使用外部定义的货币符号映射
     final symbol = currencySymbols[currency] ?? currency;
@@ -117,6 +150,7 @@ class Subscription {
   }
 
   /// 获取续费状态描述
+  /// 根据距离下次付款天数返回相应的状态描述
   String get renewalStatus {
     if (daysUntilPayment < 0) {
       return '已过期';
@@ -132,6 +166,7 @@ class Subscription {
   }
 
   /// 获取订阅图标
+  /// 将字符串形式的图标转换为IconData
   IconData get iconData {
     return IconUtils.getIconData(icon);
   }

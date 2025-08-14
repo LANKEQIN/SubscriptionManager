@@ -2,9 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'dart:async';
 import '../models/subscription.dart';
-import '../screens/monthly_history.dart';
+import '../models/monthly_history.dart';
+import '../utils/user_preferences.dart';
+import '../fixed_exchange_rate_service.dart'; // 使用固定汇率服务
 
 class SubscriptionProvider with ChangeNotifier {
   List<Subscription> _subscriptions = [];
@@ -21,17 +22,12 @@ class SubscriptionProvider with ChangeNotifier {
   
   // 提醒查看状态，默认为false（未查看）
   bool _hasUnreadNotifications = false;
-
-  // 用于防抖的定时器
-  Timer? _saveTimer;
   
-  // 用于批量通知的定时器
-  Timer? _notifyTimer;
+  // 固定汇率服务
+  final FixedExchangeRateService _exchangeRateService = FixedExchangeRateService();
   
-  // 缓存计算结果
-  double? _cachedMonthlyCost;
-  double? _cachedYearlyCost;
-  bool _isDataDirty = true; // 标记数据是否已更改但尚未重新计算
+  // 基准货币
+  String _baseCurrency = UserPreferences.defaultBaseCurrency;
 
   List<Subscription> get subscriptions => _subscriptions;
   List<MonthlyHistory> get monthlyHistories => _monthlyHistories;
@@ -39,6 +35,7 @@ class SubscriptionProvider with ChangeNotifier {
   double get fontSize => _fontSize;
   Color? get themeColor => _themeColor;
   bool get hasUnreadNotifications => _hasUnreadNotifications;
+  String get baseCurrency => _baseCurrency;
 
   // 初始化数据
   Future<void> loadFromPrefs() async {
@@ -77,25 +74,14 @@ class SubscriptionProvider with ChangeNotifier {
     final themeColorValue = prefs.getInt('themeColor');
     _themeColor = themeColorValue != null ? Color(themeColorValue) : null;
     
-    // 标记数据为脏数据，需要重新计算
-    _isDataDirty = true;
+    // 加载基准货币
+    _baseCurrency = await UserPreferences.getBaseCurrency();
     
     notifyListeners();
   }
 
-  // 保存数据到SharedPreferences - 添加防抖机制
-  Future<void> _saveToPrefs([Duration delay = const Duration(milliseconds: 500)]) async {
-    // 取消之前的定时器
-    _saveTimer?.cancel();
-    
-    // 创建新的定时器
-    _saveTimer = Timer(delay, () async {
-      _performSave(); // 将保存操作提取到独立方法中
-    });
-  }
-  
-  // 实际执行保存操作的方法
-  Future<void> _performSave() async {
+  // 保存数据到SharedPreferences
+  Future<void> _saveToPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     
     // 保存订阅数据
@@ -119,17 +105,6 @@ class SubscriptionProvider with ChangeNotifier {
       prefs.remove('themeColor');
     }
   }
-  
-  // 批量通知监听器，避免频繁更新UI
-  void _notifyListenersDebounced([Duration delay = const Duration(milliseconds: 100)]) {
-    // 取消之前的定时器
-    _notifyTimer?.cancel();
-    
-    // 创建新的定时器
-    _notifyTimer = Timer(delay, () {
-      notifyListeners();
-    });
-  }
 
   // 添加订阅
   void addSubscription(Subscription subscription) {
@@ -143,23 +118,16 @@ class SubscriptionProvider with ChangeNotifier {
       _hasUnreadNotifications = true;
     }
     
-    // 标记数据为脏数据，需要重新计算
-    _isDataDirty = true;
-    
     _saveToPrefs(); // 保存数据
-    _notifyListenersDebounced();
+    notifyListeners();
   }
 
   // 删除订阅
   void removeSubscription(String id) {
     _subscriptions.removeWhere((subscription) => subscription.id == id);
     _updateCurrentMonthHistory();
-    
-    // 标记数据为脏数据，需要重新计算
-    _isDataDirty = true;
-    
     _saveToPrefs(); // 保存数据
-    _notifyListenersDebounced();
+    notifyListeners();
   }
 
   // 更新订阅
@@ -168,12 +136,8 @@ class SubscriptionProvider with ChangeNotifier {
     if (index != -1) {
       _subscriptions[index] = updatedSubscription;
       _updateCurrentMonthHistory();
-      
-      // 标记数据为脏数据，需要重新计算
-      _isDataDirty = true;
-      
       _saveToPrefs(); // 保存数据
-      _notifyListenersDebounced();
+      notifyListeners();
     }
   }
 
@@ -181,7 +145,7 @@ class SubscriptionProvider with ChangeNotifier {
   Subscription? getSubscriptionById(String id) {
     try {
       return _subscriptions.firstWhere((subscription) => subscription.id == id);
-    } on StateError {
+    } catch (e) {
       return null;
     }
   }
@@ -189,52 +153,50 @@ class SubscriptionProvider with ChangeNotifier {
   // 获取订阅总数
   int get subscriptionCount => _subscriptions.length;
 
-  // 计算指定计费周期的订阅总费用
-  double _calculateCostByBillingCycle(String billingCycle, {bool monthlyRate = false}) {
+  // 获取月度总费用（基于基准货币）
+  double get monthlyCost {
     double total = 0;
-    final subscriptions = _subscriptions.where((s) => s.billingCycle == billingCycle);
-    
-    for (var subscription in subscriptions) {
-      if (monthlyRate && billingCycle == '每年') {
-        total += subscription.price / 12;
-      } else if (!monthlyRate && billingCycle == '每月') {
-        total += subscription.price * 12;
-      } else {
-        total += subscription.price;
+    for (var subscription in _subscriptions) {
+      double amount = 0;
+      if (subscription.billingCycle == '每月') {
+        amount = subscription.price;
+      } else if (subscription.billingCycle == '每年') {
+        amount = subscription.price / 12;
       }
+      
+      // 转换为基准货币
+      final convertedAmount = _exchangeRateService.convertCurrency(
+        amount, 
+        subscription.currency, 
+        _baseCurrency
+      );
+      total += convertedAmount;
     }
-    
     return total;
   }
 
-  // 获取月度总费用
-  double get monthlyCost {
-    // 如果数据未更改，直接返回缓存的结果
-    if (!_isDataDirty && _cachedMonthlyCost != null) {
-      return _cachedMonthlyCost!;
-    }
-    
-    // 计算并缓存结果
-    _cachedMonthlyCost = _calculateCostByBillingCycle('每月') + 
-                        _calculateCostByBillingCycle('每年', monthlyRate: true);
-    
-    _isDataDirty = false;
-    return _cachedMonthlyCost!;
-  }
-
-  // 获取年度总费用
+  // 获取年度总费用（基于基准货币）
   double get yearlyCost {
-    // 如果数据未更改，直接返回缓存的结果
-    if (!_isDataDirty && _cachedYearlyCost != null) {
-      return _cachedYearlyCost!;
+    double total = 0;
+    for (var subscription in _subscriptions) {
+      double amount = 0;
+      if (subscription.billingCycle == '每月') {
+        amount = subscription.price * 12;
+      } else if (subscription.billingCycle == '每年') {
+        amount = subscription.price;
+      } else if (subscription.billingCycle == '一次性') {
+        amount = subscription.price;
+      }
+      
+      // 转换为基准货币
+      final convertedAmount = _exchangeRateService.convertCurrency(
+        amount, 
+        subscription.currency, 
+        _baseCurrency
+      );
+      total += convertedAmount;
     }
-    
-    // 计算并缓存结果
-    _cachedYearlyCost = _calculateCostByBillingCycle('每月', monthlyRate: false) + 
-                       _calculateCostByBillingCycle('每年') + 
-                       _calculateCostByBillingCycle('一次性');
-    
-    return _cachedYearlyCost!;
+    return total;
   }
 
   // 获取即将到期的订阅（7天内）
@@ -264,7 +226,7 @@ class SubscriptionProvider with ChangeNotifier {
     final currentMonthHistory = MonthlyHistory(
       year: currentYear,
       month: currentMonth,
-      totalCost: monthlyCost, // 这里使用的是计算后的月度费用
+      totalCost: monthlyCostSync, // 使用同步版本进行历史记录
     );
     
     // 如果已有记录则更新，否则添加新记录
@@ -273,6 +235,19 @@ class SubscriptionProvider with ChangeNotifier {
     } else {
       _monthlyHistories.add(currentMonthHistory);
     }
+  }
+
+  // 同步版本的月度费用计算（用于历史记录）
+  double get monthlyCostSync {
+    double total = 0;
+    for (var subscription in _subscriptions) {
+      if (subscription.billingCycle == '每月') {
+        total += subscription.price;
+      } else if (subscription.billingCycle == '每年') {
+        total += subscription.price / 12;
+      }
+    }
+    return total;
   }
 
   // 获取上个月的历史记录
@@ -297,7 +272,7 @@ class SubscriptionProvider with ChangeNotifier {
       return 0.0; // 没有上个月的数据
     }
     
-    final currentCost = monthlyCost;
+    final currentCost = monthlyCostSync;
     final previousCost = previousMonthHistory.totalCost;
     
     if (previousCost == 0) {
@@ -347,13 +322,43 @@ class SubscriptionProvider with ChangeNotifier {
       notifyListeners();
     }
   }
-
-  // 释放资源
-  @override
-  void dispose() {
-    _saveTimer?.cancel();
-    _notifyTimer?.cancel();
-    super.dispose();
+  
+  // 设置基准货币
+  void setBaseCurrency(String currencyCode) async {
+    _baseCurrency = currencyCode;
+    await UserPreferences.setBaseCurrency(currencyCode);
+    notifyListeners();
   }
-
+  
+  // 按类型分组统计费用（基于基准货币）
+  Map<String, double> getTypeStats() {
+    final typeStats = <String, double>{};
+    
+    for (var subscription in _subscriptions) {
+      double amount = subscription.price;
+      if (subscription.billingCycle == '每年') {
+        amount = subscription.price / 12; // 转换为月费用进行比较
+      }
+      
+      // 转换为基准货币
+      final convertedAmount = _exchangeRateService.convertCurrency(
+        amount, 
+        subscription.currency, 
+        _baseCurrency
+      );
+      
+      if (typeStats.containsKey(subscription.type)) {
+        typeStats[subscription.type] = typeStats[subscription.type]! + convertedAmount;
+      } else {
+        typeStats[subscription.type] = convertedAmount;
+      }
+    }
+    
+    return typeStats;
+  }
+  
+  // 获取支持的货币列表
+  List<String> getSupportedCurrencies() {
+    return _exchangeRateService.getSupportedCurrencies();
+  }
 }
