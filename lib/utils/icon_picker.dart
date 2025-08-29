@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'icon_utils.dart';
 
 class IconPicker extends StatefulWidget {
   final IconData? selectedIcon;

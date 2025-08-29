@@ -1,5 +1,3 @@
-import 'dart:math';
-
 class FixedExchangeRateService {
   // 固定汇率表（以USD为基准）
   static const Map<String, double> _exchangeRates = {

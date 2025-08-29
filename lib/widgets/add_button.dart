@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../dialogs/add_subscription_dialog.dart';
-import '../models/subscription.dart';
 import '../providers/subscription_provider.dart';
 
 class AddButton extends StatelessWidget {
@@ -34,14 +33,14 @@ class AddButton extends StatelessWidget {
           color: Theme.of(context).colorScheme.primary,
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
+              color: Colors.grey.withValues(alpha: 0.5),
               spreadRadius: 1,
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
           ],
         ),
-        child: Icon(
+        child: const Icon(
           Icons.add,
           color: Colors.white,
           size: 36.0,

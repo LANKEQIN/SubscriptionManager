@@ -21,7 +21,7 @@ class SubscriptionCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: Theme.of(context).dividerColor.withOpacity(0.2),
+          color: Theme.of(context).dividerColor.withValues(alpha:0.2),
           width: 1,
         ),
       ),
@@ -51,7 +51,7 @@ class SubscriptionCard extends StatelessWidget {
                           width: 50,
                           height: 50,
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: IconUtils.buildSubscriptionIcon(context, subscription.icon),
@@ -131,7 +131,7 @@ class SubscriptionCard extends StatelessWidget {
                       width: 50,
                       height: 50,
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha:0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: IconUtils.buildSubscriptionIcon(context, subscription.icon),

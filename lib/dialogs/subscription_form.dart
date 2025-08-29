@@ -38,10 +38,10 @@ class SubscriptionFormState extends State<SubscriptionForm> {
   late bool _autoRenewal;
 
   // 订阅类型选项
-  static final List<String> _subscriptionTypes = SubscriptionConstants.SUBSCRIPTION_TYPES;
+  static const List<String> _subscriptionTypes = SubscriptionConstants.subscriptionTypes;
 
   // 计费周期选项
-  static final List<String> _billingCycles = SubscriptionConstants.BILLING_CYCLES;
+  static const List<String> _billingCycles = SubscriptionConstants.billingCycles;
 
   // 表单校验工具方法
   String? _validateServiceName(String? value) {
@@ -208,7 +208,7 @@ class SubscriptionFormState extends State<SubscriptionForm> {
             // 价格
             TextFormField(
               controller: _priceController,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: const InputDecoration(
                 labelText: '价格',
                 hintText: '请输入价格',
@@ -231,7 +231,7 @@ class SubscriptionFormState extends State<SubscriptionForm> {
               items: _currencies.entries.map((entry) {
                 return DropdownMenuItem<String>(
                   value: entry.key,
-                  child: Text('${entry.value}'), // 显示货币全称和符号
+                  child: Text(entry.value), // 显示货币全称和符号
                 );
               }).toList(),
               onChanged: (value) {
@@ -304,7 +304,7 @@ class SubscriptionFormState extends State<SubscriptionForm> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
                 side: BorderSide(
-                  color: Theme.of(context).dividerColor.withOpacity(0.5),
+                  color: Theme.of(context).dividerColor.withValues(alpha: 0.5),
                   width: 1,
                 ),
               ),
