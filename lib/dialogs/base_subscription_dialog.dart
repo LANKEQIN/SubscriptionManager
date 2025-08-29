@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 import '../models/subscription.dart';
 import 'subscription_form.dart';
 
@@ -29,7 +30,7 @@ class _BaseSubscriptionDialogState extends State<BaseSubscriptionDialog> {
       final formData = _formState!.formData;
       
       final subscription = Subscription(
-        id: widget.initialData != null ? '' : null, // 如果是编辑则保留ID，添加时生成新ID
+        id: const Uuid().v4(), // 生成新的UUID作为ID
         name: formData.serviceName,
         icon: formData.icon?.codePoint.toString(),
         type: formData.subscriptionType,
