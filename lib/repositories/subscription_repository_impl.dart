@@ -1,7 +1,9 @@
 import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 import '../database/app_database.dart';
 import '../cache/hive_service.dart';
+import '../cache/smart_cache_manager.dart';
 import '../models/subscription.dart';
 import 'repository_interfaces.dart';
 import 'error_handler.dart';
@@ -91,8 +93,12 @@ class SubscriptionRepositoryImpl with ErrorHandler implements SubscriptionReposi
       final entity = _subscriptionToEntity(subscriptionWithId);
       await _database.insertSubscription(entity);
       
-      // 清除相关缓存
-      await _invalidateCache();
+      // 使用智能缓存管理器进行精细化缓存更新
+      await SmartCacheManager.updateCacheSelectively(
+        subscriptionId: subscriptionWithId.id,
+        updateList: true,
+        updateStatistics: true,
+      );
     });
   }
 
@@ -102,8 +108,15 @@ class SubscriptionRepositoryImpl with ErrorHandler implements SubscriptionReposi
       final entity = _subscriptionToEntity(subscription);
       await _database.updateSubscriptionById(subscription.id, entity);
       
-      // 清除相关缓存
-      await _invalidateCache();
+      // 使用智能缓存管理器进行精细化缓存更新
+      await SmartCacheManager.updateCacheSelectively(
+        subscriptionId: subscription.id,
+        updateList: true,
+        updateStatistics: false, // 更新不影响统计
+      );
+      
+      // 更新单个订阅缓存
+      await _updateSingleSubscriptionCache(subscription);
     });
   }
 
@@ -112,8 +125,12 @@ class SubscriptionRepositoryImpl with ErrorHandler implements SubscriptionReposi
     return handleDatabaseOperation(() async {
       await _database.deleteSubscriptionById(id);
       
-      // 清除相关缓存
-      await _invalidateCache();
+      // 使用智能缓存管理器进行精细化缓存更新
+      await SmartCacheManager.updateCacheSelectively(
+        subscriptionId: id,
+        updateList: true,
+        updateStatistics: true,
+      );
     });
   }
 
@@ -152,11 +169,20 @@ class SubscriptionRepositoryImpl with ErrorHandler implements SubscriptionReposi
     });
   }
 
-  /// 清除相关缓存
-  Future<void> _invalidateCache() async {
-    await HiveService.deleteCache(_allSubscriptionsCacheKey);
-    // 清除单个订阅缓存比较困难，简单起见清除所有缓存
-    // 在实际应用中可以维护一个缓存键列表
+  /// 更新单个订阅缓存
+  Future<void> _updateSingleSubscriptionCache(Subscription subscription) async {
+    try {
+      final cacheKey = '$_cacheKeyPrefix${subscription.id}';
+      await HiveService.setCacheObject<Map<String, dynamic>>(
+        cacheKey,
+        _subscriptionToJson(subscription),
+        (json) => json,
+        (data) => data,
+        expiry: SmartCacheManager.getCacheDuration('subscription_'),
+      );
+    } catch (e) {
+      debugPrint('更新单个订阅缓存失败: $e');
+    }
   }
 
   /// 将数据库实体转换为订阅模型

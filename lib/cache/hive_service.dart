@@ -194,7 +194,44 @@ class HiveService {
     }
   }
 
-  /// 获取缓存统计信息
+  /// 获取所有缓存键
+  static Future<List<String>> getAllCacheKeys() async {
+    try {
+      return _cacheBox.keys.cast<String>().toList();
+    } catch (e) {
+      debugPrint('获取缓存键失败: $e');
+      return [];
+    }
+  }
+
+  /// 批量删除缓存
+  static Future<void> deleteCaches(List<String> keys) async {
+    try {
+      await _cacheBox.deleteAll(keys);
+      debugPrint('批量删除缓存成功: ${keys.length} 个项目');
+    } catch (e) {
+      debugPrint('批量删除缓存失败: $e');
+    }
+  }
+
+  /// 执行LRU清理
+  static Future<void> performLRUCleanup({required int targetSize}) async {
+    try {
+      final allKeys = await getAllCacheKeys();
+      
+      if (allKeys.length <= targetSize) {
+        return; // 不需要清理
+      }
+
+      // 简单的清理策略：删除最旧的缓存项
+      final keysToDelete = allKeys.take(allKeys.length - targetSize).toList();
+      await deleteCaches(keysToDelete);
+      
+      debugPrint('LRU清理完成，删除了 ${keysToDelete.length} 个缓存项');
+    } catch (e) {
+      debugPrint('LRU清理失败: $e');
+    }
+  }
   static Map<String, dynamic> getCacheStats() {
     return {
       'total_items': _cacheBox.length,

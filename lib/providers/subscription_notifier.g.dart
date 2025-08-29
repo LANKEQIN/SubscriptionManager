@@ -7,7 +7,7 @@ part of 'subscription_notifier.dart';
 // **************************************************************************
 
 String _$subscriptionNotifierHash() =>
-    r'1e726682dfa8d8910693a36f4a8727b13fb1d45a';
+    r'0aa394def93ffbd2c12031a73899a32430d5a918';
 
 /// 升级后的订阅状态管理器
 /// 使用Repository模式和现代Riverpod架构
