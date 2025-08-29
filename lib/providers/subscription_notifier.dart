@@ -89,7 +89,7 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
       await prefs.setDouble('fontSize', state.fontSize);
 
       if (state.themeColor != null) {
-        await prefs.setInt('themeColor', state.themeColor!.toARGB32());
+        await prefs.setInt('themeColor', state.themeColor!.value);
       } else {
         await prefs.remove('themeColor');
       }
