@@ -16,9 +16,23 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$MonthlyHistory {
+  /// 历史记录唯一标识符
+  String get id => throw _privateConstructorUsedError;
+
+  /// 年份
   int get year => throw _privateConstructorUsedError;
+
+  /// 月份 (1-12)
   int get month => throw _privateConstructorUsedError;
-  double get totalCost => throw _privateConstructorUsedError;
+
+  /// 当月总金额
+  double get totalAmount => throw _privateConstructorUsedError;
+
+  /// 货币类型
+  String get currency => throw _privateConstructorUsedError;
+
+  /// 当月订阅数量
+  int get subscriptionCount => throw _privateConstructorUsedError;
 
   /// Create a copy of MonthlyHistory
   /// with the given fields replaced by the non-null parameter values.
@@ -33,7 +47,13 @@ abstract class $MonthlyHistoryCopyWith<$Res> {
           MonthlyHistory value, $Res Function(MonthlyHistory) then) =
       _$MonthlyHistoryCopyWithImpl<$Res, MonthlyHistory>;
   @useResult
-  $Res call({int year, int month, double totalCost});
+  $Res call(
+      {String id,
+      int year,
+      int month,
+      double totalAmount,
+      String currency,
+      int subscriptionCount});
 }
 
 /// @nodoc
@@ -51,11 +71,18 @@ class _$MonthlyHistoryCopyWithImpl<$Res, $Val extends MonthlyHistory>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? year = null,
     Object? month = null,
-    Object? totalCost = null,
+    Object? totalAmount = null,
+    Object? currency = null,
+    Object? subscriptionCount = null,
   }) {
     return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       year: null == year
           ? _value.year
           : year // ignore: cast_nullable_to_non_nullable
@@ -64,10 +91,18 @@ class _$MonthlyHistoryCopyWithImpl<$Res, $Val extends MonthlyHistory>
           ? _value.month
           : month // ignore: cast_nullable_to_non_nullable
               as int,
-      totalCost: null == totalCost
-          ? _value.totalCost
-          : totalCost // ignore: cast_nullable_to_non_nullable
+      totalAmount: null == totalAmount
+          ? _value.totalAmount
+          : totalAmount // ignore: cast_nullable_to_non_nullable
               as double,
+      currency: null == currency
+          ? _value.currency
+          : currency // ignore: cast_nullable_to_non_nullable
+              as String,
+      subscriptionCount: null == subscriptionCount
+          ? _value.subscriptionCount
+          : subscriptionCount // ignore: cast_nullable_to_non_nullable
+              as int,
     ) as $Val);
   }
 }
@@ -80,7 +115,13 @@ abstract class _$$MonthlyHistoryImplCopyWith<$Res>
       __$$MonthlyHistoryImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int year, int month, double totalCost});
+  $Res call(
+      {String id,
+      int year,
+      int month,
+      double totalAmount,
+      String currency,
+      int subscriptionCount});
 }
 
 /// @nodoc
@@ -96,11 +137,18 @@ class __$$MonthlyHistoryImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? year = null,
     Object? month = null,
-    Object? totalCost = null,
+    Object? totalAmount = null,
+    Object? currency = null,
+    Object? subscriptionCount = null,
   }) {
     return _then(_$MonthlyHistoryImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       year: null == year
           ? _value.year
           : year // ignore: cast_nullable_to_non_nullable
@@ -109,30 +157,63 @@ class __$$MonthlyHistoryImplCopyWithImpl<$Res>
           ? _value.month
           : month // ignore: cast_nullable_to_non_nullable
               as int,
-      totalCost: null == totalCost
-          ? _value.totalCost
-          : totalCost // ignore: cast_nullable_to_non_nullable
+      totalAmount: null == totalAmount
+          ? _value.totalAmount
+          : totalAmount // ignore: cast_nullable_to_non_nullable
               as double,
+      currency: null == currency
+          ? _value.currency
+          : currency // ignore: cast_nullable_to_non_nullable
+              as String,
+      subscriptionCount: null == subscriptionCount
+          ? _value.subscriptionCount
+          : subscriptionCount // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }
 
 /// @nodoc
 
-class _$MonthlyHistoryImpl implements _MonthlyHistory {
+class _$MonthlyHistoryImpl extends _MonthlyHistory {
   const _$MonthlyHistoryImpl(
-      {required this.year, required this.month, required this.totalCost});
+      {this.id = '',
+      required this.year,
+      required this.month,
+      required this.totalAmount,
+      this.currency = 'CNY',
+      required this.subscriptionCount})
+      : super._();
 
+  /// 历史记录唯一标识符
+  @override
+  @JsonKey()
+  final String id;
+
+  /// 年份
   @override
   final int year;
+
+  /// 月份 (1-12)
   @override
   final int month;
+
+  /// 当月总金额
   @override
-  final double totalCost;
+  final double totalAmount;
+
+  /// 货币类型
+  @override
+  @JsonKey()
+  final String currency;
+
+  /// 当月订阅数量
+  @override
+  final int subscriptionCount;
 
   @override
   String toString() {
-    return 'MonthlyHistory(year: $year, month: $month, totalCost: $totalCost)';
+    return 'MonthlyHistory(id: $id, year: $year, month: $month, totalAmount: $totalAmount, currency: $currency, subscriptionCount: $subscriptionCount)';
   }
 
   @override
@@ -140,14 +221,20 @@ class _$MonthlyHistoryImpl implements _MonthlyHistory {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$MonthlyHistoryImpl &&
+            (identical(other.id, id) || other.id == id) &&
             (identical(other.year, year) || other.year == year) &&
             (identical(other.month, month) || other.month == month) &&
-            (identical(other.totalCost, totalCost) ||
-                other.totalCost == totalCost));
+            (identical(other.totalAmount, totalAmount) ||
+                other.totalAmount == totalAmount) &&
+            (identical(other.currency, currency) ||
+                other.currency == currency) &&
+            (identical(other.subscriptionCount, subscriptionCount) ||
+                other.subscriptionCount == subscriptionCount));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, year, month, totalCost);
+  int get hashCode => Object.hash(
+      runtimeType, id, year, month, totalAmount, currency, subscriptionCount);
 
   /// Create a copy of MonthlyHistory
   /// with the given fields replaced by the non-null parameter values.
@@ -159,18 +246,39 @@ class _$MonthlyHistoryImpl implements _MonthlyHistory {
           this, _$identity);
 }
 
-abstract class _MonthlyHistory implements MonthlyHistory {
+abstract class _MonthlyHistory extends MonthlyHistory {
   const factory _MonthlyHistory(
-      {required final int year,
+      {final String id,
+      required final int year,
       required final int month,
-      required final double totalCost}) = _$MonthlyHistoryImpl;
+      required final double totalAmount,
+      final String currency,
+      required final int subscriptionCount}) = _$MonthlyHistoryImpl;
+  const _MonthlyHistory._() : super._();
 
+  /// 历史记录唯一标识符
+  @override
+  String get id;
+
+  /// 年份
   @override
   int get year;
+
+  /// 月份 (1-12)
   @override
   int get month;
+
+  /// 当月总金额
   @override
-  double get totalCost;
+  double get totalAmount;
+
+  /// 货币类型
+  @override
+  String get currency;
+
+  /// 当月订阅数量
+  @override
+  int get subscriptionCount;
 
   /// Create a copy of MonthlyHistory
   /// with the given fields replaced by the non-null parameter values.

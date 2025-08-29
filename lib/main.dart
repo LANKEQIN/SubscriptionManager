@@ -6,7 +6,9 @@ import 'screens/statistics_screen.dart';
 import 'screens/notifications_screen.dart';
 import 'screens/profile_screen.dart';
 import 'providers/app_providers.dart';
-import 'constants/theme_constants.dart';
+import 'providers/subscription_notifier.dart';
+import 'models/subscription_state.dart';
+
 import 'config/theme_builder.dart';
 
 /// 应用程序入口点
@@ -28,35 +30,102 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // 加载数据
-    ref.listen(subscriptionProvider, (previous, next) {
-      if (previous?.isLoading == true && next.isLoading == false) {
-        // 数据加载完成，可以在这里执行一些初始化操作
-      }
-    });
+    // 等待应用初始化完成
+    final initializationState = ref.watch(appInitializationProvider);
     
-    // 监听并初始化加载数据
-    final subscriptionNotifier = ref.read(subscriptionProvider.notifier);
+    // 加载订阅数据
+    final subscriptionState = ref.watch(subscriptionNotifierProvider);
     
-    // 在build中加载数据（只加载一次）
-    ref.listen(subscriptionProvider, (previous, next) {
-      // 初始化时加载数据
-    });
-    
-    // 使用Future.microtask确保在build完成后加载数据
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      subscriptionNotifier.loadFromPreferences();
-    });
-    
-    final themeMode = ref.watch(themeModeProvider);
-    final fontSize = ref.watch(fontSizeProvider);
-    final themeColor = ref.watch(themeColorProvider);
-    
+    // 如果初始化失败，显示错误页面
+    return initializationState.when(
+      data: (initialized) {
+        if (!initialized) {
+          return const MaterialApp(
+            home: Scaffold(
+              body: Center(
+                child: Text('初始化失败'),
+              ),
+            ),
+          );
+        }
+        
+        // 获取主题设置
+        return subscriptionState.when(
+          data: (state) => _buildApp(context, ref, state),
+          loading: () => const MaterialApp(
+            home: Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          ),
+          error: (error, stack) => MaterialApp(
+            home: Scaffold(
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error, size: 64, color: Colors.red),
+                    const SizedBox(height: 16),
+                    Text('加载失败: $error'),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        ref.invalidate(subscriptionNotifierProvider);
+                      },
+                      child: const Text('重试'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+      loading: () => const MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('初始化中...'),
+              ],
+            ),
+          ),
+        ),
+      ),
+      error: (error, stack) => MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error, size: 64, color: Colors.red),
+                const SizedBox(height: 16),
+                Text('初始化失败: $error'),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    ref.invalidate(appInitializationProvider);
+                  },
+                  child: const Text('重试'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildApp(BuildContext context, WidgetRef ref, SubscriptionState state) {
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
         // 获取颜色方案
         final colorSchemes = AppThemeBuilder.getColorSchemes(
-          customColor: themeColor,
+          customColor: state.themeColor,
           lightDynamic: lightDynamic,
           darkDynamic: darkDynamic,
         );
@@ -65,13 +134,13 @@ class MyApp extends ConsumerWidget {
           title: 'Subscription Manager',
           theme: AppThemeBuilder.buildLightTheme(
             colorSchemes.light, 
-            fontSize
+            state.fontSize
           ),
           darkTheme: AppThemeBuilder.buildDarkTheme(
             colorSchemes.dark, 
-            fontSize
+            state.fontSize
           ),
-          themeMode: themeMode,
+          themeMode: state.themeMode,
           home: const MainScreen(),
         );
       },
@@ -95,56 +164,47 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
   // 页面列表
-  final List<Widget> _pages = [
-    const HomeScreen(),
-    const StatisticsScreen(),
-    const NotificationsScreen(),
-    const ProfileScreen(),
+  static const List<Widget> _pages = [
+    HomeScreen(),
+    StatisticsScreen(),
+    NotificationsScreen(),
+    ProfileScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: _pages[_currentIndex],
-      bottomNavigationBar: LayoutBuilder(
-        builder: (context, constraints) {
-          final isSmallScreen = ThemeConfigHelper.isSmallScreen(constraints.maxWidth);
-          final iconSize = ThemeConfigHelper.getIconSize(isSmallScreen);
-          final navigationBarHeight = ThemeConfigHelper.getNavigationBarHeight(isSmallScreen);
-          
-          return NavigationBar(
-            selectedIndex: _currentIndex,
-            onDestinationSelected: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
-            },
-            destinations: [
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        destinations: const [
               NavigationDestination(
-                icon: Icon(Icons.home_outlined, size: iconSize),
-                selectedIcon: Icon(Icons.home, size: iconSize),
+                icon: Icon(Icons.home_outlined),
+                selectedIcon: Icon(Icons.home),
                 label: '首页',
               ),
               NavigationDestination(
-                icon: Icon(Icons.bar_chart_outlined, size: iconSize),
-                selectedIcon: Icon(Icons.bar_chart, size: iconSize),
+                icon: Icon(Icons.bar_chart_outlined),
+                selectedIcon: Icon(Icons.bar_chart),
                 label: '统计',
               ),
               NavigationDestination(
-                icon: Icon(Icons.notifications_outlined, size: iconSize),
-                selectedIcon: Icon(Icons.notifications, size: iconSize),
+                icon: Icon(Icons.notifications_outlined),
+                selectedIcon: Icon(Icons.notifications),
                 label: '提醒',
               ),
               NavigationDestination(
-                icon: Icon(Icons.person_outlined, size: iconSize),
-                selectedIcon: Icon(Icons.person, size: iconSize),
+                icon: Icon(Icons.person_outlined),
+                selectedIcon: Icon(Icons.person),
                 label: '我的',
               ),
-            ],
-            labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-            height: navigationBarHeight,
-          );
-        },
+        ],
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       ),
     );
   }

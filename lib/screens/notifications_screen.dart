@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/app_providers.dart';
+import '../providers/subscription_notifier.dart';
 import '../models/subscription.dart';
 import '../utils/icon_utils.dart';
 
@@ -9,7 +9,7 @@ class NotificationsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final upcomingSubscriptions = ref.watch(upcomingSubscriptionsProvider);
+    final subscriptionState = ref.watch(subscriptionNotifierProvider);
     
     return Scaffold(
       appBar: AppBar(
@@ -37,49 +37,60 @@ class NotificationsScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 16),
-            if (upcomingSubscriptions.isEmpty)
-              Expanded(
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.check_circle_outline,
-                        size: 64,
-                        color: Colors.grey[400],
+            Expanded(
+              child: subscriptionState.when(
+                data: (state) {
+                  final upcomingSubscriptions = state.upcomingSubscriptions;
+                  
+                  if (upcomingSubscriptions.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.check_circle_outline,
+                            size: 64,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            '没有即将到期的订阅',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            '所有订阅都安全无忧',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        '没有即将到期的订阅',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        '所有订阅都安全无忧',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            else
-              Expanded(
-                child: ListView.builder(
-                  itemCount: upcomingSubscriptions.length,
-                  itemBuilder: (context, index) {
-                    return _buildSubscriptionItem(
-                      context, 
-                      upcomingSubscriptions[index],
                     );
-                  },
+                  }
+                  
+                  return ListView.builder(
+                    itemCount: upcomingSubscriptions.length,
+                    itemBuilder: (context, index) {
+                      return _buildSubscriptionItem(
+                        context, 
+                        upcomingSubscriptions[index],
+                      );
+                    },
+                  );
+                },
+                loading: () => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+                error: (error, stack) => Center(
+                  child: Text('加载失败: $error'),
                 ),
               ),
+            ),
           ],
         ),
       ),
