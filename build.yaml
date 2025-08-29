@@ -1,0 +1,23 @@
+targets:
+  $default:
+    builders:
+      riverpod_generator:
+        options:
+          # Riverpod代码生成选项
+          provider_name_prefix: ''
+          provider_name_suffix: 'Provider'
+      freezed:
+        options:
+          # Freezed代码生成选项
+          copy_with: true
+          equal: true
+          to_string: true
+      json_serializable:
+        options:
+          # JSON序列化选项
+          explicit_to_json: true
+          include_if_null: false
+          checked: true
+          create_to_json: true
+          disallow_unrecognized_keys: false
+          generic_argument_factories: false

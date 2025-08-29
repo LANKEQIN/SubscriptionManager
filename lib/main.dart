@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'screens/home_screen.dart';
 import 'screens/statistics_screen.dart';
 import 'screens/notifications_screen.dart';
 import 'screens/profile_screen.dart';
-import 'providers/subscription_provider.dart';
+import 'providers/app_providers.dart';
 import 'constants/theme_constants.dart';
 import 'config/theme_builder.dart';
 
@@ -14,50 +14,65 @@ import 'config/theme_builder.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // 创建SubscriptionProvider实例并加载数据
-  final provider = SubscriptionProvider();
-  await provider.loadFromPrefs();
-  
   runApp(
-    ChangeNotifierProvider.value(
-      value: provider,
-      child: const MyApp(),
+    const ProviderScope(
+      child: MyApp(),
     ),
   );
 }
 
 /// 主应用程序类
 /// 配置应用程序的主题、路由和整体结构
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer<SubscriptionProvider>(
-      builder: (context, provider, child) {
-        return DynamicColorBuilder(
-          builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
-            // 获取颜色方案
-            final colorSchemes = AppThemeBuilder.getColorSchemes(
-              customColor: provider.themeColor,
-              lightDynamic: lightDynamic,
-              darkDynamic: darkDynamic,
-            );
-            
-            return MaterialApp(
-              title: 'Subscription Manager',
-              theme: AppThemeBuilder.buildLightTheme(
-                colorSchemes.light, 
-                provider.fontSize
-              ),
-              darkTheme: AppThemeBuilder.buildDarkTheme(
-                colorSchemes.dark, 
-                provider.fontSize
-              ),
-              themeMode: provider.themeMode,
-              home: const MainScreen(),
-            );
-          },
+  Widget build(BuildContext context, WidgetRef ref) {
+    // 加载数据
+    ref.listen(subscriptionProvider, (previous, next) {
+      if (previous?.isLoading == true && next.isLoading == false) {
+        // 数据加载完成，可以在这里执行一些初始化操作
+      }
+    });
+    
+    // 监听并初始化加载数据
+    final subscriptionNotifier = ref.read(subscriptionProvider.notifier);
+    
+    // 在build中加载数据（只加载一次）
+    ref.listen(subscriptionProvider, (previous, next) {
+      // 初始化时加载数据
+    });
+    
+    // 使用Future.microtask确保在build完成后加载数据
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      subscriptionNotifier.loadFromPreferences();
+    });
+    
+    final themeMode = ref.watch(themeModeProvider);
+    final fontSize = ref.watch(fontSizeProvider);
+    final themeColor = ref.watch(themeColorProvider);
+    
+    return DynamicColorBuilder(
+      builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
+        // 获取颜色方案
+        final colorSchemes = AppThemeBuilder.getColorSchemes(
+          customColor: themeColor,
+          lightDynamic: lightDynamic,
+          darkDynamic: darkDynamic,
+        );
+        
+        return MaterialApp(
+          title: 'Subscription Manager',
+          theme: AppThemeBuilder.buildLightTheme(
+            colorSchemes.light, 
+            fontSize
+          ),
+          darkTheme: AppThemeBuilder.buildDarkTheme(
+            colorSchemes.dark, 
+            fontSize
+          ),
+          themeMode: themeMode,
+          home: const MainScreen(),
         );
       },
     );
