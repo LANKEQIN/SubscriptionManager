@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/app_providers.dart';
+import '../providers/subscription_notifier.dart';
 import '../constants/theme_constants.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -43,7 +44,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   title: const Text('主题设置'),
                   subtitle: const Text('选择应用主题模式'),
                   trailing: DropdownButton<ThemeMode>(
-                    value: ref.watch(themeModeProvider),
+                    value: ref.watch(themeModeProviderProvider),
                     items: const [
                       DropdownMenuItem(
                         value: ThemeMode.system,
@@ -60,7 +61,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     ],
                     onChanged: (ThemeMode? mode) {
                       if (mode != null) {
-                        ref.read(subscriptionProvider.notifier).updateThemeMode(mode);
+                        ref.read(subscriptionNotifierProvider.notifier).updateThemeMode(mode);
                       }
                     },
                     underline: Container(), // 移除下划线
@@ -112,7 +113,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   title: const Text('字体大小'),
                   subtitle: const Text('调整应用字体大小'),
                   trailing: DropdownButton<double>(
-                    value: ref.watch(fontSizeProvider),
+                    value: ref.watch(fontSizeProviderProvider),
                     items: AppThemeConstants.fontSizeOptions.map((double size) {
                       return DropdownMenuItem<double>(
                         value: size,
@@ -121,7 +122,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     }).toList(),
                     onChanged: (double? size) {
                       if (size != null) {
-                        ref.read(subscriptionProvider.notifier).updateFontSize(size);
+                        ref.read(subscriptionNotifierProvider.notifier).updateFontSize(size);
                       }
                     },
                     underline: Container(), // 移除下划线
@@ -186,7 +187,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   Widget _buildThemeColorOptions() {
-    final currentThemeColor = ref.watch(themeColorProvider);
+    final currentThemeColor = ref.watch(themeColorProviderProvider);
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -194,7 +195,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         // 跟随系统颜色选项
         GestureDetector(
           onTap: () {
-            ref.read(subscriptionProvider.notifier).updateThemeColor(null);
+            ref.read(subscriptionNotifierProvider.notifier).updateThemeColor(null);
           },
           child: Row(
             children: [
@@ -241,7 +242,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           children: AppThemeConstants.presetThemeColors.map((color) {
             return GestureDetector(
               onTap: () {
-                ref.read(subscriptionProvider.notifier).updateThemeColor(color);
+                ref.read(subscriptionNotifierProvider.notifier).updateThemeColor(color);
               },
               child: Container(
                 decoration: BoxDecoration(

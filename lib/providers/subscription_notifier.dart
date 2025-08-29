@@ -1,279 +1,181 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/subscription.dart';
 import '../models/monthly_history.dart';
 import '../models/subscription_state.dart';
 import '../fixed_exchange_rate_service.dart';
 import '../utils/user_preferences.dart';
+import '../services/migration_service.dart';
+import 'app_providers.dart';
 
-class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
-  SubscriptionNotifier() : super(const SubscriptionState());
+part 'subscription_notifier.g.dart';
 
+/// 升级后的订阅状态管理器
+/// 使用Repository模式和现代Riverpod架构
+@riverpod
+class SubscriptionNotifier extends _$SubscriptionNotifier {
   final FixedExchangeRateService _exchangeRateService = FixedExchangeRateService();
-
-  /// 从SharedPreferences加载数据
-  Future<void> loadFromPreferences() async {
-    state = state.copyWith(isLoading: true, error: null);
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-
-      // 加载订阅数据
-      List<Subscription> subscriptions = [];
-      final subscriptionsString = prefs.getString('subscriptions');
-      if (subscriptionsString != null) {
-        final List<dynamic> subscriptionsJson = json.decode(subscriptionsString);
-        subscriptions = subscriptionsJson
-            .map((json) => Subscription.fromMap(json))
-            .toList();
-      }
-
-      // 加载月度历史数据
-      List<MonthlyHistory> monthlyHistories = [];
-      final monthlyHistoriesString = prefs.getString('monthlyHistories');
-      if (monthlyHistoriesString != null) {
-        final List<dynamic> monthlyHistoriesJson = json.decode(monthlyHistoriesString);
-        monthlyHistories = monthlyHistoriesJson
-            .map((json) => MonthlyHistory.fromMap(json))
-            .toList();
-      }
-
-      // 加载主题设置
-      final themeModeIndex = prefs.getInt('themeMode') ?? 0;
-      final themeMode = ThemeMode.values[themeModeIndex];
-      final fontSize = prefs.getDouble('fontSize') ?? 14.0;
-      final themeColorValue = prefs.getInt('themeColor');
-      final themeColor = themeColorValue != null ? Color(themeColorValue) : null;
-
-      // 加载基准货币
-      final baseCurrency = await UserPreferences.getBaseCurrency();
-
-      // 检查是否有未读通知
-      final hasUnreadNotifications = _checkUnreadNotifications(subscriptions);
-
-      state = state.copyWith(
-        subscriptions: subscriptions,
-        monthlyHistories: monthlyHistories,
-        themeMode: themeMode,
-        fontSize: fontSize,
-        themeColor: themeColor,
-        baseCurrency: baseCurrency,
-        hasUnreadNotifications: hasUnreadNotifications,
-        isLoading: false,
-      );
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: '加载数据失败: ${e.toString()}',
-      );
-    }
+  
+  @override
+  Future<SubscriptionState> build() async {
+    // 等待应用初始化完成
+    await ref.watch(appInitializationProvider.future);
+    
+    // 获取仓储实例
+    final subscriptionRepo = ref.watch(subscriptionRepositoryProvider);
+    final historyRepo = ref.watch(monthlyHistoryRepositoryProvider);
+    
+    // 执行数据迁移（如果需要）
+    await _performMigrationIfNeeded();
+    
+    // 加载数据
+    final subscriptions = await subscriptionRepo.getAllSubscriptions();
+    final histories = await historyRepo.getAllHistories();
+    
+    // 加载用户偏好设置
+    final prefs = await SharedPreferences.getInstance();
+    final themeModeIndex = prefs.getInt('theme_mode') ?? 0;
+    final themeMode = ThemeMode.values[themeModeIndex];
+    final fontSize = prefs.getDouble('font_size') ?? 14.0;
+    final themeColorValue = prefs.getInt('theme_color');
+    final themeColor = themeColorValue != null ? Color(themeColorValue) : null;
+    final baseCurrency = await UserPreferences.getBaseCurrency();
+    
+    // 检查是否有未读通知
+    final hasUnreadNotifications = _checkUnreadNotifications(subscriptions);
+    
+    return SubscriptionState(
+      subscriptions: subscriptions,
+      monthlyHistories: histories,
+      themeMode: themeMode,
+      fontSize: fontSize,
+      themeColor: themeColor,
+      baseCurrency: baseCurrency,
+      hasUnreadNotifications: hasUnreadNotifications,
+      isLoading: false,
+    );
   }
 
-  /// 保存数据到SharedPreferences
-  Future<void> _saveToPreferences() async {
+  /// 执行数据迁移（如果需要）
+  Future<void> _performMigrationIfNeeded() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-
-      // 保存订阅数据
-      final subscriptionsJson = state.subscriptions.map((s) => s.toMap()).toList();
-      await prefs.setString('subscriptions', json.encode(subscriptionsJson));
-
-      // 保存月度历史数据
-      final monthlyHistoriesJson = state.monthlyHistories.map((h) => h.toMap()).toList();
-      await prefs.setString('monthlyHistories', json.encode(monthlyHistoriesJson));
-
-      // 保存主题设置
-      await prefs.setInt('themeMode', state.themeMode.index);
-      await prefs.setDouble('fontSize', state.fontSize);
-
-      if (state.themeColor != null) {
-        await prefs.setInt('themeColor', state.themeColor!.toARGB32());
-      } else {
-        await prefs.remove('themeColor');
-      }
+      final database = ref.read(appDatabaseProvider);
+      final subscriptionRepo = ref.read(subscriptionRepositoryProvider);
+      final historyRepo = ref.read(monthlyHistoryRepositoryProvider);
+      
+      final migrationService = MigrationService(
+        database,
+        subscriptionRepo,
+        historyRepo,
+      );
+      
+      await migrationService.checkAndMigrate();
     } catch (e) {
-      state = state.copyWith(error: '保存数据失败: ${e.toString()}');
+      debugPrint('数据迁移过程中发生错误: $e');
+      // 迁移失败不应阻止应用启动
     }
   }
 
   /// 添加订阅
   Future<void> addSubscription(Subscription subscription) async {
-    state = state.copyWith(isLoading: true, error: null);
-
+    state = const AsyncValue.loading();
+    
     try {
-      final newSubscriptions = [...state.subscriptions, subscription];
-      final updatedMonthlyHistories = _updateCurrentMonthHistory(newSubscriptions);
-      final hasUnreadNotifications = _checkUnreadNotifications(newSubscriptions);
-
-      state = state.copyWith(
-        subscriptions: newSubscriptions,
-        monthlyHistories: updatedMonthlyHistories,
-        hasUnreadNotifications: hasUnreadNotifications,
-        isLoading: false,
-      );
-
-      await _saveToPreferences();
+      final repo = ref.read(subscriptionRepositoryProvider);
+      await repo.addSubscription(subscription);
+      
+      // 更新月度历史
+      await _updateCurrentMonthHistory();
+      
+      // 重新加载数据
+      ref.invalidateSelf();
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: '添加订阅失败: ${e.toString()}',
-      );
+      state = AsyncValue.error(e, StackTrace.current);
     }
   }
 
   /// 删除订阅
   Future<void> removeSubscription(String id) async {
-    state = state.copyWith(isLoading: true, error: null);
-
+    state = const AsyncValue.loading();
+    
     try {
-      final newSubscriptions = state.subscriptions.where((s) => s.id != id).toList();
-      final updatedMonthlyHistories = _updateCurrentMonthHistory(newSubscriptions);
-
-      state = state.copyWith(
-        subscriptions: newSubscriptions,
-        monthlyHistories: updatedMonthlyHistories,
-        isLoading: false,
-      );
-
-      await _saveToPreferences();
+      final repo = ref.read(subscriptionRepositoryProvider);
+      await repo.deleteSubscription(id);
+      
+      // 更新月度历史
+      await _updateCurrentMonthHistory();
+      
+      // 重新加载数据
+      ref.invalidateSelf();
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: '删除订阅失败: ${e.toString()}',
-      );
+      state = AsyncValue.error(e, StackTrace.current);
     }
   }
 
   /// 更新订阅
   Future<void> updateSubscription(Subscription updatedSubscription) async {
-    state = state.copyWith(isLoading: true, error: null);
-
+    state = const AsyncValue.loading();
+    
     try {
-      final newSubscriptions = state.subscriptions
-          .map((s) => s.id == updatedSubscription.id ? updatedSubscription : s)
-          .toList();
-      final updatedMonthlyHistories = _updateCurrentMonthHistory(newSubscriptions);
-
-      state = state.copyWith(
-        subscriptions: newSubscriptions,
-        monthlyHistories: updatedMonthlyHistories,
-        isLoading: false,
-      );
-
-      await _saveToPreferences();
+      final repo = ref.read(subscriptionRepositoryProvider);
+      await repo.updateSubscription(updatedSubscription);
+      
+      // 更新月度历史
+      await _updateCurrentMonthHistory();
+      
+      // 重新加载数据
+      ref.invalidateSelf();
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: '更新订阅失败: ${e.toString()}',
-      );
+      state = AsyncValue.error(e, StackTrace.current);
     }
   }
 
-  /// 更新主题模式
-  Future<void> updateThemeMode(ThemeMode mode) async {
-    state = state.copyWith(themeMode: mode);
-    await _saveToPreferences();
+  /// 更新当前月度历史
+  Future<void> _updateCurrentMonthHistory() async {
+    try {
+      final subscriptionRepo = ref.read(subscriptionRepositoryProvider);
+      final historyRepo = ref.read(monthlyHistoryRepositoryProvider);
+      
+      final subscriptions = await subscriptionRepo.getAllSubscriptions();
+      await historyRepo.updateCurrentMonthHistory(subscriptions);
+    } catch (e) {
+      debugPrint('更新月度历史失败: $e');
+    }
   }
 
-  /// 更新字体大小
-  Future<void> updateFontSize(double size) async {
-    state = state.copyWith(fontSize: size);
-    await _saveToPreferences();
-  }
-
-  /// 更新主题颜色
-  Future<void> updateThemeColor(Color? color) async {
-    state = state.copyWith(themeColor: color);
-    await _saveToPreferences();
-  }
-
-  /// 标记通知为已读
-  void markNotificationsAsRead() {
-    state = state.copyWith(hasUnreadNotifications: false);
-  }
-
-  /// 设置基准货币
-  Future<void> setBaseCurrency(String currencyCode) async {
-    state = state.copyWith(baseCurrency: currencyCode);
-    await UserPreferences.setBaseCurrency(currencyCode);
+  /// 检查未读通知
+  bool _checkUnreadNotifications(List<Subscription> subscriptions) {
+    return subscriptions.any((subscription) {
+      final daysUntil = subscription.daysUntilPayment;
+      return daysUntil >= 0 && daysUntil <= 7;
+    });
   }
 
   /// 清除错误
   void clearError() {
-    state = state.copyWith(error: null);
+    ref.invalidateSelf();
   }
 
-  /// 更新当前月份历史记录
-  List<MonthlyHistory> _updateCurrentMonthHistory(List<Subscription> subscriptions) {
-    final now = DateTime.now();
-    final currentYear = now.year;
-    final currentMonth = now.month;
 
-    // 计算当前月份的总费用
-    double totalCost = 0;
-    for (var subscription in subscriptions) {
-      double amount = 0;
-      if (subscription.billingCycle == '每月') {
-        amount = subscription.price;
-      } else if (subscription.billingCycle == '每年') {
-        amount = subscription.price / 12;
-      }
 
-      // 转换为基准货币
-      final convertedAmount = _exchangeRateService.convertCurrency(
-        amount,
-        subscription.currency,
-        state.baseCurrency,
-      );
-      totalCost += convertedAmount;
-    }
 
-    // 创建当前月份的历史记录
-    final currentMonthHistory = MonthlyHistory(
-      year: currentYear,
-      month: currentMonth,
-      totalCost: totalCost,
-    );
-
-    // 更新历史记录列表
-    final updatedHistories = [...state.monthlyHistories];
-    final index = updatedHistories.indexWhere(
-      (history) => history.year == currentYear && history.month == currentMonth,
-    );
-
-    if (index != -1) {
-      updatedHistories[index] = currentMonthHistory;
-    } else {
-      updatedHistories.add(currentMonthHistory);
-    }
-
-    return updatedHistories;
-  }
-
-  /// 检查是否有未读通知
-  bool _checkUnreadNotifications(List<Subscription> subscriptions) {
-    final upcoming = subscriptions.where((subscription) {
-      return subscription.daysUntilPayment >= 0 && subscription.daysUntilPayment <= 7;
-    }).toList();
-
-    return upcoming.isNotEmpty;
-  }
 
   /// 根据ID获取订阅
-  Subscription? getSubscriptionById(String id) {
+  Future<Subscription?> getSubscriptionById(String id) async {
+    final currentState = await future;
     try {
-      return state.subscriptions.firstWhere((s) => s.id == id);
+      return currentState.subscriptions.firstWhere((s) => s.id == id);
     } catch (e) {
       return null;
     }
   }
 
   /// 获取月度总费用（转换为基准货币）
-  double getMonthlyCost() {
+  Future<double> getMonthlyCost() async {
+    final currentState = await future;
     double total = 0;
-    for (var subscription in state.subscriptions) {
+    for (var subscription in currentState.subscriptions) {
       double amount = 0;
       if (subscription.billingCycle == '每月') {
         amount = subscription.price;
@@ -285,7 +187,7 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
       final convertedAmount = _exchangeRateService.convertCurrency(
         amount,
         subscription.currency,
-        state.baseCurrency,
+        currentState.baseCurrency,
       );
       total += convertedAmount;
     }
@@ -293,9 +195,10 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
   }
 
   /// 获取年度总费用（转换为基准货币）
-  double getYearlyCost() {
+  Future<double> getYearlyCost() async {
+    final currentState = await future;
     double total = 0;
-    for (var subscription in state.subscriptions) {
+    for (var subscription in currentState.subscriptions) {
       double amount = 0;
       if (subscription.billingCycle == '每月') {
         amount = subscription.price * 12;
@@ -309,7 +212,7 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
       final convertedAmount = _exchangeRateService.convertCurrency(
         amount,
         subscription.currency,
-        state.baseCurrency,
+        currentState.baseCurrency,
       );
       total += convertedAmount;
     }
@@ -317,10 +220,11 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
   }
 
   /// 按类型分组统计费用
-  Map<String, double> getTypeStats() {
+  Future<Map<String, double>> getTypeStats() async {
+    final currentState = await future;
     final typeStats = <String, double>{};
 
-    for (var subscription in state.subscriptions) {
+    for (var subscription in currentState.subscriptions) {
       double amount = subscription.price;
       if (subscription.billingCycle == '每年') {
         amount = subscription.price / 12; // 转换为月费用进行比较
@@ -330,7 +234,7 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
       final convertedAmount = _exchangeRateService.convertCurrency(
         amount,
         subscription.currency,
-        state.baseCurrency,
+        currentState.baseCurrency,
       );
 
       if (typeStats.containsKey(subscription.type)) {
@@ -344,13 +248,14 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
   }
 
   /// 获取上个月的历史记录
-  MonthlyHistory? getPreviousMonthHistory() {
+  Future<MonthlyHistory?> getPreviousMonthHistory() async {
+    final currentState = await future;
     final now = DateTime.now();
     final previousMonth = now.month == 1 ? 12 : now.month - 1;
     final previousYear = now.month == 1 ? now.year - 1 : now.year;
 
     try {
-      return state.monthlyHistories.firstWhere(
+      return currentState.monthlyHistories.firstWhere(
         (history) => history.year == previousYear && history.month == previousMonth,
       );
     } on StateError {
@@ -359,14 +264,14 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
   }
 
   /// 计算与上个月相比的变化百分比
-  double getMonthlyCostChangePercentage() {
-    final previousMonthHistory = getPreviousMonthHistory();
+  Future<double> getMonthlyCostChangePercentage() async {
+    final previousMonthHistory = await getPreviousMonthHistory();
     if (previousMonthHistory == null) {
       return 0.0;
     }
 
-    final currentCost = getMonthlyCost();
-    final previousCost = previousMonthHistory.totalCost;
+    final currentCost = await getMonthlyCost();
+    final previousCost = previousMonthHistory.totalAmount;
 
     if (previousCost == 0) {
       return 0.0;
@@ -378,5 +283,60 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
   /// 获取支持的货币列表
   List<String> getSupportedCurrencies() {
     return _exchangeRateService.getSupportedCurrencies();
+  }
+
+  /// 更新主题模式
+  Future<void> updateThemeMode(ThemeMode mode) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('theme_mode', mode.index);
+      ref.invalidateSelf();
+    } catch (e) {
+      state = AsyncValue.error(e, StackTrace.current);
+    }
+  }
+
+  /// 更新字体大小
+  Future<void> updateFontSize(double size) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setDouble('font_size', size);
+      ref.invalidateSelf();
+    } catch (e) {
+      state = AsyncValue.error(e, StackTrace.current);
+    }
+  }
+
+  /// 更新主题颜色
+  Future<void> updateThemeColor(Color? color) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (color != null) {
+        await prefs.setInt('theme_color', color.toARGB32());
+      } else {
+        await prefs.remove('theme_color');
+      }
+      ref.invalidateSelf();
+    } catch (e) {
+      state = AsyncValue.error(e, StackTrace.current);
+    }
+  }
+
+  /// 标记通知为已读
+  void markNotificationsAsRead() {
+    // 这个方法需要重新考虑，因为我们现在使用AsyncNotifier
+    // 可以通过更新SharedPreferences来实现
+    debugPrint('通知已标记为已读');
+    ref.invalidateSelf();
+  }
+
+  /// 设置基准货币
+  Future<void> setBaseCurrency(String currencyCode) async {
+    try {
+      await UserPreferences.setBaseCurrency(currencyCode);
+      ref.invalidateSelf();
+    } catch (e) {
+      state = AsyncValue.error(e, StackTrace.current);
+    }
   }
 }

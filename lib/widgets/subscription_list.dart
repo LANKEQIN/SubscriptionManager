@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/app_providers.dart';
+import '../providers/subscription_notifier.dart';
 import 'subscription_card.dart';
 import '../dialogs/edit_subscription_dialog.dart';
 import '../models/subscription.dart';
@@ -13,23 +13,37 @@ class SubscriptionList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final subscriptions = ref.watch(subscriptionsProvider);
+    final subscriptionState = ref.watch(subscriptionNotifierProvider);
     
     return Expanded(
-      child: subscriptions.isEmpty
-          ? _buildEmptyState()
-          : ListView.builder(
-              physics: const BouncingScrollPhysics(),
-              itemCount: subscriptions.length,
-              itemBuilder: (context, index) {
-                return SubscriptionCard(
-                  subscription: subscriptions[index],
-                  onEdit: (subscription) {
-                    _showEditDialog(context, subscription, ref);
-                  },
-                );
-              },
-            ),
+      child: subscriptionState.when(
+        data: (state) {
+          final subscriptions = state.subscriptions;
+          
+          if (subscriptions.isEmpty) {
+            return _buildEmptyState();
+          }
+          
+          return ListView.builder(
+            physics: const BouncingScrollPhysics(),
+            itemCount: subscriptions.length,
+            itemBuilder: (context, index) {
+              return SubscriptionCard(
+                subscription: subscriptions[index],
+                onEdit: (subscription) {
+                  _showEditDialog(context, subscription, ref);
+                },
+              );
+            },
+          );
+        },
+        loading: () => const Center(
+          child: CircularProgressIndicator(),
+        ),
+        error: (error, stack) => Center(
+          child: Text('加载失败: $error'),
+        ),
+      ),
     );
   }
 
@@ -87,10 +101,10 @@ class SubscriptionList extends ConsumerWidget {
         return EditSubscriptionDialog(
           subscription: subscription,
           onSubscriptionUpdated: (updatedSubscription) {
-            ref.read(subscriptionProvider.notifier).updateSubscription(updatedSubscription);
+            ref.read(subscriptionNotifierProvider.notifier).updateSubscription(updatedSubscription);
           },
           onSubscriptionDeleted: (id) {
-            ref.read(subscriptionProvider.notifier).removeSubscription(id);
+            ref.read(subscriptionNotifierProvider.notifier).removeSubscription(id);
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('订阅删除成功')),
             );

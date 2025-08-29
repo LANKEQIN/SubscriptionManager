@@ -1,152 +1,148 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../fixed_exchange_rate_service.dart';
-import '../models/subscription.dart';
-import '../models/subscription_state.dart';
+import 'package:flutter/material.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
+import '../database/app_database.dart';
+import '../cache/hive_service.dart';
+import '../cache/cached_data.dart';
+import '../repositories/repository_interfaces.dart';
+import '../repositories/subscription_repository_impl.dart';
+import '../repositories/monthly_history_repository_impl.dart';
 import 'subscription_notifier.dart';
 
-/// SharedPreferences Provider
-final sharedPreferencesProvider = Provider<Future<SharedPreferences>>((ref) async {
-  return SharedPreferences.getInstance();
-});
+part 'app_providers.g.dart';
 
-/// 汇率转换服务 Provider
-final exchangeRateServiceProvider = Provider<FixedExchangeRateService>((ref) {
-  return FixedExchangeRateService();
-});
+/// 数据库Provider
+/// 提供AppDatabase单例
+@Riverpod(keepAlive: true)
+AppDatabase appDatabase(AppDatabaseRef ref) {
+  return AppDatabase();
+}
 
-/// 主要的订阅状态管理 Provider
-final subscriptionProvider = StateNotifierProvider<SubscriptionNotifier, SubscriptionState>((ref) {
-  return SubscriptionNotifier();
-});
+/// 缓存Box Provider
+/// 提供Hive缓存Box
+@Riverpod(keepAlive: true)
+Future<Box<CachedData>> cacheBox(CacheBoxRef ref) async {
+  await HiveService.initHive();
+  return Hive.box<CachedData>('cache');
+}
 
-/// 订阅列表选择器
-final subscriptionsProvider = Provider((ref) {
-  return ref.watch(subscriptionProvider.select((state) => state.subscriptions));
-});
+/// 用户偏好Box Provider
+/// 提供用户偏好设置Box
+@Riverpod(keepAlive: true)
+Future<Box<String>> userPrefsBox(UserPrefsBoxRef ref) async {
+  await HiveService.initHive();
+  return Hive.box<String>('user_preferences');
+}
 
-/// 月度历史选择器
-final monthlyHistoriesProvider = Provider((ref) {
-  return ref.watch(subscriptionProvider.select((state) => state.monthlyHistories));
-});
+/// 订阅仓储Provider
+/// 提供SubscriptionRepository实例
+@Riverpod(keepAlive: true)
+SubscriptionRepository subscriptionRepository(SubscriptionRepositoryRef ref) {
+  final database = ref.watch(appDatabaseProvider);
+  return SubscriptionRepositoryImpl(database);
+}
 
-/// 主题模式选择器
-final themeModeProvider = Provider((ref) {
-  return ref.watch(subscriptionProvider.select((state) => state.themeMode));
-});
+/// 月度历史仓储Provider
+/// 提供MonthlyHistoryRepository实例
+@Riverpod(keepAlive: true)
+MonthlyHistoryRepository monthlyHistoryRepository(MonthlyHistoryRepositoryRef ref) {
+  final database = ref.watch(appDatabaseProvider);
+  return MonthlyHistoryRepositoryImpl(database);
+}
 
-/// 字体大小选择器
-final fontSizeProvider = Provider((ref) {
-  return ref.watch(subscriptionProvider.select((state) => state.fontSize));
-});
-
-/// 主题颜色选择器
-final themeColorProvider = Provider((ref) {
-  return ref.watch(subscriptionProvider.select((state) => state.themeColor));
-});
-
-/// 未读通知状态选择器
-final hasUnreadNotificationsProvider = Provider<bool>((ref) {
-  return ref.watch(subscriptionProvider.select((state) => state.hasUnreadNotifications));
-});
-
-/// 基准货币选择器
-final baseCurrencyProvider = Provider<String>((ref) {
-  return ref.watch(subscriptionProvider.select((state) => state.baseCurrency));
-});
-
-/// 加载状态选择器
-final isLoadingProvider = Provider<bool>((ref) {
-  return ref.watch(subscriptionProvider.select((state) => state.isLoading));
-});
-
-/// 错误状态选择器
-final errorProvider = Provider<String?>((ref) {
-  return ref.watch(subscriptionProvider.select((state) => state.error));
-});
-
-/// 即将到期的订阅选择器
-final upcomingSubscriptionsProvider = Provider((ref) {
-  return ref.watch(subscriptionProvider.select((state) => state.upcomingSubscriptions));
-});
-
-/// 已过期的订阅选择器
-final expiredSubscriptionsProvider = Provider((ref) {
-  return ref.watch(subscriptionProvider.select((state) => state.expiredSubscriptions));
-});
-
-/// 按类型分组的订阅选择器
-final subscriptionsByTypeProvider = Provider((ref) {
-  return ref.watch(subscriptionProvider.select((state) => state.subscriptionsByType));
-});
-
-/// 总月度成本选择器
-final totalMonthlyCostProvider = Provider<double>((ref) {
-  return ref.watch(subscriptionProvider.select((state) => state.totalMonthlyCost));
-});
-
-/// 总年度成本选择器
-final totalYearlyCostProvider = Provider<double>((ref) {
-  return ref.watch(subscriptionProvider.select((state) => state.totalYearlyCost));
-});
-
-/// 订阅数量选择器
-final subscriptionCountProvider = Provider<int>((ref) {
-  return ref.watch(subscriptionProvider.select((state) => state.subscriptions.length));
-});
-
-/// 是否有订阅选择器
-final hasSubscriptionsProvider = Provider<bool>((ref) {
-  return ref.watch(subscriptionProvider.select((state) => state.hasSubscriptions));
-});
-
-/// 是否有错误选择器
-final hasErrorProvider = Provider<bool>((ref) {
-  return ref.watch(subscriptionProvider.select((state) => state.hasError));
-});
-
-/// 月度费用计算 Provider（通过 Notifier 方法）
-final monthlyCostProvider = Provider<double>((ref) {
-  final notifier = ref.read(subscriptionProvider.notifier);
-  return notifier.getMonthlyCost();
-});
-
-/// 年度费用计算 Provider（通过 Notifier 方法）
-final yearlyCostProvider = Provider<double>((ref) {
-  final notifier = ref.read(subscriptionProvider.notifier);
-  return notifier.getYearlyCost();
-});
-
-/// 类型统计 Provider
-final typeStatsProvider = Provider<Map<String, double>>((ref) {
-  final notifier = ref.read(subscriptionProvider.notifier);
-  return notifier.getTypeStats();
-});
-
-/// 月度成本变化百分比 Provider
-final monthlyCostChangePercentageProvider = Provider<double>((ref) {
-  final notifier = ref.read(subscriptionProvider.notifier);
-  return notifier.getMonthlyCostChangePercentage();
-});
-
-/// 支持的货币列表 Provider
-final supportedCurrenciesProvider = Provider<List<String>>((ref) {
-  final notifier = ref.read(subscriptionProvider.notifier);
-  return notifier.getSupportedCurrencies();
-});
-
-/// 上个月历史记录 Provider
-final previousMonthHistoryProvider = Provider((ref) {
-  final notifier = ref.read(subscriptionProvider.notifier);
-  return notifier.getPreviousMonthHistory();
-});
-
-/// 根据ID获取订阅的 Provider
-final subscriptionByIdProvider = Provider.family<Subscription?, String>((ref, id) {
-  final subscriptions = ref.watch(subscriptionsProvider);
+/// 应用初始化Provider
+/// 处理应用启动时的所有初始化工作
+@riverpod
+Future<bool> appInitialization(AppInitializationRef ref) async {
   try {
-    return subscriptions.firstWhere((s) => s.id == id);
+    // 初始化Hive缓存
+    await HiveService.initHive();
+    
+    // 确保数据库连接正常
+    ref.read(appDatabaseProvider);
+    
+    // 清理过期缓存
+    await HiveService.cleanExpiredCache();
+    
+    // 可以在这里添加更多初始化逻辑，如数据迁移等
+    
+    return true;
   } catch (e) {
-    return null;
+    throw Exception('应用初始化失败: $e');
   }
-});
+}
+
+/// 缓存统计信息Provider
+/// 提供缓存使用情况的统计信息
+@riverpod
+Future<Map<String, dynamic>> cacheStats(CacheStatsRef ref) async {
+  // 确保缓存已初始化
+  await ref.watch(appInitializationProvider.future);
+  
+  return HiveService.getCacheStats();
+}
+
+/// 数据库统计信息Provider
+/// 提供数据库使用情况的统计信息
+@riverpod
+Future<Map<String, dynamic>> databaseStats(DatabaseStatsRef ref) async {
+  final subscriptionRepo = ref.watch(subscriptionRepositoryProvider);
+  final historyRepo = ref.watch(monthlyHistoryRepositoryProvider);
+  
+  try {
+    final subscriptions = await subscriptionRepo.getAllSubscriptions();
+    final histories = await historyRepo.getAllHistories();
+    
+    return {
+      'total_subscriptions': subscriptions.length,
+      'total_histories': histories.length,
+      'active_subscriptions': subscriptions.where((s) => s.autoRenewal).length,
+      'upcoming_subscriptions': subscriptions.where((s) => s.daysUntilPayment >= 0 && s.daysUntilPayment <= 7).length,
+    };
+  } catch (e) {
+    return {
+      'error': e.toString(),
+    };
+  }
+}
+
+/// 主题模式Provider
+/// 提供当前主题模式
+@riverpod
+ThemeMode themeModeProvider(ThemeModeProviderRef ref) {
+  return ref.watch(subscriptionNotifierProvider).maybeWhen(
+    data: (state) => state.themeMode,
+    orElse: () => ThemeMode.system,
+  );
+}
+
+/// 字体大小Provider
+/// 提供当前字体大小
+@riverpod
+double fontSizeProvider(FontSizeProviderRef ref) {
+  return ref.watch(subscriptionNotifierProvider).maybeWhen(
+    data: (state) => state.fontSize,
+    orElse: () => 14.0,
+  );
+}
+
+/// 主题颜色Provider
+/// 提供当前主题颜色
+@riverpod
+Color? themeColorProvider(ThemeColorProviderRef ref) {
+  return ref.watch(subscriptionNotifierProvider).maybeWhen(
+    data: (state) => state.themeColor,
+    orElse: () => null,
+  );
+}
+
+/// 基准货币Provider
+/// 提供当前基准货币
+@riverpod
+String baseCurrencyProvider(BaseCurrencyProviderRef ref) {
+  return ref.watch(subscriptionNotifierProvider).maybeWhen(
+    data: (state) => state.baseCurrency,
+    orElse: () => 'CNY',
+  );
+}

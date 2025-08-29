@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/app_providers.dart';
+import '../providers/subscription_notifier.dart';
+import '../models/subscription.dart';
 import '../widgets/statistics_card.dart';
 import '../utils/currency_constants.dart';
 
@@ -57,58 +59,98 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
   }
   
   Widget _buildOverviewCard() {
-    final subscriptionCount = ref.watch(subscriptionCountProvider);
-    final monthlyCost = ref.read(subscriptionProvider.notifier).getMonthlyCost();
-    final yearlyCost = ref.read(subscriptionProvider.notifier).getYearlyCost();
-    final baseCurrency = ref.watch(baseCurrencyProvider);
-    
-    return StatisticsCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            '统计概览',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+    return Consumer(
+      builder: (context, ref, child) {
+        final subscriptionState = ref.watch(subscriptionNotifierProvider);
+        
+        return subscriptionState.when(
+          data: (state) {
+            final subscriptionCount = state.subscriptions.length;
+            final monthlyCost = state.totalMonthlyCost;
+            final yearlyCost = state.totalYearlyCost;
+            final baseCurrency = state.baseCurrency;
+            
+            return StatisticsCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '统计概览',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  _buildStatItem('订阅总数', '$subscriptionCount个'),
+                  const SizedBox(height: 8),
+                  _buildStatItem(
+                    '月度支出', 
+                    '${_getCurrencySymbol(baseCurrency)}${monthlyCost.toStringAsFixed(2)}'
+                  ),
+                  const SizedBox(height: 8),
+                  _buildStatItem(
+                    '年度支出', 
+                    '${_getCurrencySymbol(baseCurrency)}${yearlyCost.toStringAsFixed(2)}'
+                  ),
+                ],
+              ),
+            );
+          },
+          loading: () => const StatisticsCard(
+            child: Center(
+              child: CircularProgressIndicator(),
             ),
           ),
-          const SizedBox(height: 8),
-          _buildStatItem('订阅总数', '$subscriptionCount个'),
-          const SizedBox(height: 8),
-          _buildStatItem(
-            '月度支出', 
-            '${_getCurrencySymbol(baseCurrency)}${monthlyCost.toStringAsFixed(2)}'
+          error: (error, stack) => StatisticsCard(
+            child: Center(
+              child: Text('加载失败: $error'),
+            ),
           ),
-          const SizedBox(height: 8),
-          _buildStatItem(
-            '年度支出', 
-            '${_getCurrencySymbol(baseCurrency)}${yearlyCost.toStringAsFixed(2)}'
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
   
   Widget _buildTypeDistributionCard() {
-    final typeStats = ref.read(subscriptionProvider.notifier).getTypeStats();
-    final baseCurrency = ref.watch(baseCurrencyProvider);
-    
-    return StatisticsCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            '类型分布',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+    return Consumer(
+      builder: (context, ref, child) {
+        final subscriptionState = ref.watch(subscriptionNotifierProvider);
+        
+        return subscriptionState.when(
+          data: (state) {
+            final typeStats = state.subscriptionsByType;
+            final baseCurrency = state.baseCurrency;
+            
+            return StatisticsCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '类型分布',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTypeDistribution(typeStats, baseCurrency),
+                ],
+              ),
+            );
+          },
+          loading: () => const StatisticsCard(
+            child: Center(
+              child: CircularProgressIndicator(),
             ),
           ),
-          const SizedBox(height: 16),
-          _buildTypeDistribution(typeStats, baseCurrency),
-        ],
-      ),
+          error: (error, stack) => StatisticsCard(
+            child: Center(
+              child: Text('加载失败: $error'),
+            ),
+          ),
+        );
+      },
     );
   }
   
@@ -134,14 +176,28 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
   }
   
   // 构建类型分布图表
-  Widget _buildTypeDistribution(Map<String, double> typeStats, String baseCurrency) {
+  Widget _buildTypeDistribution(Map<String, List<Subscription>> typeStats, String baseCurrency) {
     if (typeStats.isEmpty) {
       return const Center(
         child: Text('暂无数据'),
       );
     }
     
-    final total = typeStats.values.fold(0.0, (sum, item) => sum + item);
+    // 计算每个类型的总金额
+    final Map<String, double> typeAmounts = {};
+    for (final entry in typeStats.entries) {
+      double typeTotal = 0.0;
+      for (final subscription in entry.value) {
+        double amount = subscription.price;
+        if (subscription.billingCycle == '每年') {
+          amount = subscription.price / 12; // 转换为月费用
+        }
+        typeTotal += amount;
+      }
+      typeAmounts[entry.key] = typeTotal;
+    }
+    
+    final total = typeAmounts.values.fold(0.0, (sum, item) => sum + item);
     if (total == 0) {
       return const Center(
         child: Text('暂无数据'),
@@ -149,7 +205,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
     }
     
     // 按值排序，从大到小
-    final sortedEntries = typeStats.entries.toList()
+    final sortedEntries = typeAmounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     
     return Column(
@@ -229,7 +285,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
                   itemBuilder: (context, index) {
                     final currencyCode = _currencies.keys.elementAt(index);
                     final currencyName = _currencies.values.elementAt(index);
-                    final currentBaseCurrency = ref.watch(baseCurrencyProvider);
+                    final currentBaseCurrency = ref.watch(baseCurrencyProviderProvider);
                     
                     return RadioListTile<String>(
                       title: Text(currencyName),
@@ -237,7 +293,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
                       groupValue: currentBaseCurrency,
                       onChanged: (value) {
                         if (value != null) {
-                          ref.read(subscriptionProvider.notifier).setBaseCurrency(value);
+                          ref.read(subscriptionNotifierProvider.notifier).setBaseCurrency(value);
                           Navigator.of(context).pop();
                         }
                       },

@@ -21,3 +21,12 @@ targets:
           create_to_json: true
           disallow_unrecognized_keys: false
           generic_argument_factories: false
+      drift_dev:
+        options:
+          # Drift数据库代码生成选项
+          store_date_time_values_as_text: true
+          skip_verification_code: false
+      hive_generator:
+        options:
+          # Hive缓存代码生成选项
+          ignore_for_file: []

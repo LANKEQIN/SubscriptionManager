@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../dialogs/add_subscription_dialog.dart';
-import '../providers/app_providers.dart';
+import '../providers/subscription_notifier.dart';
 
 class AddButton extends ConsumerWidget {
   const AddButton({super.key});
@@ -17,7 +17,7 @@ class AddButton extends ConsumerWidget {
             return AddSubscriptionDialog(
               onSubscriptionAdded: (subscription) {
                 // 使用Riverpod添加订阅
-                ref.read(subscriptionProvider.notifier).addSubscription(subscription);
+                ref.read(subscriptionNotifierProvider.notifier).addSubscription(subscription);
               },
             );
           },
