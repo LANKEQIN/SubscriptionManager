@@ -1,0 +1,394 @@
+// coverage:ignore-file
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'subscription.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+T _$identity<T>(T value) => value;
+
+final _privateConstructorUsedError = UnsupportedError(
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+
+/// @nodoc
+mixin _$Subscription {
+  /// 订阅的唯一标识符
+  String get id => throw _privateConstructorUsedError;
+
+  /// 订阅名称
+  String get name => throw _privateConstructorUsedError;
+
+  /// 订阅图标（可选）
+  String? get icon => throw _privateConstructorUsedError;
+
+  /// 订阅类型
+  String get type => throw _privateConstructorUsedError;
+
+  /// 订阅价格
+  double get price => throw _privateConstructorUsedError;
+
+  /// 货币类型，默认为CNY
+  String get currency => throw _privateConstructorUsedError;
+
+  /// 计费周期：每月/每年/一次性
+  String get billingCycle => throw _privateConstructorUsedError;
+
+  /// 下次付款日期
+  DateTime get nextPaymentDate => throw _privateConstructorUsedError;
+
+  /// 是否自动续费
+  bool get autoRenewal => throw _privateConstructorUsedError;
+
+  /// 备注信息（可选）
+  String? get notes => throw _privateConstructorUsedError;
+
+  /// Create a copy of Subscription
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $SubscriptionCopyWith<Subscription> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $SubscriptionCopyWith<$Res> {
+  factory $SubscriptionCopyWith(
+          Subscription value, $Res Function(Subscription) then) =
+      _$SubscriptionCopyWithImpl<$Res, Subscription>;
+  @useResult
+  $Res call(
+      {String id,
+      String name,
+      String? icon,
+      String type,
+      double price,
+      String currency,
+      String billingCycle,
+      DateTime nextPaymentDate,
+      bool autoRenewal,
+      String? notes});
+}
+
+/// @nodoc
+class _$SubscriptionCopyWithImpl<$Res, $Val extends Subscription>
+    implements $SubscriptionCopyWith<$Res> {
+  _$SubscriptionCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of Subscription
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? name = null,
+    Object? icon = freezed,
+    Object? type = null,
+    Object? price = null,
+    Object? currency = null,
+    Object? billingCycle = null,
+    Object? nextPaymentDate = null,
+    Object? autoRenewal = null,
+    Object? notes = freezed,
+  }) {
+    return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      name: null == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String,
+      icon: freezed == icon
+          ? _value.icon
+          : icon // ignore: cast_nullable_to_non_nullable
+              as String?,
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as String,
+      price: null == price
+          ? _value.price
+          : price // ignore: cast_nullable_to_non_nullable
+              as double,
+      currency: null == currency
+          ? _value.currency
+          : currency // ignore: cast_nullable_to_non_nullable
+              as String,
+      billingCycle: null == billingCycle
+          ? _value.billingCycle
+          : billingCycle // ignore: cast_nullable_to_non_nullable
+              as String,
+      nextPaymentDate: null == nextPaymentDate
+          ? _value.nextPaymentDate
+          : nextPaymentDate // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      autoRenewal: null == autoRenewal
+          ? _value.autoRenewal
+          : autoRenewal // ignore: cast_nullable_to_non_nullable
+              as bool,
+      notes: freezed == notes
+          ? _value.notes
+          : notes // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$SubscriptionImplCopyWith<$Res>
+    implements $SubscriptionCopyWith<$Res> {
+  factory _$$SubscriptionImplCopyWith(
+          _$SubscriptionImpl value, $Res Function(_$SubscriptionImpl) then) =
+      __$$SubscriptionImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {String id,
+      String name,
+      String? icon,
+      String type,
+      double price,
+      String currency,
+      String billingCycle,
+      DateTime nextPaymentDate,
+      bool autoRenewal,
+      String? notes});
+}
+
+/// @nodoc
+class __$$SubscriptionImplCopyWithImpl<$Res>
+    extends _$SubscriptionCopyWithImpl<$Res, _$SubscriptionImpl>
+    implements _$$SubscriptionImplCopyWith<$Res> {
+  __$$SubscriptionImplCopyWithImpl(
+      _$SubscriptionImpl _value, $Res Function(_$SubscriptionImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of Subscription
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? name = null,
+    Object? icon = freezed,
+    Object? type = null,
+    Object? price = null,
+    Object? currency = null,
+    Object? billingCycle = null,
+    Object? nextPaymentDate = null,
+    Object? autoRenewal = null,
+    Object? notes = freezed,
+  }) {
+    return _then(_$SubscriptionImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      name: null == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String,
+      icon: freezed == icon
+          ? _value.icon
+          : icon // ignore: cast_nullable_to_non_nullable
+              as String?,
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as String,
+      price: null == price
+          ? _value.price
+          : price // ignore: cast_nullable_to_non_nullable
+              as double,
+      currency: null == currency
+          ? _value.currency
+          : currency // ignore: cast_nullable_to_non_nullable
+              as String,
+      billingCycle: null == billingCycle
+          ? _value.billingCycle
+          : billingCycle // ignore: cast_nullable_to_non_nullable
+              as String,
+      nextPaymentDate: null == nextPaymentDate
+          ? _value.nextPaymentDate
+          : nextPaymentDate // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      autoRenewal: null == autoRenewal
+          ? _value.autoRenewal
+          : autoRenewal // ignore: cast_nullable_to_non_nullable
+              as bool,
+      notes: freezed == notes
+          ? _value.notes
+          : notes // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$SubscriptionImpl extends _Subscription {
+  const _$SubscriptionImpl(
+      {this.id = '',
+      required this.name,
+      this.icon,
+      required this.type,
+      required this.price,
+      this.currency = 'CNY',
+      required this.billingCycle,
+      required this.nextPaymentDate,
+      this.autoRenewal = false,
+      this.notes})
+      : super._();
+
+  /// 订阅的唯一标识符
+  @override
+  @JsonKey()
+  final String id;
+
+  /// 订阅名称
+  @override
+  final String name;
+
+  /// 订阅图标（可选）
+  @override
+  final String? icon;
+
+  /// 订阅类型
+  @override
+  final String type;
+
+  /// 订阅价格
+  @override
+  final double price;
+
+  /// 货币类型，默认为CNY
+  @override
+  @JsonKey()
+  final String currency;
+
+  /// 计费周期：每月/每年/一次性
+  @override
+  final String billingCycle;
+
+  /// 下次付款日期
+  @override
+  final DateTime nextPaymentDate;
+
+  /// 是否自动续费
+  @override
+  @JsonKey()
+  final bool autoRenewal;
+
+  /// 备注信息（可选）
+  @override
+  final String? notes;
+
+  @override
+  String toString() {
+    return 'Subscription(id: $id, name: $name, icon: $icon, type: $type, price: $price, currency: $currency, billingCycle: $billingCycle, nextPaymentDate: $nextPaymentDate, autoRenewal: $autoRenewal, notes: $notes)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$SubscriptionImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.icon, icon) || other.icon == icon) &&
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.price, price) || other.price == price) &&
+            (identical(other.currency, currency) ||
+                other.currency == currency) &&
+            (identical(other.billingCycle, billingCycle) ||
+                other.billingCycle == billingCycle) &&
+            (identical(other.nextPaymentDate, nextPaymentDate) ||
+                other.nextPaymentDate == nextPaymentDate) &&
+            (identical(other.autoRenewal, autoRenewal) ||
+                other.autoRenewal == autoRenewal) &&
+            (identical(other.notes, notes) || other.notes == notes));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, id, name, icon, type, price,
+      currency, billingCycle, nextPaymentDate, autoRenewal, notes);
+
+  /// Create a copy of Subscription
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$SubscriptionImplCopyWith<_$SubscriptionImpl> get copyWith =>
+      __$$SubscriptionImplCopyWithImpl<_$SubscriptionImpl>(this, _$identity);
+}
+
+abstract class _Subscription extends Subscription {
+  const factory _Subscription(
+      {final String id,
+      required final String name,
+      final String? icon,
+      required final String type,
+      required final double price,
+      final String currency,
+      required final String billingCycle,
+      required final DateTime nextPaymentDate,
+      final bool autoRenewal,
+      final String? notes}) = _$SubscriptionImpl;
+  const _Subscription._() : super._();
+
+  /// 订阅的唯一标识符
+  @override
+  String get id;
+
+  /// 订阅名称
+  @override
+  String get name;
+
+  /// 订阅图标（可选）
+  @override
+  String? get icon;
+
+  /// 订阅类型
+  @override
+  String get type;
+
+  /// 订阅价格
+  @override
+  double get price;
+
+  /// 货币类型，默认为CNY
+  @override
+  String get currency;
+
+  /// 计费周期：每月/每年/一次性
+  @override
+  String get billingCycle;
+
+  /// 下次付款日期
+  @override
+  DateTime get nextPaymentDate;
+
+  /// 是否自动续费
+  @override
+  bool get autoRenewal;
+
+  /// 备注信息（可选）
+  @override
+  String? get notes;
+
+  /// Create a copy of Subscription
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$SubscriptionImplCopyWith<_$SubscriptionImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}

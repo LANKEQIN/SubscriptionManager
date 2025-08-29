@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/subscription_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/app_providers.dart';
 import '../constants/theme_constants.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,32 +42,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: ListTile(
                   title: const Text('主题设置'),
                   subtitle: const Text('选择应用主题模式'),
-                  trailing: Consumer<SubscriptionProvider>(
-                    builder: (context, provider, child) {
-                      return DropdownButton<ThemeMode>(
-                        value: provider.themeMode,
-                        items: const [
-                          DropdownMenuItem(
-                            value: ThemeMode.system,
-                            child: Text('跟随系统'),
-                          ),
-                          DropdownMenuItem(
-                            value: ThemeMode.light,
-                            child: Text('浅色'),
-                          ),
-                          DropdownMenuItem(
-                            value: ThemeMode.dark,
-                            child: Text('深色'),
-                          ),
-                        ],
-                        onChanged: (ThemeMode? mode) {
-                          if (mode != null) {
-                            provider.updateThemeMode(mode);
-                          }
-                        },
-                        underline: Container(), // 移除下划线
-                      );
+                  trailing: DropdownButton<ThemeMode>(
+                    value: ref.watch(themeModeProvider),
+                    items: const [
+                      DropdownMenuItem(
+                        value: ThemeMode.system,
+                        child: Text('跟随系统'),
+                      ),
+                      DropdownMenuItem(
+                        value: ThemeMode.light,
+                        child: Text('浅色'),
+                      ),
+                      DropdownMenuItem(
+                        value: ThemeMode.dark,
+                        child: Text('深色'),
+                      ),
+                    ],
+                    onChanged: (ThemeMode? mode) {
+                      if (mode != null) {
+                        ref.read(subscriptionProvider.notifier).updateThemeMode(mode);
+                      }
                     },
+                    underline: Container(), // 移除下划线
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -98,82 +94,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(height: AppThemeConstants.smallSpacing),
                       const Text('选择应用主题颜色'),
                       const SizedBox(height: AppThemeConstants.standardPadding),
-                      Consumer<SubscriptionProvider>(
-                        builder: (context, provider, child) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // 跟随系统颜色选项
-                              GestureDetector(
-                                onTap: () {
-                                  provider.updateThemeColor(null);
-                                },
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey,
-                                        borderRadius: BorderRadius.circular(20),
-                                        border: provider.themeColor == null
-                                            ? Border.all(color: Theme.of(context).colorScheme.primary, width: 3)
-                                            : null,
-                                      ),
-                                      child: const Icon(
-                                        Icons.auto_awesome,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    const Text('自动', style: TextStyle(fontSize: 16)),
-                                    const Spacer(),
-                                    if (provider.themeColor == null)
-                                      Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: AppThemeConstants.standardPadding),
-                              const Text(
-                                '预设颜色',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(height: AppThemeConstants.componentSpacing),
-                              // 预定义颜色选项
-                              GridView.count(
-                                crossAxisCount: 4,
-                                crossAxisSpacing: 16,
-                                mainAxisSpacing: 16,
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                children: AppThemeConstants.presetThemeColors.map((color) {
-                                  return GestureDetector(
-                                    onTap: () {
-                                      provider.updateThemeColor(color);
-                                    },
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: color,
-                                        borderRadius: BorderRadius.circular(AppThemeConstants.componentSpacing),
-                                        border: provider.themeColor == color
-                                            ? Border.all(color: Theme.of(context).colorScheme.primary, width: 3)
-                                            : Border.all(color: Colors.grey.withValues(alpha: 0.5)),
-                                      ),
-                                      child: provider.themeColor == color 
-                                          ? Icon(Icons.check, color: color.computeLuminance() > 0.5 ? Colors.black : Colors.white)
-                                          : null,
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
+                      _buildThemeColorOptions(),
                     ],
                   ),
                 ),
@@ -190,24 +111,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: ListTile(
                   title: const Text('字体大小'),
                   subtitle: const Text('调整应用字体大小'),
-                  trailing: Consumer<SubscriptionProvider>(
-                    builder: (context, provider, child) {
-                      return DropdownButton<double>(
-                        value: provider.fontSize,
-                        items: AppThemeConstants.fontSizeOptions.map((double size) {
-                          return DropdownMenuItem<double>(
-                            value: size,
-                            child: Text('${size.toInt()}'),
-                          );
-                        }).toList(),
-                        onChanged: (double? size) {
-                          if (size != null) {
-                            provider.updateFontSize(size);
-                          }
-                        },
-                        underline: Container(), // 移除下划线
+                  trailing: DropdownButton<double>(
+                    value: ref.watch(fontSizeProvider),
+                    items: AppThemeConstants.fontSizeOptions.map((double size) {
+                      return DropdownMenuItem<double>(
+                        value: size,
+                        child: Text('${size.toInt()}'),
                       );
+                    }).toList(),
+                    onChanged: (double? size) {
+                      if (size != null) {
+                        ref.read(subscriptionProvider.notifier).updateFontSize(size);
+                      }
                     },
+                    underline: Container(), // 移除下划线
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -265,6 +182,83 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildThemeColorOptions() {
+    final currentThemeColor = ref.watch(themeColorProvider);
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 跟随系统颜色选项
+        GestureDetector(
+          onTap: () {
+            ref.read(subscriptionProvider.notifier).updateThemeColor(null);
+          },
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.grey,
+                  borderRadius: BorderRadius.circular(20),
+                  border: currentThemeColor == null
+                      ? Border.all(color: Theme.of(context).colorScheme.primary, width: 3)
+                      : null,
+                ),
+                child: const Icon(
+                  Icons.auto_awesome,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text('自动', style: TextStyle(fontSize: 16)),
+              const Spacer(),
+              if (currentThemeColor == null)
+                Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
+            ],
+          ),
+        ),
+        const SizedBox(height: AppThemeConstants.standardPadding),
+        const Text(
+          '预设颜色',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: AppThemeConstants.componentSpacing),
+        // 预定义颜色选项
+        GridView.count(
+          crossAxisCount: 4,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          children: AppThemeConstants.presetThemeColors.map((color) {
+            return GestureDetector(
+              onTap: () {
+                ref.read(subscriptionProvider.notifier).updateThemeColor(color);
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(AppThemeConstants.componentSpacing),
+                  border: currentThemeColor == color
+                      ? Border.all(color: Theme.of(context).colorScheme.primary, width: 3)
+                      : Border.all(color: Colors.grey.withValues(alpha: 0.5)),
+                ),
+                child: currentThemeColor == color 
+                    ? Icon(Icons.check, color: color.computeLuminance() > 0.5 ? Colors.black : Colors.white)
+                    : null,
+              ),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 }

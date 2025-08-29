@@ -1,91 +1,87 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/subscription_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/app_providers.dart';
 import '../models/subscription.dart';
 import '../utils/icon_utils.dart';
 
-class NotificationsScreen extends StatelessWidget {
+class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final upcomingSubscriptions = ref.watch(upcomingSubscriptionsProvider);
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('提醒'),
         centerTitle: true,
       ),
-      body: Consumer<SubscriptionProvider>(
-        builder: (context, provider, child) {
-          final upcomingSubscriptions = provider.upcomingSubscriptions;
-          
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  '即将到期',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  '7天内到期的订阅',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                if (upcomingSubscriptions.isEmpty)
-                  Expanded(
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.check_circle_outline,
-                            size: 64,
-                            color: Colors.grey[400],
-                          ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            '没有即将到期的订阅',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.grey,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          const Text(
-                            '所有订阅都安全无忧',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                else
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: upcomingSubscriptions.length,
-                      itemBuilder: (context, index) {
-                        return _buildSubscriptionItem(
-                          context, 
-                          upcomingSubscriptions[index],
-                        );
-                      },
-                    ),
-                  ),
-              ],
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              '即将到期',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          );
-        },
+            const SizedBox(height: 8),
+            const Text(
+              '7天内到期的订阅',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 16),
+            if (upcomingSubscriptions.isEmpty)
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.check_circle_outline,
+                        size: 64,
+                        color: Colors.grey[400],
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        '没有即将到期的订阅',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        '所有订阅都安全无忧',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else
+              Expanded(
+                child: ListView.builder(
+                  itemCount: upcomingSubscriptions.length,
+                  itemBuilder: (context, index) {
+                    return _buildSubscriptionItem(
+                      context, 
+                      upcomingSubscriptions[index],
+                    );
+                  },
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

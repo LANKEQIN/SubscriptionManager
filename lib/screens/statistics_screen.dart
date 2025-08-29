@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/subscription_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/app_providers.dart';
 import '../widgets/statistics_card.dart';
 import '../utils/currency_constants.dart';
 
-class StatisticsScreen extends StatefulWidget {
+class StatisticsScreen extends ConsumerStatefulWidget {
   const StatisticsScreen({super.key});
 
   @override
-  State<StatisticsScreen> createState() => _StatisticsScreenState();
+  ConsumerState<StatisticsScreen> createState() => _StatisticsScreenState();
 }
 
-class _StatisticsScreenState extends State<StatisticsScreen> {
+class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
   // 货币选项
   static final Map<String, String> _currencies = {
     'CNY': '人民币 (CN¥)',
@@ -41,61 +41,73 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           ),
         ],
       ),
-      body: Consumer<SubscriptionProvider>(
-        builder: (context, provider, child) {
-          return ListView(
-            padding: const EdgeInsets.all(16.0),
-            children: [
-              // 统计概览卡片
-              StatisticsCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      '统计概览',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    _buildStatItem('订阅总数', '${provider.subscriptionCount}个'),
-                    const SizedBox(height: 8),
-                    _buildStatItem(
-                      '月度支出', 
-                      '${_getCurrencySymbol(provider.baseCurrency)}${provider.monthlyCost.toStringAsFixed(2)}'
-                    ),
-                    const SizedBox(height: 8),
-                    _buildStatItem(
-                      '年度支出', 
-                      '${_getCurrencySymbol(provider.baseCurrency)}${provider.yearlyCost.toStringAsFixed(2)}'
-                    ),
-                  ],
-                ),
-              ),
-              
-              const SizedBox(height: 16),
-              
-              // 类型分布卡片
-              StatisticsCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      '类型分布',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildTypeDistribution(provider),
-                  ],
-                ),
-              ),
-            ],
-          );
-        },
+      body: ListView(
+        padding: const EdgeInsets.all(16.0),
+        children: [
+          // 统计概览卡片
+          _buildOverviewCard(),
+          
+          const SizedBox(height: 16),
+          
+          // 类型分布卡片
+          _buildTypeDistributionCard(),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildOverviewCard() {
+    final subscriptionCount = ref.watch(subscriptionCountProvider);
+    final monthlyCost = ref.read(subscriptionProvider.notifier).getMonthlyCost();
+    final yearlyCost = ref.read(subscriptionProvider.notifier).getYearlyCost();
+    final baseCurrency = ref.watch(baseCurrencyProvider);
+    
+    return StatisticsCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '统计概览',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          _buildStatItem('订阅总数', '$subscriptionCount个'),
+          const SizedBox(height: 8),
+          _buildStatItem(
+            '月度支出', 
+            '${_getCurrencySymbol(baseCurrency)}${monthlyCost.toStringAsFixed(2)}'
+          ),
+          const SizedBox(height: 8),
+          _buildStatItem(
+            '年度支出', 
+            '${_getCurrencySymbol(baseCurrency)}${yearlyCost.toStringAsFixed(2)}'
+          ),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildTypeDistributionCard() {
+    final typeStats = ref.read(subscriptionProvider.notifier).getTypeStats();
+    final baseCurrency = ref.watch(baseCurrencyProvider);
+    
+    return StatisticsCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '类型分布',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildTypeDistribution(typeStats, baseCurrency),
+        ],
       ),
     );
   }
@@ -122,8 +134,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }
   
   // 构建类型分布图表
-  Widget _buildTypeDistribution(SubscriptionProvider provider) {
-    final typeStats = provider.getTypeStats();
+  Widget _buildTypeDistribution(Map<String, double> typeStats, String baseCurrency) {
     if (typeStats.isEmpty) {
       return const Center(
         child: Text('暂无数据'),
@@ -144,7 +155,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     return Column(
       children: sortedEntries.map((entry) {
         final percentage = (entry.value / total) * 100;
-        return _buildTypeItem(entry.key, entry.value, percentage, provider.baseCurrency);
+        return _buildTypeItem(entry.key, entry.value, percentage, baseCurrency);
       }).toList(),
     );
   }
@@ -194,8 +205,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   
   // 显示货币选择对话框
   void _showCurrencySelector(BuildContext context) {
-    final provider = Provider.of<SubscriptionProvider>(context, listen: false);
-    
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -220,14 +229,15 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   itemBuilder: (context, index) {
                     final currencyCode = _currencies.keys.elementAt(index);
                     final currencyName = _currencies.values.elementAt(index);
+                    final currentBaseCurrency = ref.watch(baseCurrencyProvider);
                     
                     return RadioListTile<String>(
                       title: Text(currencyName),
                       value: currencyCode,
-                      groupValue: provider.baseCurrency,
+                      groupValue: currentBaseCurrency,
                       onChanged: (value) {
                         if (value != null) {
-                          provider.setBaseCurrency(value);
+                          ref.read(subscriptionProvider.notifier).setBaseCurrency(value);
                           Navigator.of(context).pop();
                         }
                       },

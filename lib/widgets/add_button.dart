@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../dialogs/add_subscription_dialog.dart';
-import '../providers/subscription_provider.dart';
+import '../providers/app_providers.dart';
 
-class AddButton extends StatelessWidget {
+class AddButton extends ConsumerWidget {
   const AddButton({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return GestureDetector(
       onTap: () {
         // 点击事件，弹出添加订阅对话框
@@ -16,9 +16,8 @@ class AddButton extends StatelessWidget {
           builder: (BuildContext context) {
             return AddSubscriptionDialog(
               onSubscriptionAdded: (subscription) {
-                // 获取SubscriptionProvider并添加订阅
-                Provider.of<SubscriptionProvider>(context, listen: false)
-                    .addSubscription(subscription);
+                // 使用Riverpod添加订阅
+                ref.read(subscriptionProvider.notifier).addSubscription(subscription);
               },
             );
           },

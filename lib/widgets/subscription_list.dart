@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/subscription_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/app_providers.dart';
 import 'subscription_card.dart';
 import '../dialogs/edit_subscription_dialog.dart';
 import '../models/subscription.dart';
@@ -8,31 +8,28 @@ import '../models/subscription.dart';
 /// 订阅列表组件
 /// 显示所有订阅的列表，支持空状态显示和编辑功能
 
-class SubscriptionList extends StatelessWidget {
+class SubscriptionList extends ConsumerWidget {
   const SubscriptionList({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final subscriptions = ref.watch(subscriptionsProvider);
+    
     return Expanded(
-      child: Consumer<SubscriptionProvider>(
-        builder: (context, subscriptionProvider, child) {
-          final subscriptions = subscriptionProvider.subscriptions;
-          return subscriptions.isEmpty
-              ? _buildEmptyState()
-              : ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: subscriptions.length,
-                  itemBuilder: (context, index) {
-                    return SubscriptionCard(
-                      subscription: subscriptions[index],
-                      onEdit: (subscription) {
-                        _showEditDialog(context, subscription, subscriptionProvider);
-                      },
-                    );
+      child: subscriptions.isEmpty
+          ? _buildEmptyState()
+          : ListView.builder(
+              physics: const BouncingScrollPhysics(),
+              itemCount: subscriptions.length,
+              itemBuilder: (context, index) {
+                return SubscriptionCard(
+                  subscription: subscriptions[index],
+                  onEdit: (subscription) {
+                    _showEditDialog(context, subscription, ref);
                   },
                 );
-        },
-      ),
+              },
+            ),
     );
   }
 
@@ -83,18 +80,17 @@ class SubscriptionList extends StatelessWidget {
 
   /// 显示编辑对话框
   /// 当用户点击订阅项时弹出编辑对话框
-  void _showEditDialog(BuildContext context, Subscription subscription,
-      SubscriptionProvider provider) {
+  void _showEditDialog(BuildContext context, Subscription subscription, WidgetRef ref) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return EditSubscriptionDialog(
           subscription: subscription,
           onSubscriptionUpdated: (updatedSubscription) {
-            provider.updateSubscription(updatedSubscription);
+            ref.read(subscriptionProvider.notifier).updateSubscription(updatedSubscription);
           },
           onSubscriptionDeleted: (id) {
-            provider.removeSubscription(id);
+            ref.read(subscriptionProvider.notifier).removeSubscription(id);
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('订阅删除成功')),
             );
