@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-
 import '../database/app_database.dart';
 import '../cache/hive_service.dart';
 import '../cache/cached_data.dart';
@@ -15,14 +15,14 @@ part 'app_providers.g.dart';
 /// 数据库Provider
 /// 提供AppDatabase单例
 @Riverpod(keepAlive: true)
-AppDatabase appDatabase(AppDatabaseRef ref) {
+AppDatabase appDatabase(Ref ref) {
   return AppDatabase();
 }
 
 /// 缓存Box Provider
 /// 提供Hive缓存Box
 @Riverpod(keepAlive: true)
-Future<Box<CachedData>> cacheBox(CacheBoxRef ref) async {
+Future<Box<CachedData>> cacheBox(Ref ref) async {
   await HiveService.initHive();
   return Hive.box<CachedData>('cache');
 }
@@ -30,7 +30,7 @@ Future<Box<CachedData>> cacheBox(CacheBoxRef ref) async {
 /// 用户偏好Box Provider
 /// 提供用户偏好设置Box
 @Riverpod(keepAlive: true)
-Future<Box<String>> userPrefsBox(UserPrefsBoxRef ref) async {
+Future<Box<String>> userPrefsBox(Ref ref) async {
   await HiveService.initHive();
   return Hive.box<String>('user_preferences');
 }
@@ -38,7 +38,7 @@ Future<Box<String>> userPrefsBox(UserPrefsBoxRef ref) async {
 /// 订阅仓储Provider
 /// 提供SubscriptionRepository实例
 @Riverpod(keepAlive: true)
-SubscriptionRepository subscriptionRepository(SubscriptionRepositoryRef ref) {
+SubscriptionRepository subscriptionRepository(Ref ref) {
   final database = ref.watch(appDatabaseProvider);
   return SubscriptionRepositoryImpl(database);
 }
@@ -46,7 +46,7 @@ SubscriptionRepository subscriptionRepository(SubscriptionRepositoryRef ref) {
 /// 月度历史仓储Provider
 /// 提供MonthlyHistoryRepository实例
 @Riverpod(keepAlive: true)
-MonthlyHistoryRepository monthlyHistoryRepository(MonthlyHistoryRepositoryRef ref) {
+MonthlyHistoryRepository monthlyHistoryRepository(Ref ref) {
   final database = ref.watch(appDatabaseProvider);
   return MonthlyHistoryRepositoryImpl(database);
 }
@@ -54,7 +54,7 @@ MonthlyHistoryRepository monthlyHistoryRepository(MonthlyHistoryRepositoryRef re
 /// 应用初始化Provider
 /// 处理应用启动时的所有初始化工作
 @riverpod
-Future<bool> appInitialization(AppInitializationRef ref) async {
+Future<bool> appInitialization(Ref ref) async {
   try {
     // 初始化Hive缓存
     await HiveService.initHive();
@@ -76,7 +76,7 @@ Future<bool> appInitialization(AppInitializationRef ref) async {
 /// 缓存统计信息Provider
 /// 提供缓存使用情况的统计信息
 @riverpod
-Future<Map<String, dynamic>> cacheStats(CacheStatsRef ref) async {
+Future<Map<String, dynamic>> cacheStats(Ref ref) async {
   // 确保缓存已初始化
   await ref.watch(appInitializationProvider.future);
   
@@ -86,7 +86,7 @@ Future<Map<String, dynamic>> cacheStats(CacheStatsRef ref) async {
 /// 数据库统计信息Provider
 /// 提供数据库使用情况的统计信息
 @riverpod
-Future<Map<String, dynamic>> databaseStats(DatabaseStatsRef ref) async {
+Future<Map<String, dynamic>> databaseStats(Ref ref) async {
   final subscriptionRepo = ref.watch(subscriptionRepositoryProvider);
   final historyRepo = ref.watch(monthlyHistoryRepositoryProvider);
   
@@ -110,7 +110,7 @@ Future<Map<String, dynamic>> databaseStats(DatabaseStatsRef ref) async {
 /// 主题模式Provider
 /// 提供当前主题模式
 @riverpod
-ThemeMode themeModeProvider(ThemeModeProviderRef ref) {
+ThemeMode themeModeProvider(Ref ref) {
   return ref.watch(subscriptionNotifierProvider).maybeWhen(
     data: (state) => state.themeMode,
     orElse: () => ThemeMode.system,
@@ -120,7 +120,7 @@ ThemeMode themeModeProvider(ThemeModeProviderRef ref) {
 /// 字体大小Provider
 /// 提供当前字体大小
 @riverpod
-double fontSizeProvider(FontSizeProviderRef ref) {
+double fontSizeProvider(Ref ref) {
   return ref.watch(subscriptionNotifierProvider).maybeWhen(
     data: (state) => state.fontSize,
     orElse: () => 14.0,
@@ -130,7 +130,7 @@ double fontSizeProvider(FontSizeProviderRef ref) {
 /// 主题颜色Provider
 /// 提供当前主题颜色
 @riverpod
-Color? themeColorProvider(ThemeColorProviderRef ref) {
+Color? themeColorProvider(Ref ref) {
   return ref.watch(subscriptionNotifierProvider).maybeWhen(
     data: (state) => state.themeColor,
     orElse: () => null,
@@ -140,7 +140,7 @@ Color? themeColorProvider(ThemeColorProviderRef ref) {
 /// 基准货币Provider
 /// 提供当前基准货币
 @riverpod
-String baseCurrencyProvider(BaseCurrencyProviderRef ref) {
+String baseCurrencyProvider(Ref ref) {
   return ref.watch(subscriptionNotifierProvider).maybeWhen(
     data: (state) => state.baseCurrency,
     orElse: () => 'CNY',
