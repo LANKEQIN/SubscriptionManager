@@ -8,44 +8,19 @@ import '../models/subscription.dart';
 /// 订阅列表组件
 /// 显示所有订阅的列表，支持空状态显示和编辑功能
 
-class SubscriptionList extends StatefulWidget {
+class SubscriptionList extends StatelessWidget {
   const SubscriptionList({super.key});
-
-  @override
-  State<SubscriptionList> createState() => _SubscriptionListState();
-}
-
-class _SubscriptionListState extends State<SubscriptionList> {
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    // 模拟加载延迟
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Consumer<SubscriptionProvider>(
         builder: (context, subscriptionProvider, child) {
-          if (_isLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-
           final subscriptions = subscriptionProvider.subscriptions;
           return subscriptions.isEmpty
               ? _buildEmptyState()
               : ListView.builder(
+                  physics: const BouncingScrollPhysics(),
                   itemCount: subscriptions.length,
                   itemBuilder: (context, index) {
                     return SubscriptionCard(
