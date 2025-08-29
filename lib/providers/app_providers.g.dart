@@ -6,7 +6,7 @@ part of 'app_providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$appDatabaseHash() => r'3d3a397d2ea952fc020fce0506793a5564e93530';
+String _$appDatabaseHash() => r'8c69eb46d45206533c176c88a926608e79ca927d';
 
 /// 数据库Provider
 /// 提供AppDatabase单例
@@ -25,7 +25,7 @@ final appDatabaseProvider = Provider<AppDatabase>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef AppDatabaseRef = ProviderRef<AppDatabase>;
-String _$cacheBoxHash() => r'2c81ae898dbfdd99a5ecee2ccf491c57c1c4879e';
+String _$cacheBoxHash() => r'cb443ab92359d4d8aacd0f2dd1d658a55a41052a';
 
 /// 缓存Box Provider
 /// 提供Hive缓存Box
@@ -44,7 +44,7 @@ final cacheBoxProvider = FutureProvider<Box<CachedData>>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef CacheBoxRef = FutureProviderRef<Box<CachedData>>;
-String _$userPrefsBoxHash() => r'bccf091519bc8fd1bfb3833c98087efe3f86ccd3';
+String _$userPrefsBoxHash() => r'0e0f1931233f27f7352bb4940781e79f322d7695';
 
 /// 用户偏好Box Provider
 /// 提供用户偏好设置Box
@@ -64,7 +64,7 @@ final userPrefsBoxProvider = FutureProvider<Box<String>>.internal(
 // ignore: unused_element
 typedef UserPrefsBoxRef = FutureProviderRef<Box<String>>;
 String _$subscriptionRepositoryHash() =>
-    r'6922e898273b9df3fbf4e5ae1a16bda7e757832b';
+    r'485575c4dfd8d01ad8fae6c31b25314c147a1519';
 
 /// 订阅仓储Provider
 /// 提供SubscriptionRepository实例
@@ -86,7 +86,7 @@ final subscriptionRepositoryProvider =
 // ignore: unused_element
 typedef SubscriptionRepositoryRef = ProviderRef<SubscriptionRepository>;
 String _$monthlyHistoryRepositoryHash() =>
-    r'6df618f96ea81adc338359a749676bfe47400dd5';
+    r'8c2f8c4eb6d7e9d7b3322653a6c0be7005354556';
 
 /// 月度历史仓储Provider
 /// 提供MonthlyHistoryRepository实例
@@ -107,7 +107,7 @@ final monthlyHistoryRepositoryProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef MonthlyHistoryRepositoryRef = ProviderRef<MonthlyHistoryRepository>;
-String _$appInitializationHash() => r'a080b96d9aed19b613208eb2a047eefca7c93862';
+String _$appInitializationHash() => r'b4d9a0e201eee00cc0714275eec92cce8140da26';
 
 /// 应用初始化Provider
 /// 处理应用启动时的所有初始化工作
@@ -127,7 +127,7 @@ final appInitializationProvider = AutoDisposeFutureProvider<bool>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef AppInitializationRef = AutoDisposeFutureProviderRef<bool>;
-String _$cacheStatsHash() => r'bd4799d31fdfb38fa0c37a40e7d016a6e1f3596a';
+String _$cacheStatsHash() => r'01f784500ee46884a0c61d26dd49a0033a475729';
 
 /// 缓存统计信息Provider
 /// 提供缓存使用情况的统计信息
@@ -147,7 +147,7 @@ final cacheStatsProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef CacheStatsRef = AutoDisposeFutureProviderRef<Map<String, dynamic>>;
-String _$databaseStatsHash() => r'9cf5fbc64f070c05463e0d33695f25a55d9ef1ed';
+String _$databaseStatsHash() => r'c7289315ccf3320014d79cc76c808b7574ac2767';
 
 /// 数据库统计信息Provider
 /// 提供数据库使用情况的统计信息
@@ -168,7 +168,7 @@ final databaseStatsProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef DatabaseStatsRef = AutoDisposeFutureProviderRef<Map<String, dynamic>>;
-String _$themeModeProviderHash() => r'090ae1e9c69b9edd9552137b3273c448ac655382';
+String _$themeModeProviderHash() => r'c9777daa0a4572448f4fabe7ece594b429689624';
 
 /// 主题模式Provider
 /// 提供当前主题模式
@@ -188,7 +188,7 @@ final themeModeProviderProvider = AutoDisposeProvider<ThemeMode>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef ThemeModeProviderRef = AutoDisposeProviderRef<ThemeMode>;
-String _$fontSizeProviderHash() => r'f25a8593cbf4d4295d73f57efa4da9faeb402ec0';
+String _$fontSizeProviderHash() => r'4f8dbbab10a15be936deefc15115d2148b4da0db';
 
 /// 字体大小Provider
 /// 提供当前字体大小
@@ -209,7 +209,7 @@ final fontSizeProviderProvider = AutoDisposeProvider<double>.internal(
 // ignore: unused_element
 typedef FontSizeProviderRef = AutoDisposeProviderRef<double>;
 String _$themeColorProviderHash() =>
-    r'e357092b0a5368062adf965d843ad9a98c343136';
+    r'8db7d3b7063b26682955c332c1534073dc54b70e';
 
 /// 主题颜色Provider
 /// 提供当前主题颜色
@@ -230,7 +230,7 @@ final themeColorProviderProvider = AutoDisposeProvider<Color?>.internal(
 // ignore: unused_element
 typedef ThemeColorProviderRef = AutoDisposeProviderRef<Color?>;
 String _$baseCurrencyProviderHash() =>
-    r'e820847571564fabc35cec0927c60ad2a28762fb';
+    r'55fed0fe9c0a33b123f3ac7aa158c39e1918bc70';
 
 /// 基准货币Provider
 /// 提供当前基准货币

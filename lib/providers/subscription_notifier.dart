@@ -79,54 +79,82 @@ class SubscriptionNotifier extends _$SubscriptionNotifier {
 
   /// 添加订阅
   Future<void> addSubscription(Subscription subscription) async {
-    state = const AsyncValue.loading();
-    
     try {
-      final repo = ref.read(subscriptionRepositoryProvider);
-      await repo.addSubscription(subscription);
+      // 1. 乐观更新UI（立即响应）
+      final currentState = await future;
+      final updatedSubscriptions = [...currentState.subscriptions, subscription];
       
-      // 更新月度历史
-      await _updateCurrentMonthHistory();
+      // 重新计算统计信息
+      final hasUnreadNotifications = _checkUnreadNotifications(updatedSubscriptions);
       
-      // 重新加载数据
-      ref.invalidateSelf();
+      // 2. 立即更新状态
+      state = AsyncValue.data(currentState.copyWith(
+        subscriptions: updatedSubscriptions,
+        hasUnreadNotifications: hasUnreadNotifications,
+      ));
+      
+      // 3. 后台异步持久化
+      _persistSubscriptionInBackground(subscription);
+      
     } catch (e) {
+      // 4. 失败时回滚状态
+      ref.invalidateSelf();
       state = AsyncValue.error(e, StackTrace.current);
     }
   }
 
   /// 删除订阅
   Future<void> removeSubscription(String id) async {
-    state = const AsyncValue.loading();
-    
     try {
-      final repo = ref.read(subscriptionRepositoryProvider);
-      await repo.deleteSubscription(id);
+      // 1. 乐观更新UI（立即响应）
+      final currentState = await future;
+      final updatedSubscriptions = currentState.subscriptions
+          .where((s) => s.id != id)
+          .toList();
       
-      // 更新月度历史
-      await _updateCurrentMonthHistory();
+      // 重新计算统计信息
+      final hasUnreadNotifications = _checkUnreadNotifications(updatedSubscriptions);
       
-      // 重新加载数据
-      ref.invalidateSelf();
+      // 2. 立即更新状态
+      state = AsyncValue.data(currentState.copyWith(
+        subscriptions: updatedSubscriptions,
+        hasUnreadNotifications: hasUnreadNotifications,
+      ));
+      
+      // 3. 后台异步持久化
+      _removeSubscriptionInBackground(id);
+      
     } catch (e) {
+      // 4. 失败时回滚状态
+      ref.invalidateSelf();
       state = AsyncValue.error(e, StackTrace.current);
     }
   }
 
   /// 更新订阅
   Future<void> updateSubscription(Subscription updatedSubscription) async {
-    state = const AsyncValue.loading();
-    
     try {
-      final repo = ref.read(subscriptionRepositoryProvider);
-      await repo.updateSubscription(updatedSubscription);
+      // 1. 乐观更新UI（立即响应）
+      final currentState = await future;
+      final updatedSubscriptions = currentState.subscriptions
+          .map((s) => s.id == updatedSubscription.id ? updatedSubscription : s)
+          .toList();
       
-      // 更新月度历史
-      await _updateCurrentMonthHistory();
+      // 重新计算统计信息
+      final hasUnreadNotifications = _checkUnreadNotifications(updatedSubscriptions);
       
-      // 重新加载数据
-      ref.invalidateSelf();
+      // 2. 立即更新状态
+      state = AsyncValue.data(currentState.copyWith(
+        subscriptions: updatedSubscriptions,
+        hasUnreadNotifications: hasUnreadNotifications,
+      ));
+      
+      // 3. 后台异步持久化
+      _updateSubscriptionInBackground(updatedSubscription);
+      
     } catch (e) {
+      // 4. 失败时回滚状态
+      ref.invalidateSelf();
       state = AsyncValue.error(e, StackTrace.current);
     }
   }
@@ -141,6 +169,51 @@ class SubscriptionNotifier extends _$SubscriptionNotifier {
       await historyRepo.updateCurrentMonthHistory(subscriptions);
     } catch (e) {
       debugPrint('更新月度历史失败: $e');
+    }
+  }
+
+  /// 后台持久化订阅（不阻塞UI）
+  Future<void> _persistSubscriptionInBackground(Subscription subscription) async {
+    try {
+      final repo = ref.read(subscriptionRepositoryProvider);
+      await repo.addSubscription(subscription);
+      await _updateCurrentMonthHistory();
+      
+      debugPrint('订阅持久化成功: ${subscription.name}');
+    } catch (e) {
+      debugPrint('订阅持久化失败: $e');
+      // 失败时重新加载数据
+      ref.invalidateSelf();
+    }
+  }
+
+  /// 后台删除订阅（不阻塞UI）
+  Future<void> _removeSubscriptionInBackground(String id) async {
+    try {
+      final repo = ref.read(subscriptionRepositoryProvider);
+      await repo.deleteSubscription(id);
+      await _updateCurrentMonthHistory();
+      
+      debugPrint('订阅删除成功: $id');
+    } catch (e) {
+      debugPrint('订阅删除失败: $e');
+      // 失败时重新加载数据
+      ref.invalidateSelf();
+    }
+  }
+
+  /// 后台更新订阅（不阻塞UI）
+  Future<void> _updateSubscriptionInBackground(Subscription subscription) async {
+    try {
+      final repo = ref.read(subscriptionRepositoryProvider);
+      await repo.updateSubscription(subscription);
+      await _updateCurrentMonthHistory();
+      
+      debugPrint('订阅更新成功: ${subscription.name}');
+    } catch (e) {
+      debugPrint('订阅更新失败: $e');
+      // 失败时重新加载数据
+      ref.invalidateSelf();
     }
   }
 
@@ -288,9 +361,13 @@ class SubscriptionNotifier extends _$SubscriptionNotifier {
   /// 更新主题模式
   Future<void> updateThemeMode(ThemeMode mode) async {
     try {
+      // 1. 立即更新状态（乐观更新）
+      final currentState = await future;
+      state = AsyncValue.data(currentState.copyWith(themeMode: mode));
+      
+      // 2. 后台持久化
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('theme_mode', mode.index);
-      ref.invalidateSelf();
     } catch (e) {
       state = AsyncValue.error(e, StackTrace.current);
     }
@@ -299,9 +376,13 @@ class SubscriptionNotifier extends _$SubscriptionNotifier {
   /// 更新字体大小
   Future<void> updateFontSize(double size) async {
     try {
+      // 1. 立即更新状态（乐观更新）
+      final currentState = await future;
+      state = AsyncValue.data(currentState.copyWith(fontSize: size));
+      
+      // 2. 后台持久化
       final prefs = await SharedPreferences.getInstance();
       await prefs.setDouble('font_size', size);
-      ref.invalidateSelf();
     } catch (e) {
       state = AsyncValue.error(e, StackTrace.current);
     }
@@ -310,13 +391,17 @@ class SubscriptionNotifier extends _$SubscriptionNotifier {
   /// 更新主题颜色
   Future<void> updateThemeColor(Color? color) async {
     try {
+      // 1. 立即更新状态（乐观更新）
+      final currentState = await future;
+      state = AsyncValue.data(currentState.copyWith(themeColor: color));
+      
+      // 2. 后台持久化
       final prefs = await SharedPreferences.getInstance();
       if (color != null) {
         await prefs.setInt('theme_color', color.toARGB32());
       } else {
         await prefs.remove('theme_color');
       }
-      ref.invalidateSelf();
     } catch (e) {
       state = AsyncValue.error(e, StackTrace.current);
     }
@@ -324,17 +409,28 @@ class SubscriptionNotifier extends _$SubscriptionNotifier {
 
   /// 标记通知为已读
   void markNotificationsAsRead() {
-    // 这个方法需要重新考虑，因为我们现在使用AsyncNotifier
-    // 可以通过更新SharedPreferences来实现
-    debugPrint('通知已标记为已读');
-    ref.invalidateSelf();
+    try {
+      final currentState = state.valueOrNull;
+      if (currentState != null) {
+        state = AsyncValue.data(currentState.copyWith(
+          hasUnreadNotifications: false,
+        ));
+      }
+      debugPrint('通知已标记为已读');
+    } catch (e) {
+      debugPrint('标记通知失败: $e');
+    }
   }
 
   /// 设置基准货币
   Future<void> setBaseCurrency(String currencyCode) async {
     try {
+      // 1. 立即更新状态（乐观更新）
+      final currentState = await future;
+      state = AsyncValue.data(currentState.copyWith(baseCurrency: currencyCode));
+      
+      // 2. 后台持久化
       await UserPreferences.setBaseCurrency(currencyCode);
-      ref.invalidateSelf();
     } catch (e) {
       state = AsyncValue.error(e, StackTrace.current);
     }
