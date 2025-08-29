@@ -3,6 +3,7 @@ import 'home_app_bar.dart';
 import '../widgets/statistics_card.dart';
 import '../widgets/subscription_list.dart';
 import '../widgets/add_button.dart';
+import '../constants/theme_constants.dart';
 
 /// 主屏幕组件
 /// 显示应用程序的主页，包括统计信息和订阅列表
@@ -22,7 +23,7 @@ class HomeScreen extends StatelessWidget {
             // 主页面内容（带有内边距）
             Expanded(
               child: Padding(
-                padding: EdgeInsets.all(16.0),
+                padding: EdgeInsets.all(AppThemeConstants.standardPadding),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -30,7 +31,7 @@ class HomeScreen extends StatelessWidget {
                     HomeStatisticsCard(),
                     
                     // 间隔
-                    SizedBox(height: 16),
+                    SizedBox(height: AppThemeConstants.standardPadding),
                     
                     // 订阅列表标题
                     Text(
@@ -42,7 +43,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                     
                     // 间隔
-                    SizedBox(height: 16),
+                    SizedBox(height: AppThemeConstants.standardPadding),
                     
                     // 订阅项目列表
                     Expanded(
@@ -57,21 +58,11 @@ class HomeScreen extends StatelessWidget {
         
         // 添加订阅按钮（浮动在右下角）
         Positioned(
-          right: 16,
-          bottom: 16,
+          right: AppThemeConstants.standardPadding,
+          bottom: AppThemeConstants.standardPadding,
           child: AddButton(),
         ),
       ],
     );
   }
 }
-
-
-
-
-
-
-
-
-
-

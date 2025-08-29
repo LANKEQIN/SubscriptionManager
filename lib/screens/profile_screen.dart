@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/subscription_provider.dart';
+import '../constants/theme_constants.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -10,20 +11,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  // 字体大小选项
-  final List<double> fontSizeOptions = [12.0, 14.0, 16.0, 18.0, 20.0];
-  
-  // 预定义的主题颜色选项
-  final List<Color> themeColors = [
-    Colors.blue,      // 默认蓝色
-    Colors.red,       // 红色
-    Colors.green,     // 绿色
-    Colors.purple,    // 紫色
-    Colors.orange,    // 橙色
-    Colors.pink,      // 粉色
-    Colors.teal,      // 蓝绿色
-  ];
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +20,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(AppThemeConstants.standardPadding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -44,13 +31,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: AppThemeConstants.largeSpacing),
               
               // 主题设置
               Card(
                 elevation: 2,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppThemeConstants.standardBorderRadius),
                 ),
                 child: ListTile(
                   title: const Text('主题设置'),
@@ -88,16 +75,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               
-              const SizedBox(height: 16),
+              const SizedBox(height: AppThemeConstants.standardPadding),
               
               // 主题颜色设置
               Card(
                 elevation: 2,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppThemeConstants.standardBorderRadius),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(AppThemeConstants.standardPadding),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -108,9 +95,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: AppThemeConstants.smallSpacing),
                       const Text('选择应用主题颜色'),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: AppThemeConstants.standardPadding),
                       Consumer<SubscriptionProvider>(
                         builder: (context, provider, child) {
                           return Column(
@@ -147,7 +134,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ],
                                 ),
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: AppThemeConstants.standardPadding),
                               const Text(
                                 '预设颜色',
                                 style: TextStyle(
@@ -155,7 +142,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: AppThemeConstants.componentSpacing),
                               // 预定义颜色选项
                               GridView.count(
                                 crossAxisCount: 4,
@@ -163,7 +150,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 mainAxisSpacing: 16,
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
-                                children: themeColors.map((color) {
+                                children: AppThemeConstants.presetThemeColors.map((color) {
                                   return GestureDetector(
                                     onTap: () {
                                       provider.updateThemeColor(color);
@@ -171,7 +158,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     child: Container(
                                       decoration: BoxDecoration(
                                         color: color,
-                                        borderRadius: BorderRadius.circular(12),
+                                        borderRadius: BorderRadius.circular(AppThemeConstants.componentSpacing),
                                         border: provider.themeColor == color
                                             ? Border.all(color: Theme.of(context).colorScheme.primary, width: 3)
                                             : Border.all(color: Colors.grey.withValues(alpha: 0.5)),
@@ -192,13 +179,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               
-              const SizedBox(height: 16),
+              const SizedBox(height: AppThemeConstants.standardPadding),
               
               // 字体大小设置
               Card(
                 elevation: 2,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppThemeConstants.standardBorderRadius),
                 ),
                 child: ListTile(
                   title: const Text('字体大小'),
@@ -207,7 +194,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     builder: (context, provider, child) {
                       return DropdownButton<double>(
                         value: provider.fontSize,
-                        items: fontSizeOptions.map((double size) {
+                        items: AppThemeConstants.fontSizeOptions.map((double size) {
                           return DropdownMenuItem<double>(
                             value: size,
                             child: Text('${size.toInt()}'),
@@ -228,16 +215,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               
-              const SizedBox(height: 32),
+              const SizedBox(height: AppThemeConstants.largeSpacing * 1.33), // 32
               
               // 应用信息
               Card(
                 elevation: 2,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppThemeConstants.standardBorderRadius),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(AppThemeConstants.standardPadding),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -248,13 +235,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: AppThemeConstants.standardPadding),
                       const ListTile(
                         leading: Icon(Icons.info_outline),
                         title: Text('版本'),
                         subtitle: Text('1.0.0'),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: AppThemeConstants.smallSpacing),
                       ListTile(
                         leading: const Icon(Icons.star_border),
                         title: const Text('给我们评分'),
@@ -262,7 +249,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           // TODO: 实现评分功能
                         },
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: AppThemeConstants.smallSpacing),
                       ListTile(
                         leading: const Icon(Icons.privacy_tip_outlined),
                         title: const Text('隐私政策'),

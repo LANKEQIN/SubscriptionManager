@@ -6,6 +6,8 @@ import 'screens/statistics_screen.dart';
 import 'screens/notifications_screen.dart';
 import 'screens/profile_screen.dart';
 import 'providers/subscription_provider.dart';
+import 'constants/theme_constants.dart';
+import 'config/theme_builder.dart';
 
 /// 应用程序入口点
 /// 初始化并运行整个应用程序
@@ -29,102 +31,33 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // 定义常量
-  static const List<String> _fontFamilies = ['HarmonyOS Sans', 'Segoe UI', 'Roboto', 'sans-serif'];
-
-  // 统一字体尺寸计算方法
-  double _calculateFontSize(double baseSize, int increment) {
-    return baseSize + increment;
-  }
-
-  // 提取文本主题样式为单独函数，避免重复代码
-  TextTheme _buildTextTheme(double fontSize) {
-    return TextTheme(
-      bodyMedium: TextStyle(
-        fontSize: _calculateFontSize(fontSize, 0),
-        fontFamily: _fontFamilies[0],
-        fontFamilyFallback: _fontFamilies.sublist(1),
-      ),
-      bodyLarge: TextStyle(
-        fontSize: _calculateFontSize(fontSize, 2),
-        fontFamily: _fontFamilies[0],
-        fontFamilyFallback: _fontFamilies.sublist(1),
-      ),
-      bodySmall: TextStyle(
-        fontSize: _calculateFontSize(fontSize, -2),
-        fontFamily: _fontFamilies[0],
-        fontFamilyFallback: _fontFamilies.sublist(1),
-      ),
-      titleLarge: TextStyle(
-        fontSize: _calculateFontSize(fontSize, 6),
-        fontFamily: _fontFamilies[0],
-        fontFamilyFallback: _fontFamilies.sublist(1),
-      ),
-      titleMedium: TextStyle(
-        fontSize: _calculateFontSize(fontSize, 4),
-        fontFamily: _fontFamilies[0],
-        fontFamilyFallback: _fontFamilies.sublist(1),
-      ),
-      titleSmall: TextStyle(
-        fontSize: _calculateFontSize(fontSize, 2),
-        fontFamily: _fontFamilies[0],
-        fontFamilyFallback: _fontFamilies.sublist(1),
-      ),
-    );
-  }
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return Consumer<SubscriptionProvider>(
       builder: (context, provider, child) {
-        // 根据选择的颜色确定主题色
-        Color seedColor = provider.themeColor ?? Colors.deepPurple;
-        
         return DynamicColorBuilder(
           builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
-            // 如果用户选择了特定颜色，则使用该颜色；否则尝试使用系统动态颜色
-            ColorScheme lightColorScheme;
-            ColorScheme darkColorScheme;
-            
-            if (provider.themeColor != null) {
-              // 用户选择了特定颜色
-              lightColorScheme = ColorScheme.fromSeed(seedColor: provider.themeColor!);
-              darkColorScheme = ColorScheme.fromSeed(
-                seedColor: provider.themeColor!, 
-                brightness: Brightness.dark,
-              );
-            } else if (lightDynamic != null && darkDynamic != null) {
-              // 使用系统动态颜色
-              lightColorScheme = lightDynamic;
-              darkColorScheme = darkDynamic;
-            } else {
-              // 回退到默认颜色
-              lightColorScheme = ColorScheme.fromSeed(seedColor: seedColor);
-              darkColorScheme = ColorScheme.fromSeed(
-                seedColor: seedColor, 
-                brightness: Brightness.dark,
-              );
-            }
+            // 获取颜色方案
+            final colorSchemes = AppThemeBuilder.getColorSchemes(
+              customColor: provider.themeColor,
+              lightDynamic: lightDynamic,
+              darkDynamic: darkDynamic,
+            );
             
             return MaterialApp(
               title: 'Subscription Manager',
-              theme: ThemeData(
-                colorScheme: lightColorScheme,
-                useMaterial3: true,
-                fontFamily: 'HarmonyOS Sans',
-                textTheme: _buildTextTheme(provider.fontSize),
+              theme: AppThemeBuilder.buildLightTheme(
+                colorSchemes.light, 
+                provider.fontSize
               ),
-              darkTheme: ThemeData(
-                colorScheme: darkColorScheme,
-                useMaterial3: true,
-                fontFamily: 'HarmonyOS Sans',
-                textTheme: _buildTextTheme(provider.fontSize),
+              darkTheme: AppThemeBuilder.buildDarkTheme(
+                colorSchemes.dark, 
+                provider.fontSize
               ),
               themeMode: provider.themeMode,
               home: const MainScreen(),
             );
-          }
+          },
         );
       },
     );
@@ -160,8 +93,9 @@ class _MainScreenState extends State<MainScreen> {
       body: _pages[_currentIndex],
       bottomNavigationBar: LayoutBuilder(
         builder: (context, constraints) {
-          bool isSmallScreen = constraints.maxWidth < 350;
-          double iconSize = isSmallScreen ? 20 : 24;
+          final isSmallScreen = ThemeConfigHelper.isSmallScreen(constraints.maxWidth);
+          final iconSize = ThemeConfigHelper.getIconSize(isSmallScreen);
+          final navigationBarHeight = ThemeConfigHelper.getNavigationBarHeight(isSmallScreen);
           
           return NavigationBar(
             selectedIndex: _currentIndex,
@@ -193,7 +127,7 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ],
             labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-            height: isSmallScreen ? 60 : 80,
+            height: navigationBarHeight,
           );
         },
       ),
