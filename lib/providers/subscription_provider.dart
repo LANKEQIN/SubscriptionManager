@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -100,7 +99,7 @@ class SubscriptionProvider with ChangeNotifier {
     
     // 保存主题颜色
     if (_themeColor != null) {
-      prefs.setInt('themeColor', _themeColor!.value);
+      prefs.setInt('themeColor', _themeColor!.toARGB32());
     } else {
       prefs.remove('themeColor');
     }

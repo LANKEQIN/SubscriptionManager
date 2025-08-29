@@ -5,8 +5,6 @@ import 'screens/home_screen.dart';
 import 'screens/statistics_screen.dart';
 import 'screens/notifications_screen.dart';
 import 'screens/profile_screen.dart';
-import 'widgets/add_button.dart';
-import 'dialogs/add_subscription_dialog.dart';
 import 'providers/subscription_provider.dart';
 
 /// 应用程序入口点
@@ -164,7 +162,6 @@ class _MainScreenState extends State<MainScreen> {
         builder: (context, constraints) {
           bool isSmallScreen = constraints.maxWidth < 350;
           double iconSize = isSmallScreen ? 20 : 24;
-          double labelSize = isSmallScreen ? 10 : 12;
           
           return NavigationBar(
             selectedIndex: _currentIndex,

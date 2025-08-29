@@ -140,9 +140,9 @@ class Subscription {
     final symbol = currencySymbols[currency] ?? currency;
     
     switch (billingCycle) {
-      case SubscriptionConstants.BILLING_CYCLE_MONTHLY:
+      case SubscriptionConstants.billingCycleMonthly:
         return '$symbol${price.toStringAsFixed(2)}${PriceFormatConstants.monthlySuffix}';
-      case SubscriptionConstants.BILLING_CYCLE_YEARLY:
+      case SubscriptionConstants.billingCycleYearly:
         return '$symbol${price.toStringAsFixed(2)}${PriceFormatConstants.yearlySuffix}';
       default:
         return '$symbol${price.toStringAsFixed(2)}';
@@ -159,7 +159,7 @@ class Subscription {
     } else if (daysUntilPayment == 1) {
       return '明天到期';
     } else if (daysUntilPayment <= 7) {
-      return '${daysUntilPayment}天后到期';
+      return '$daysUntilPayment天后到期';
     } else {
       return '自动续费';
     }

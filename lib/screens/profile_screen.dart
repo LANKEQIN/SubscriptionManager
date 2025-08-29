@@ -174,7 +174,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         borderRadius: BorderRadius.circular(12),
                                         border: provider.themeColor == color
                                             ? Border.all(color: Theme.of(context).colorScheme.primary, width: 3)
-                                            : Border.all(color: Colors.grey.withOpacity(0.5)),
+                                            : Border.all(color: Colors.grey.withValues(alpha: 0.5)),
                                       ),
                                       child: provider.themeColor == color 
                                           ? Icon(Icons.check, color: color.computeLuminance() > 0.5 ? Colors.black : Colors.white)
@@ -256,16 +256,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(height: 8),
                       ListTile(
-                        leading: Icon(Icons.star_border),
-                        title: Text('给我们评分'),
+                        leading: const Icon(Icons.star_border),
+                        title: const Text('给我们评分'),
                         onTap: () {
                           // TODO: 实现评分功能
                         },
                       ),
                       const SizedBox(height: 8),
                       ListTile(
-                        leading: Icon(Icons.privacy_tip_outlined),
-                        title: Text('隐私政策'),
+                        leading: const Icon(Icons.privacy_tip_outlined),
+                        title: const Text('隐私政策'),
                         onTap: () {
                           // TODO: 实现隐私政策页面
                         },
