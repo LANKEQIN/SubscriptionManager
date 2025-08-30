@@ -42,9 +42,9 @@ class SubscriptionState with _$SubscriptionState {
   double get totalMonthlyCost {
     double total = 0.0;
     for (final subscription in subscriptions) {
-      if (subscription.billingCycle == 'monthly') {
+      if (subscription.billingCycle == '每月') {
         total += subscription.price;
-      } else if (subscription.billingCycle == 'yearly') {
+      } else if (subscription.billingCycle == '每年') {
         total += subscription.price / 12;
       }
     }
@@ -55,9 +55,9 @@ class SubscriptionState with _$SubscriptionState {
   double get totalYearlyCost {
     double total = 0.0;
     for (final subscription in subscriptions) {
-      if (subscription.billingCycle == 'monthly') {
+      if (subscription.billingCycle == '每月') {
         total += subscription.price * 12;
-      } else if (subscription.billingCycle == 'yearly') {
+      } else if (subscription.billingCycle == '每年') {
         total += subscription.price;
       }
     }
