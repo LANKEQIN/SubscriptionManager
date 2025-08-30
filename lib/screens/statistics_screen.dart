@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/app_providers.dart';
 import '../providers/subscription_notifier.dart';
-import '../models/subscription.dart';
 import '../widgets/statistics_card.dart';
 import '../utils/currency_constants.dart';
 
@@ -66,8 +65,6 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
         return subscriptionState.when(
           data: (state) {
             final subscriptionCount = state.subscriptions.length;
-            final monthlyCost = state.totalMonthlyCost;
-            final yearlyCost = state.totalYearlyCost;
             final baseCurrency = state.baseCurrency;
             
             return StatisticsCard(
@@ -84,14 +81,30 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
                   const SizedBox(height: 8),
                   _buildStatItem('订阅总数', '$subscriptionCount个'),
                   const SizedBox(height: 8),
-                  _buildStatItem(
-                    '月度支出', 
-                    '${_getCurrencySymbol(baseCurrency)}${monthlyCost.toStringAsFixed(2)}'
+                  
+                  // 使用FutureBuilder获取转换后的月度支出
+                  FutureBuilder<double>(
+                    future: ref.read(subscriptionNotifierProvider.notifier).getMonthlyCost(),
+                    builder: (context, snapshot) {
+                      final monthlyCost = snapshot.data ?? 0.0;
+                      return _buildStatItem(
+                        '月度支出', 
+                        '${_getCurrencySymbol(baseCurrency)}${monthlyCost.toStringAsFixed(2)}'
+                      );
+                    },
                   ),
                   const SizedBox(height: 8),
-                  _buildStatItem(
-                    '年度支出', 
-                    '${_getCurrencySymbol(baseCurrency)}${yearlyCost.toStringAsFixed(2)}'
+                  
+                  // 使用FutureBuilder获取转换后的年度支出
+                  FutureBuilder<double>(
+                    future: ref.read(subscriptionNotifierProvider.notifier).getYearlyCost(),
+                    builder: (context, snapshot) {
+                      final yearlyCost = snapshot.data ?? 0.0;
+                      return _buildStatItem(
+                        '年度支出', 
+                        '${_getCurrencySymbol(baseCurrency)}${yearlyCost.toStringAsFixed(2)}'
+                      );
+                    },
                   ),
                 ],
               ),
@@ -119,7 +132,6 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
         
         return subscriptionState.when(
           data: (state) {
-            final typeStats = state.subscriptionsByType;
             final baseCurrency = state.baseCurrency;
             
             return StatisticsCard(
@@ -134,7 +146,14 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _buildTypeDistribution(typeStats, baseCurrency),
+                  // 使用FutureBuilder获取转换后的类型统计数据
+                  FutureBuilder<Map<String, double>>(
+                    future: ref.read(subscriptionNotifierProvider.notifier).getTypeStats(),
+                    builder: (context, snapshot) {
+                      final typeStats = snapshot.data ?? {};
+                      return _buildTypeDistribution(typeStats, baseCurrency);
+                    },
+                  ),
                 ],
               ),
             );
@@ -176,28 +195,15 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
   }
   
   // 构建类型分布图表
-  Widget _buildTypeDistribution(Map<String, List<Subscription>> typeStats, String baseCurrency) {
+  Widget _buildTypeDistribution(Map<String, double> typeStats, String baseCurrency) {
     if (typeStats.isEmpty) {
       return const Center(
         child: Text('暂无数据'),
       );
     }
     
-    // 计算每个类型的总金额
-    final Map<String, double> typeAmounts = {};
-    for (final entry in typeStats.entries) {
-      double typeTotal = 0.0;
-      for (final subscription in entry.value) {
-        double amount = subscription.price;
-        if (subscription.billingCycle == '每年') {
-          amount = subscription.price / 12; // 转换为月费用
-        }
-        typeTotal += amount;
-      }
-      typeAmounts[entry.key] = typeTotal;
-    }
-    
-    final total = typeAmounts.values.fold(0.0, (sum, item) => sum + item);
+    // 计算总金额
+    final total = typeStats.values.fold(0.0, (sum, item) => sum + item);
     if (total == 0) {
       return const Center(
         child: Text('暂无数据'),
@@ -205,7 +211,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
     }
     
     // 按值排序，从大到小
-    final sortedEntries = typeAmounts.entries.toList()
+    final sortedEntries = typeStats.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     
     return Column(
