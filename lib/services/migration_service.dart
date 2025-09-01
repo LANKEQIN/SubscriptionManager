@@ -2,62 +2,110 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../database/app_database.dart';
 import '../models/subscription.dart';
 import '../models/monthly_history.dart';
+import '../models/sync_types.dart';
 import '../repositories/repository_interfaces.dart';
+import '../providers/app_providers.dart';
+import '../services/auth_service.dart';
+import '../services/connectivity_service.dart';
+
+part 'migration_service.g.dart';
+
+/// 增强数据迁移服务
+/// 负责将数据从SharedPreferences迁移到新的同步架构
+@riverpod
+MigrationService migrationService(Ref ref) {
+  final subscriptionRepo = ref.watch(subscriptionRepositoryProvider);
+  final historyRepo = ref.watch(monthlyHistoryRepositoryProvider);
+  final authService = ref.watch(authServiceProvider.notifier);
+  final connectivityService = ref.watch(connectivityServiceProvider.notifier);
+  
+  return MigrationService(
+    null, // AppDatabase 不再直接使用
+    subscriptionRepo,
+    historyRepo,
+    authService: authService,
+    connectivityService: connectivityService,
+  );
+}
 
 /// 数据迁移服务
-/// 负责将数据从SharedPreferences迁移到Drift数据库
+/// 负责将数据从SharedPreferences迁移到Drift数据库，并支持同步架构
 class MigrationService {
   final SubscriptionRepository _subscriptionRepo;
   final MonthlyHistoryRepository _historyRepo;
+  final AuthService? _authService;
+  final ConnectivityService? _connectivityService;
 
   MigrationService(
-    AppDatabase database, // 保留参数以维持接口兼容性
+    AppDatabase? database, // 保留参数以维持接口兼容性
     this._subscriptionRepo,
-    this._historyRepo,
-  );
+    this._historyRepo, {
+    AuthService? authService,
+    ConnectivityService? connectivityService,
+  }) : _authService = authService,
+       _connectivityService = connectivityService;
 
   /// 检查并执行数据迁移
   /// 返回true表示迁移成功或已完成，false表示迁移失败
   Future<bool> checkAndMigrate() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final isMigrated = prefs.getBool('data_migrated_to_drift') ?? false;
       
-      if (isMigrated) {
-        debugPrint('数据已迁移，跳过迁移过程');
+      // 检查基础迁移状态
+      final isDriftMigrated = prefs.getBool('data_migrated_to_drift') ?? false;
+      
+      // 检查同步架构迁移状态
+      final isSyncMigrated = prefs.getBool('data_migrated_to_sync_arch') ?? false;
+      
+      if (isDriftMigrated && isSyncMigrated) {
+        debugPrint('数据已完全迁移，跳过迁移过程');
         return true;
       }
 
       debugPrint('开始数据迁移...');
       
-      // 执行迁移
-      final migrationResult = await _performMigration(prefs);
-      
-      if (migrationResult) {
-        // 标记迁移完成
-        await prefs.setBool('data_migrated_to_drift', true);
-        debugPrint('数据迁移完成');
-        
-        // 可选：清理旧数据（谨慎操作）
-        await _cleanupOldData(prefs);
-        
-        return true;
-      } else {
-        debugPrint('数据迁移失败');
-        return false;
+      // 执行基础迁移（SharedPreferences -> Drift）
+      if (!isDriftMigrated) {
+        final driftMigrationResult = await _performBaseMigration(prefs);
+        if (driftMigrationResult) {
+          await prefs.setBool('data_migrated_to_drift', true);
+          debugPrint('基础数据迁移完成');
+        } else {
+          debugPrint('基础数据迁移失败');
+          return false;
+        }
       }
+      
+      // 执行同步架构迁移
+      if (!isSyncMigrated) {
+        final syncMigrationResult = await _performSyncArchMigration(prefs);
+        if (syncMigrationResult) {
+          await prefs.setBool('data_migrated_to_sync_arch', true);
+          debugPrint('同步架构迁移完成');
+        } else {
+          debugPrint('同步架构迁移失败');
+          return false;
+        }
+      }
+      
+      // 可选：清理旧数据（谨慎操作）
+      await _cleanupOldData(prefs);
+      
+      return true;
     } catch (e) {
       debugPrint('数据迁移过程中发生错误: $e');
       return false;
     }
   }
 
-  /// 执行实际的数据迁移
-  Future<bool> _performMigration(SharedPreferences prefs) async {
+  /// 执行基础数据迁移（SharedPreferences -> Drift）
+  Future<bool> _performBaseMigration(SharedPreferences prefs) async {
     try {
       // 迁移订阅数据
       final subscriptionMigrated = await _migrateSubscriptions(prefs);
@@ -78,7 +126,48 @@ class MigrationService {
 
       return true;
     } catch (e) {
-      debugPrint('迁移执行过程中发生错误: $e');
+      debugPrint('基础迁移执行过程中发生错误: $e');
+      return false;
+    }
+  }
+  
+  /// 执行同步架构迁移（为现有数据添加同步字段）
+  Future<bool> _performSyncArchMigration(SharedPreferences prefs) async {
+    try {
+      debugPrint('开始同步架构迁移...');
+      
+      // 更新所有订阅以支持同步
+      final allSubscriptions = await _subscriptionRepo.getAllSubscriptions();
+      for (final subscription in allSubscriptions) {
+        // 为现有订阅添加同步相关字段
+        final now = DateTime.now();
+        final updated = subscription.copyWith(
+          createdAt: subscription.createdAt ?? now,
+          updatedAt: subscription.updatedAt ?? now,
+          needsSync: false, // 现有数据不需要立即同步
+          syncStatus: SyncStatus.synced,
+        );
+        
+        await _subscriptionRepo.updateSubscription(updated);
+      }
+      
+      // 更新所有月度历史以支持同步
+      final allHistories = await _historyRepo.getAllHistories();
+      for (final history in allHistories) {
+        final now = DateTime.now();
+        final updated = history.copyWith(
+          createdAt: history.createdAt ?? now,
+          updatedAt: history.updatedAt ?? now,
+        );
+        
+        await _historyRepo.saveHistory(updated);
+      }
+      
+      debugPrint('同步架构迁移完成，已更新 ${allSubscriptions.length} 个订阅和 ${allHistories.length} 个历史记录');
+      
+      return true;
+    } catch (e) {
+      debugPrint('同步架构迁移失败: $e');
       return false;
     }
   }
@@ -99,13 +188,22 @@ class MigrationService {
         try {
           final subscriptionData = subscriptionsJson[i] as Map<String, dynamic>;
           
-          // 创建Subscription对象
+          // 创建Subscription对象，使用新的同步支持
           var subscription = Subscription.fromMap(subscriptionData);
           
           // 确保有有效的ID
           if (subscription.id.isEmpty) {
             subscription = subscription.copyWith(id: const Uuid().v4());
           }
+          
+          // 添加同步相关字段
+          final now = DateTime.now();
+          subscription = subscription.copyWith(
+            createdAt: now,
+            updatedAt: now,
+            needsSync: false, // 迁移的数据不需要立即同步
+            syncStatus: SyncStatus.synced,
+          );
 
           // 添加到数据库
           await _subscriptionRepo.addSubscription(subscription);
@@ -139,16 +237,23 @@ class MigrationService {
         try {
           final historyData = historiesJson[i] as Map<String, dynamic>;
           
-          // 创建MonthlyHistory对象
+          // 创建MonthlyHistory对象，使用新的同步支持
           var history = MonthlyHistory.fromMap(historyData);
           
           // 确保有有效的ID
           if (history.id.isEmpty) {
             history = history.copyWith(id: const Uuid().v4());
           }
+          
+          // 添加同步相关字段
+          final now = DateTime.now();
+          history = history.copyWith(
+            createdAt: now,
+            updatedAt: now,
+          );
 
           // 添加到数据库
-          await _historyRepo.addMonthlyHistory(history);
+          await _historyRepo.saveHistory(history);
           debugPrint('成功迁移月度历史: ${history.year}年${history.month}月');
         } catch (e) {
           debugPrint('迁移第 ${i + 1} 个月度历史时发生错误: $e');
@@ -248,18 +353,90 @@ class MigrationService {
       
       final allHistories = await _historyRepo.getAllHistories();
       for (final history in allHistories) {
-        await _historyRepo.deleteMonthlyHistory(history.id);
+        await _historyRepo.deleteHistory(history.id);
       }
       
       // 重置迁移标记
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('data_migrated_to_drift', false);
+      await prefs.setBool('data_migrated_to_sync_arch', false);
+      await prefs.setBool('has_uploaded_existing_data', false);
       
       debugPrint('迁移回滚完成');
       return true;
     } catch (e) {
       debugPrint('迁移回滚失败: $e');
       return false;
+    }
+  }
+  
+  /// 检查是否需要上传现有数据到服务器
+  Future<bool> shouldUploadExistingData() async {
+    try {
+      // 只有在用户登录且网络可用时才上传
+      if (_authService?.isLoggedIn != true || _connectivityService?.isConnected != true) {
+        return false;
+      }
+      
+      final prefs = await SharedPreferences.getInstance();
+      final hasUploadedData = prefs.getBool('has_uploaded_existing_data') ?? false;
+      
+      return !hasUploadedData;
+    } catch (e) {
+      debugPrint('检查上传状态失败: $e');
+      return false;
+    }
+  }
+  
+  /// 上传现有数据到服务器（用户首次登录时）
+  Future<bool> uploadExistingDataToServer() async {
+    try {
+      if (_authService?.isLoggedIn != true) {
+        debugPrint('用户未登录，跳过数据上传');
+        return false;
+      }
+      
+      if (_connectivityService?.isConnected != true) {
+        debugPrint('网络不可用，跳过数据上传');
+        return false;
+      }
+      
+      debugPrint('开始上传现有数据到服务器...');
+      
+      // 获取所有本地数据
+      final allSubscriptions = await _subscriptionRepo.getAllSubscriptions();
+      final allHistories = await _historyRepo.getAllHistories();
+      
+      // 标记所有数据为需要同步
+      for (final subscription in allSubscriptions) {
+        final updated = subscription.copyWith(
+          needsSync: true,
+          syncStatus: SyncStatus.pending,
+        );
+        await _subscriptionRepo.updateSubscription(updated);
+      }
+      
+      // 标记上传完成
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('has_uploaded_existing_data', true);
+      
+      debugPrint('已标记 ${allSubscriptions.length} 个订阅和 ${allHistories.length} 个历史记录为待同步');
+      
+      return true;
+    } catch (e) {
+      debugPrint('上传现有数据失败: $e');
+      return false;
+    }
+  }
+  
+  /// 重置上传状态（用于重新同步）
+  Future<void> resetUploadStatus() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('has_uploaded_existing_data', false);
+      debugPrint('已重置上传状态');
+    } catch (e) {
+      debugPrint('重置上传状态失败: $e');
     }
   }
 }

@@ -70,6 +70,17 @@ mixin ErrorHandler {
       }
     }
     
-    throw DataException('操作重试失败', 'RETRY_FAILED');
+    // 这里不会到达，但是为了满足类型检查
+    throw DataException('重试次数超过限制', 'RETRY_EXCEEDED');
+  }
+
+  /// 获取错误信息
+  /// 将DataException转换为用户友好的错误消息
+  String getErrorMessage(Exception exception) {
+    if (exception is DataException) {
+      return exception.message;
+    } else {
+      return '操作失败: ${exception.toString()}';
+    }
   }
 }
