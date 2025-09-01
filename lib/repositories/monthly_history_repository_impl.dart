@@ -177,6 +177,18 @@ class MonthlyHistoryRepositoryImpl with ErrorHandler implements MonthlyHistoryRe
     });
   }
 
+  @override
+  Future<void> saveHistory(MonthlyHistory history) async {
+    // saveHistory is an alias for addMonthlyHistory
+    return addMonthlyHistory(history);
+  }
+
+  @override
+  Future<void> deleteHistory(String id) async {
+    // deleteHistory is an alias for deleteMonthlyHistory
+    return deleteMonthlyHistory(id);
+  }
+
   /// 清除相关缓存
   Future<void> _invalidateCache() async {
     await HiveService.deleteCache(_allHistoriesCacheKey);

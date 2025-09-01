@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../utils/currency_constants.dart';
 import '../utils/icon_utils.dart';
 import '../utils/subscription_constants.dart';
+import 'sync_types.dart';
 
 part 'subscription.freezed.dart';
 
@@ -53,6 +54,25 @@ class Subscription with _$Subscription {
     
     /// 备注信息（可选）
     String? notes,
+    
+    // 同步相关字段
+    /// 服务器端ID（用于同步）
+    String? serverId,
+    
+    /// 创建时间
+    DateTime? createdAt,
+    
+    /// 最后更新时间
+    DateTime? updatedAt,
+    
+    /// 最后同步时间
+    DateTime? lastSyncedAt,
+    
+    /// 是否需要同步
+    @Default(false) bool needsSync,
+    
+    /// 同步状态
+    @Default(SyncStatus.synced) SyncStatus syncStatus,
   }) = _Subscription;
   
   const Subscription._();
@@ -69,6 +89,7 @@ class Subscription with _$Subscription {
     bool autoRenewal = false,
     String? notes,
   }) {
+    final now = DateTime.now();
     return Subscription(
       id: const Uuid().v4(),
       name: name,
@@ -80,6 +101,10 @@ class Subscription with _$Subscription {
       nextPaymentDate: nextPaymentDate,
       autoRenewal: autoRenewal,
       notes: notes,
+      createdAt: now,
+      updatedAt: now,
+      needsSync: true,
+      syncStatus: SyncStatus.pending,
     );
   }
   
@@ -162,5 +187,81 @@ class Subscription with _$Subscription {
   /// 将字符串形式的图标转换为IconData
   IconData get iconData {
     return IconUtils.getIconData(icon);
+  }
+  
+  /// 标记为需要同步
+  Subscription markForSync() {
+    return copyWith(
+      needsSync: true,
+      syncStatus: SyncStatus.pending,
+      updatedAt: DateTime.now(),
+    );
+  }
+  
+  /// 标记为已同步
+  Subscription markAsSynced({
+    String? serverId,
+  }) {
+    return copyWith(
+      serverId: serverId ?? this.serverId,
+      needsSync: false,
+      syncStatus: SyncStatus.synced,
+      lastSyncedAt: DateTime.now(),
+    );
+  }
+  
+  /// 标记同步失败
+  Subscription markSyncError() {
+    return copyWith(
+      syncStatus: SyncStatus.error,
+    );
+  }
+  
+  /// 标记为冲突状态
+  Subscription markAsConflict() {
+    return copyWith(
+      syncStatus: SyncStatus.conflict,
+    );
+  }
+  
+  /// 转换为Supabase JSON格式
+  Map<String, dynamic> toSupabaseJson() {
+    return {
+      'id': serverId,
+      'name': name,
+      'price': price,
+      'currency': currency,
+      'billing_cycle': billingCycle,
+      'next_payment_date': nextPaymentDate.toIso8601String().split('T')[0],
+      'description': notes,
+      'icon_name': icon,
+      'color': null, // TODO: 如果需要颜色支持
+      'is_active': true,
+      'local_id': id,
+      if (createdAt != null) 'created_at': createdAt!.toIso8601String(),
+      if (updatedAt != null) 'updated_at': updatedAt!.toIso8601String(),
+    };
+  }
+  
+  /// 从Supabase JSON创建Subscription
+  factory Subscription.fromSupabaseJson(Map<String, dynamic> json) {
+    return Subscription(
+      id: json['local_id'] ?? const Uuid().v4(),
+      serverId: json['id'],
+      name: json['name'] ?? '',
+      icon: json['icon_name'],
+      type: json['billing_cycle'] ?? '',
+      price: (json['price'] ?? 0.0).toDouble(),
+      currency: json['currency'] ?? 'CNY',
+      billingCycle: json['billing_cycle'] ?? '',
+      nextPaymentDate: DateTime.parse(json['next_payment_date']),
+      autoRenewal: true, // Supabase中默认为活跃状态
+      notes: json['description'],
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
+      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at']) : null,
+      lastSyncedAt: DateTime.now(),
+      needsSync: false,
+      syncStatus: SyncStatus.synced,
+    );
   }
 }

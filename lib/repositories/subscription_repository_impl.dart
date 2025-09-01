@@ -169,6 +169,44 @@ class SubscriptionRepositoryImpl with ErrorHandler implements SubscriptionReposi
     });
   }
 
+  @override
+  Future<double> getTotalMonthlyAmount() async {
+    return handleDatabaseOperation(() async {
+      final subscriptions = await getAllSubscriptions();
+      double total = 0.0;
+      
+      for (final subscription in subscriptions) {
+        if (subscription.autoRenewal) {
+          // 根据计费周期计算月度金额
+          switch (subscription.billingCycle.toLowerCase()) {
+            case 'monthly':
+            case '月付':
+              total += subscription.price;
+              break;
+            case 'yearly':
+            case '年付':
+              total += subscription.price / 12;
+              break;
+            case 'quarterly':
+            case '季付':
+              total += subscription.price / 3;
+              break;
+            case 'weekly':
+            case '周付':
+              total += subscription.price * 4.33; // 一个月约 4.33 周
+              break;
+            default:
+              // 默认按月付处理
+              total += subscription.price;
+              break;
+          }
+        }
+      }
+      
+      return total;
+    });
+  }
+
   /// 更新单个订阅缓存
   Future<void> _updateSingleSubscriptionCache(Subscription subscription) async {
     try {

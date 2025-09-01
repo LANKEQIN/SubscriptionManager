@@ -52,6 +52,16 @@ dependencies:
   # 缓存相关
   hive: ^2.2.3
   hive_flutter: ^1.1.0
+  
+  # Supabase 相关
+  supabase_flutter: ^2.0.0
+  
+  # 网络连接监控
+  connectivity_plus: ^5.0.0
+  internet_connection_checker: ^1.0.0
+  
+  # 环境变量管理
+  flutter_dotenv: ^5.1.0
 
 dev_dependencies:
   flutter_test:
@@ -89,7 +99,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
+  assets:
+    - .env
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

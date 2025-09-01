@@ -8,13 +8,24 @@ import 'screens/profile_screen.dart';
 import 'providers/app_providers.dart';
 import 'providers/subscription_notifier.dart';
 import 'models/subscription_state.dart';
-
 import 'config/theme_builder.dart';
+import 'config/supabase_config.dart';
+import 'services/migration_service.dart';
+import 'widgets/sync_indicator.dart';
 
 /// 应用程序入口点
 /// 初始化并运行整个应用程序
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  try {
+    // 初始化Supabase
+    await SupabaseConfig.initialize();
+    debugPrint('Supabase初始化成功');
+  } catch (e) {
+    debugPrint('Supabase初始化失败: $e');
+    // 即使Supabase初始化失败，应用仍可以正常运行（仅限本地功能）
+  }
   
   runApp(
     const ProviderScope(
@@ -35,6 +46,20 @@ class MyApp extends ConsumerWidget {
     
     // 加载订阅数据
     final subscriptionState = ref.watch(subscriptionNotifierProvider);
+    
+    // 执行数据迁移（在后台进行）
+    ref.listen(migrationServiceProvider, (previous, next) {
+      if (previous == null) {
+        // 首次初始化时执行迁移
+        next.checkAndMigrate().then((success) {
+          if (success) {
+            debugPrint('数据迁移成功');
+          } else {
+            debugPrint('数据迁移失败');
+          }
+        });
+      }
+    });
     
     // 如果初始化失败，显示错误页面
     return initializationState.when(
@@ -174,7 +199,16 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_currentIndex],
+      body: Column(
+        children: [
+          // 同步状态指示器
+          const SyncIndicator(),
+          // 主要内容
+          Expanded(
+            child: _pages[_currentIndex],
+          ),
+        ],
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) {

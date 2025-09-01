@@ -44,7 +44,24 @@ mixin _$Subscription {
   bool get autoRenewal => throw _privateConstructorUsedError;
 
   /// 备注信息（可选）
-  String? get notes => throw _privateConstructorUsedError;
+  String? get notes => throw _privateConstructorUsedError; // 同步相关字段
+  /// 服务器端ID（用于同步）
+  String? get serverId => throw _privateConstructorUsedError;
+
+  /// 创建时间
+  DateTime? get createdAt => throw _privateConstructorUsedError;
+
+  /// 最后更新时间
+  DateTime? get updatedAt => throw _privateConstructorUsedError;
+
+  /// 最后同步时间
+  DateTime? get lastSyncedAt => throw _privateConstructorUsedError;
+
+  /// 是否需要同步
+  bool get needsSync => throw _privateConstructorUsedError;
+
+  /// 同步状态
+  SyncStatus get syncStatus => throw _privateConstructorUsedError;
 
   /// Create a copy of Subscription
   /// with the given fields replaced by the non-null parameter values.
@@ -69,7 +86,13 @@ abstract class $SubscriptionCopyWith<$Res> {
       String billingCycle,
       DateTime nextPaymentDate,
       bool autoRenewal,
-      String? notes});
+      String? notes,
+      String? serverId,
+      DateTime? createdAt,
+      DateTime? updatedAt,
+      DateTime? lastSyncedAt,
+      bool needsSync,
+      SyncStatus syncStatus});
 }
 
 /// @nodoc
@@ -97,6 +120,12 @@ class _$SubscriptionCopyWithImpl<$Res, $Val extends Subscription>
     Object? nextPaymentDate = null,
     Object? autoRenewal = null,
     Object? notes = freezed,
+    Object? serverId = freezed,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
+    Object? lastSyncedAt = freezed,
+    Object? needsSync = null,
+    Object? syncStatus = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -139,6 +168,30 @@ class _$SubscriptionCopyWithImpl<$Res, $Val extends Subscription>
           ? _value.notes
           : notes // ignore: cast_nullable_to_non_nullable
               as String?,
+      serverId: freezed == serverId
+          ? _value.serverId
+          : serverId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      createdAt: freezed == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      lastSyncedAt: freezed == lastSyncedAt
+          ? _value.lastSyncedAt
+          : lastSyncedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      needsSync: null == needsSync
+          ? _value.needsSync
+          : needsSync // ignore: cast_nullable_to_non_nullable
+              as bool,
+      syncStatus: null == syncStatus
+          ? _value.syncStatus
+          : syncStatus // ignore: cast_nullable_to_non_nullable
+              as SyncStatus,
     ) as $Val);
   }
 }
@@ -161,7 +214,13 @@ abstract class _$$SubscriptionImplCopyWith<$Res>
       String billingCycle,
       DateTime nextPaymentDate,
       bool autoRenewal,
-      String? notes});
+      String? notes,
+      String? serverId,
+      DateTime? createdAt,
+      DateTime? updatedAt,
+      DateTime? lastSyncedAt,
+      bool needsSync,
+      SyncStatus syncStatus});
 }
 
 /// @nodoc
@@ -187,6 +246,12 @@ class __$$SubscriptionImplCopyWithImpl<$Res>
     Object? nextPaymentDate = null,
     Object? autoRenewal = null,
     Object? notes = freezed,
+    Object? serverId = freezed,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
+    Object? lastSyncedAt = freezed,
+    Object? needsSync = null,
+    Object? syncStatus = null,
   }) {
     return _then(_$SubscriptionImpl(
       id: null == id
@@ -229,6 +294,30 @@ class __$$SubscriptionImplCopyWithImpl<$Res>
           ? _value.notes
           : notes // ignore: cast_nullable_to_non_nullable
               as String?,
+      serverId: freezed == serverId
+          ? _value.serverId
+          : serverId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      createdAt: freezed == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      lastSyncedAt: freezed == lastSyncedAt
+          ? _value.lastSyncedAt
+          : lastSyncedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      needsSync: null == needsSync
+          ? _value.needsSync
+          : needsSync // ignore: cast_nullable_to_non_nullable
+              as bool,
+      syncStatus: null == syncStatus
+          ? _value.syncStatus
+          : syncStatus // ignore: cast_nullable_to_non_nullable
+              as SyncStatus,
     ));
   }
 }
@@ -246,7 +335,13 @@ class _$SubscriptionImpl extends _Subscription {
       required this.billingCycle,
       required this.nextPaymentDate,
       this.autoRenewal = false,
-      this.notes})
+      this.notes,
+      this.serverId,
+      this.createdAt,
+      this.updatedAt,
+      this.lastSyncedAt,
+      this.needsSync = false,
+      this.syncStatus = SyncStatus.synced})
       : super._();
 
   /// 订阅的唯一标识符
@@ -291,10 +386,36 @@ class _$SubscriptionImpl extends _Subscription {
   /// 备注信息（可选）
   @override
   final String? notes;
+// 同步相关字段
+  /// 服务器端ID（用于同步）
+  @override
+  final String? serverId;
+
+  /// 创建时间
+  @override
+  final DateTime? createdAt;
+
+  /// 最后更新时间
+  @override
+  final DateTime? updatedAt;
+
+  /// 最后同步时间
+  @override
+  final DateTime? lastSyncedAt;
+
+  /// 是否需要同步
+  @override
+  @JsonKey()
+  final bool needsSync;
+
+  /// 同步状态
+  @override
+  @JsonKey()
+  final SyncStatus syncStatus;
 
   @override
   String toString() {
-    return 'Subscription(id: $id, name: $name, icon: $icon, type: $type, price: $price, currency: $currency, billingCycle: $billingCycle, nextPaymentDate: $nextPaymentDate, autoRenewal: $autoRenewal, notes: $notes)';
+    return 'Subscription(id: $id, name: $name, icon: $icon, type: $type, price: $price, currency: $currency, billingCycle: $billingCycle, nextPaymentDate: $nextPaymentDate, autoRenewal: $autoRenewal, notes: $notes, serverId: $serverId, createdAt: $createdAt, updatedAt: $updatedAt, lastSyncedAt: $lastSyncedAt, needsSync: $needsSync, syncStatus: $syncStatus)';
   }
 
   @override
@@ -315,12 +436,40 @@ class _$SubscriptionImpl extends _Subscription {
                 other.nextPaymentDate == nextPaymentDate) &&
             (identical(other.autoRenewal, autoRenewal) ||
                 other.autoRenewal == autoRenewal) &&
-            (identical(other.notes, notes) || other.notes == notes));
+            (identical(other.notes, notes) || other.notes == notes) &&
+            (identical(other.serverId, serverId) ||
+                other.serverId == serverId) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt) &&
+            (identical(other.lastSyncedAt, lastSyncedAt) ||
+                other.lastSyncedAt == lastSyncedAt) &&
+            (identical(other.needsSync, needsSync) ||
+                other.needsSync == needsSync) &&
+            (identical(other.syncStatus, syncStatus) ||
+                other.syncStatus == syncStatus));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, icon, type, price,
-      currency, billingCycle, nextPaymentDate, autoRenewal, notes);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      name,
+      icon,
+      type,
+      price,
+      currency,
+      billingCycle,
+      nextPaymentDate,
+      autoRenewal,
+      notes,
+      serverId,
+      createdAt,
+      updatedAt,
+      lastSyncedAt,
+      needsSync,
+      syncStatus);
 
   /// Create a copy of Subscription
   /// with the given fields replaced by the non-null parameter values.
@@ -342,7 +491,13 @@ abstract class _Subscription extends Subscription {
       required final String billingCycle,
       required final DateTime nextPaymentDate,
       final bool autoRenewal,
-      final String? notes}) = _$SubscriptionImpl;
+      final String? notes,
+      final String? serverId,
+      final DateTime? createdAt,
+      final DateTime? updatedAt,
+      final DateTime? lastSyncedAt,
+      final bool needsSync,
+      final SyncStatus syncStatus}) = _$SubscriptionImpl;
   const _Subscription._() : super._();
 
   /// 订阅的唯一标识符
@@ -383,7 +538,30 @@ abstract class _Subscription extends Subscription {
 
   /// 备注信息（可选）
   @override
-  String? get notes;
+  String? get notes; // 同步相关字段
+  /// 服务器端ID（用于同步）
+  @override
+  String? get serverId;
+
+  /// 创建时间
+  @override
+  DateTime? get createdAt;
+
+  /// 最后更新时间
+  @override
+  DateTime? get updatedAt;
+
+  /// 最后同步时间
+  @override
+  DateTime? get lastSyncedAt;
+
+  /// 是否需要同步
+  @override
+  bool get needsSync;
+
+  /// 同步状态
+  @override
+  SyncStatus get syncStatus;
 
   /// Create a copy of Subscription
   /// with the given fields replaced by the non-null parameter values.

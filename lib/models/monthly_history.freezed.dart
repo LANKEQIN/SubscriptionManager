@@ -34,6 +34,15 @@ mixin _$MonthlyHistory {
   /// 当月订阅数量
   int get subscriptionCount => throw _privateConstructorUsedError;
 
+  /// 创建时间
+  DateTime? get createdAt => throw _privateConstructorUsedError;
+
+  /// 最后更新时间
+  DateTime? get updatedAt => throw _privateConstructorUsedError;
+
+  /// 最后同步时间
+  DateTime? get lastSyncedAt => throw _privateConstructorUsedError;
+
   /// Create a copy of MonthlyHistory
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -53,7 +62,10 @@ abstract class $MonthlyHistoryCopyWith<$Res> {
       int month,
       double totalAmount,
       String currency,
-      int subscriptionCount});
+      int subscriptionCount,
+      DateTime? createdAt,
+      DateTime? updatedAt,
+      DateTime? lastSyncedAt});
 }
 
 /// @nodoc
@@ -77,6 +89,9 @@ class _$MonthlyHistoryCopyWithImpl<$Res, $Val extends MonthlyHistory>
     Object? totalAmount = null,
     Object? currency = null,
     Object? subscriptionCount = null,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
+    Object? lastSyncedAt = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -103,6 +118,18 @@ class _$MonthlyHistoryCopyWithImpl<$Res, $Val extends MonthlyHistory>
           ? _value.subscriptionCount
           : subscriptionCount // ignore: cast_nullable_to_non_nullable
               as int,
+      createdAt: freezed == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      lastSyncedAt: freezed == lastSyncedAt
+          ? _value.lastSyncedAt
+          : lastSyncedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ) as $Val);
   }
 }
@@ -121,7 +148,10 @@ abstract class _$$MonthlyHistoryImplCopyWith<$Res>
       int month,
       double totalAmount,
       String currency,
-      int subscriptionCount});
+      int subscriptionCount,
+      DateTime? createdAt,
+      DateTime? updatedAt,
+      DateTime? lastSyncedAt});
 }
 
 /// @nodoc
@@ -143,6 +173,9 @@ class __$$MonthlyHistoryImplCopyWithImpl<$Res>
     Object? totalAmount = null,
     Object? currency = null,
     Object? subscriptionCount = null,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
+    Object? lastSyncedAt = freezed,
   }) {
     return _then(_$MonthlyHistoryImpl(
       id: null == id
@@ -169,6 +202,18 @@ class __$$MonthlyHistoryImplCopyWithImpl<$Res>
           ? _value.subscriptionCount
           : subscriptionCount // ignore: cast_nullable_to_non_nullable
               as int,
+      createdAt: freezed == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      lastSyncedAt: freezed == lastSyncedAt
+          ? _value.lastSyncedAt
+          : lastSyncedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ));
   }
 }
@@ -182,7 +227,10 @@ class _$MonthlyHistoryImpl extends _MonthlyHistory {
       required this.month,
       required this.totalAmount,
       this.currency = 'CNY',
-      required this.subscriptionCount})
+      required this.subscriptionCount,
+      this.createdAt,
+      this.updatedAt,
+      this.lastSyncedAt})
       : super._();
 
   /// 历史记录唯一标识符
@@ -211,9 +259,21 @@ class _$MonthlyHistoryImpl extends _MonthlyHistory {
   @override
   final int subscriptionCount;
 
+  /// 创建时间
+  @override
+  final DateTime? createdAt;
+
+  /// 最后更新时间
+  @override
+  final DateTime? updatedAt;
+
+  /// 最后同步时间
+  @override
+  final DateTime? lastSyncedAt;
+
   @override
   String toString() {
-    return 'MonthlyHistory(id: $id, year: $year, month: $month, totalAmount: $totalAmount, currency: $currency, subscriptionCount: $subscriptionCount)';
+    return 'MonthlyHistory(id: $id, year: $year, month: $month, totalAmount: $totalAmount, currency: $currency, subscriptionCount: $subscriptionCount, createdAt: $createdAt, updatedAt: $updatedAt, lastSyncedAt: $lastSyncedAt)';
   }
 
   @override
@@ -229,12 +289,18 @@ class _$MonthlyHistoryImpl extends _MonthlyHistory {
             (identical(other.currency, currency) ||
                 other.currency == currency) &&
             (identical(other.subscriptionCount, subscriptionCount) ||
-                other.subscriptionCount == subscriptionCount));
+                other.subscriptionCount == subscriptionCount) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt) &&
+            (identical(other.lastSyncedAt, lastSyncedAt) ||
+                other.lastSyncedAt == lastSyncedAt));
   }
 
   @override
-  int get hashCode => Object.hash(
-      runtimeType, id, year, month, totalAmount, currency, subscriptionCount);
+  int get hashCode => Object.hash(runtimeType, id, year, month, totalAmount,
+      currency, subscriptionCount, createdAt, updatedAt, lastSyncedAt);
 
   /// Create a copy of MonthlyHistory
   /// with the given fields replaced by the non-null parameter values.
@@ -253,7 +319,10 @@ abstract class _MonthlyHistory extends MonthlyHistory {
       required final int month,
       required final double totalAmount,
       final String currency,
-      required final int subscriptionCount}) = _$MonthlyHistoryImpl;
+      required final int subscriptionCount,
+      final DateTime? createdAt,
+      final DateTime? updatedAt,
+      final DateTime? lastSyncedAt}) = _$MonthlyHistoryImpl;
   const _MonthlyHistory._() : super._();
 
   /// 历史记录唯一标识符
@@ -279,6 +348,18 @@ abstract class _MonthlyHistory extends MonthlyHistory {
   /// 当月订阅数量
   @override
   int get subscriptionCount;
+
+  /// 创建时间
+  @override
+  DateTime? get createdAt;
+
+  /// 最后更新时间
+  @override
+  DateTime? get updatedAt;
+
+  /// 最后同步时间
+  @override
+  DateTime? get lastSyncedAt;
 
   /// Create a copy of MonthlyHistory
   /// with the given fields replaced by the non-null parameter values.
