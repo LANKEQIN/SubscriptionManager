@@ -1,11 +1,5 @@
 # Subscription Manager 订阅管理器
 
-Please select your preferred language:
-请选择您的语言：
-
-- [English Version](README_en.md)
-- [中文版本](README_zh.md)
-
 <span id="english"></span>
 ## English
 
