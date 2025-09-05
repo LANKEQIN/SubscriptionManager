@@ -58,6 +58,7 @@ Subscription Manager is a cross-platform mobile application built with Flutter t
 - **Testing Infrastructure**: Comprehensive test suite with unit, widget, and integration tests
 - **Debug Tools**: Enhanced debugging capabilities with logging and error reporting
 - **Hot Reload**: Fast development cycle with Flutter's hot reload feature
+- **Code Obfuscation**: Enhanced security through Dart code obfuscation for release builds
 
 ### Screenshots
 
@@ -149,6 +150,29 @@ flutter build macos --release
 # Linux
 flutter build linux --release
 ```
+
+#### Build with Code Obfuscation
+
+To build the application with code obfuscation enabled for enhanced security:
+
+```bash
+# Android with obfuscation
+flutter build apk --obfuscate --split-debug-info=./build/symbols
+flutter build appbundle --obfuscate --split-debug-info=./build/symbols
+
+# iOS with obfuscation
+flutter build ios --obfuscate --split-debug-info=./build/symbols
+
+# Other platforms with obfuscation
+flutter build ipa --obfuscate --split-debug-info=./build/symbols
+flutter build windows --obfuscate --split-debug-info=./build/symbols
+```
+
+For convenience, you can also use the provided build scripts:
+- Windows: `scripts\build-obfuscated.bat`
+- macOS/Linux: `scripts/build-obfuscated.sh`
+
+Symbol files for debugging obfuscated builds are stored in the `./build/symbols` directory. Please backup these files for future debugging needs.
 
 ### Project Structure
 
