@@ -60,12 +60,11 @@ class ConnectivityService extends _$ConnectivityService {
   Future<void> _handleConnectivityChange(ConnectivityResult result) async {
     switch (result) {
       case ConnectivityResult.none:
-        // 检查是否已关闭该状态的显示
+        // 检查是否已关闭离线状态的显示
         if (!_dismissedStatus.contains(NetworkStatus.offline)) {
-          // 检查是否已关闭离线状态的显示
-          if (!_dismissedStatus.contains(NetworkStatus.offline)) {
-            state = NetworkStatus.offline;
-          }
+          state = NetworkStatus.offline;
+        } else {
+          state = NetworkStatus.unknown; // 保持隐藏状态
         }
         _stopNetworkQualityCheck();
         break;
@@ -80,10 +79,17 @@ class ConnectivityService extends _$ConnectivityService {
           // 检查是否已关闭该状态的显示
           if (!_dismissedStatus.contains(quality)) {
             state = quality;
+          } else {
+            state = NetworkStatus.unknown; // 保持隐藏状态
           }
           _startNetworkQualityCheck();
         } else {
-          state = NetworkStatus.offline;
+          // 检查是否已关闭离线状态的显示
+          if (!_dismissedStatus.contains(NetworkStatus.offline)) {
+            state = NetworkStatus.offline;
+          } else {
+            state = NetworkStatus.unknown; // 保持隐藏状态
+          }
           _stopNetworkQualityCheck();
         }
         break;
@@ -120,7 +126,7 @@ class ConnectivityService extends _$ConnectivityService {
         if (!_dismissedStatus.contains(NetworkStatus.offline)) {
           return NetworkStatus.offline;
         }
-        return state; // 保持当前状态
+        return NetworkStatus.unknown; // 保持隐藏状态
       }
       
       // 根据响应时间判断网络质量
@@ -146,7 +152,8 @@ class ConnectivityService extends _$ConnectivityService {
       (_) async {
         if (state != NetworkStatus.offline) {
           final quality = await _checkNetworkQuality();
-          if (quality != state) {
+          // 检查是否已关闭该状态的显示
+          if (!_dismissedStatus.contains(quality) && quality != state) {
             state = quality;
           }
         }

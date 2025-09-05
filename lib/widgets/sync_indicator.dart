@@ -21,72 +21,79 @@ class SyncIndicator extends ConsumerWidget {
       return const SizedBox.shrink();
     }
     
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: _getBackgroundColor(syncState, networkStatus),
-        border: Border(
-          bottom: BorderSide(
-            color: _getBorderColor(syncState, networkStatus),
-            width: 0.5,
+    return Positioned(
+      top: 16,
+      left: 16,
+      right: 16,
+      child: Material(
+        elevation: 8,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: _getBackgroundColor(syncState, networkStatus),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Row(
-          children: [
-            _buildStatusIcon(syncState, networkStatus),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    _getStatusTitle(syncState, networkStatus),
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: _getTextColor(syncState, networkStatus),
-                    ),
-                  ),
-                  if (_getStatusSubtitle(syncState, networkStatus) != null)
+          child: Row(
+            children: [
+              _buildStatusIcon(syncState, networkStatus),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                     Text(
-                      _getStatusSubtitle(syncState, networkStatus)!,
+                      _getStatusTitle(syncState, networkStatus),
                       style: TextStyle(
-                        fontSize: 12,
-                        color: _getTextColor(syncState, networkStatus).withValues(alpha: 0.8),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: _getTextColor(syncState, networkStatus),
                       ),
                     ),
-                  if (syncState.isLoading && syncState.progress > 0)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: LinearProgressIndicator(
-                        value: syncState.progress,
-                        minHeight: 2,
-                        backgroundColor: _getTextColor(syncState, networkStatus).withValues(alpha: 0.2),
-                        valueColor: AlwaysStoppedAnimation(
-                          _getTextColor(syncState, networkStatus),
+                    if (_getStatusSubtitle(syncState, networkStatus) != null)
+                      Text(
+                        _getStatusSubtitle(syncState, networkStatus)!,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: _getTextColor(syncState, networkStatus).withValues(alpha: 0.8),
                         ),
                       ),
-                    ),
-                ],
+                    if (syncState.isLoading && syncState.progress > 0)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: LinearProgressIndicator(
+                          value: syncState.progress,
+                          minHeight: 2,
+                          backgroundColor: _getTextColor(syncState, networkStatus).withValues(alpha: 0.2),
+                          valueColor: AlwaysStoppedAnimation(
+                            _getTextColor(syncState, networkStatus),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            ),
-            if (_shouldShowAction(syncState, networkStatus))
-              _buildActionButton(context, ref, syncState, networkStatus)
-            else if (networkStatus == NetworkStatus.offline || networkStatus == NetworkStatus.slow)
-              // 添加关闭按钮
-              IconButton(
-                icon: Icon(Icons.close, size: 20, color: _getTextColor(syncState, networkStatus)),
-                onPressed: () {
-                  // 对于离线或缓慢网络状态，允许用户手动关闭指示器
-                  ref.read(connectivityServiceProvider.notifier).dismissIndicator();
-                },
-              ),
-          ],
+              if (_shouldShowAction(syncState, networkStatus))
+                _buildActionButton(context, ref, syncState, networkStatus)
+              else if (networkStatus == NetworkStatus.offline || networkStatus == NetworkStatus.slow)
+                // 添加关闭按钮
+                IconButton(
+                  icon: Icon(Icons.close, size: 20, color: _getTextColor(syncState, networkStatus)),
+                  onPressed: () {
+                    // 对于离线或缓慢网络状态，允许用户手动关闭指示器
+                    ref.read(connectivityServiceProvider.notifier).dismissIndicator();
+                  },
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -157,13 +164,11 @@ class SyncIndicator extends ConsumerWidget {
     }
     
     if (networkStatus == NetworkStatus.offline) {
-      return TextButton(
-        onPressed: () => _handleRefreshConnection(ref),
-        style: TextButton.styleFrom(
-          foregroundColor: _getTextColor(syncState, networkStatus),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        ),
-        child: const Text('刷新'),
+      return IconButton(
+        icon: Icon(Icons.close, size: 20, color: _getTextColor(syncState, networkStatus)),
+        onPressed: () {
+          ref.read(connectivityServiceProvider.notifier).dismissIndicator();
+        },
       );
     }
     
@@ -176,17 +181,9 @@ class SyncIndicator extends ConsumerWidget {
     syncService.manualSync();
   }
   
-  /// 处理刷新连接
-  void _handleRefreshConnection(WidgetRef ref) {
-    final connectivityService = ref.read(connectivityServiceProvider.notifier);
-    connectivityService.refresh();
-  }
-  
   /// 判断是否应该显示操作按钮
   bool _shouldShowAction(SyncState syncState, NetworkStatus networkStatus) {
-    return syncState.hasError || 
-           syncState.hasConflicts || 
-           (networkStatus == NetworkStatus.offline && !syncState.hasError && !syncState.hasConflicts);
+    return syncState.hasError || syncState.hasConflicts;
   }
   
   /// 获取状态图标
@@ -211,16 +208,7 @@ class SyncIndicator extends ConsumerWidget {
     return Colors.green.shade50;
   }
   
-  /// 获取边框颜色
-  Color _getBorderColor(SyncState syncState, NetworkStatus networkStatus) {
-    if (networkStatus == NetworkStatus.offline) return Colors.orange.shade200;
-    if (syncState.hasError) return Colors.red.shade200;
-    if (syncState.hasConflicts) return Colors.amber.shade200;
-    if (syncState.isLoading) return Colors.blue.shade200;
-    if (syncState.hasPendingSync) return Colors.indigo.shade200;
-    if (networkStatus == NetworkStatus.slow) return Colors.yellow.shade200;
-    return Colors.green.shade200;
-  }
+
   
   /// 获取图标颜色
   Color _getIconColor(SyncState syncState, NetworkStatus networkStatus) {

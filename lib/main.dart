@@ -199,14 +199,12 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      body: Stack(
         children: [
-          // 同步状态指示器
-          const SyncIndicator(),
           // 主要内容
-          Expanded(
-            child: _pages[_currentIndex],
-          ),
+          _pages[_currentIndex],
+          // 同步状态指示器（浮动在内容之上）
+          const SyncIndicator(),
         ],
       ),
       bottomNavigationBar: NavigationBar(
