@@ -76,7 +76,16 @@ class SyncIndicator extends ConsumerWidget {
               ),
             ),
             if (_shouldShowAction(syncState, networkStatus))
-              _buildActionButton(context, ref, syncState, networkStatus),
+              _buildActionButton(context, ref, syncState, networkStatus)
+            else if (networkStatus == NetworkStatus.offline || networkStatus == NetworkStatus.slow)
+              // 添加关闭按钮
+              IconButton(
+                icon: Icon(Icons.close, size: 20, color: _getTextColor(syncState, networkStatus)),
+                onPressed: () {
+                  // 对于离线或缓慢网络状态，允许用户手动关闭指示器
+                  ref.read(connectivityServiceProvider.notifier).dismissIndicator();
+                },
+              ),
           ],
         ),
       ),
@@ -177,7 +186,7 @@ class SyncIndicator extends ConsumerWidget {
   bool _shouldShowAction(SyncState syncState, NetworkStatus networkStatus) {
     return syncState.hasError || 
            syncState.hasConflicts || 
-           networkStatus == NetworkStatus.offline;
+           (networkStatus == NetworkStatus.offline && !syncState.hasError && !syncState.hasConflicts);
   }
   
   /// 获取状态图标
@@ -358,5 +367,12 @@ class MiniSyncIndicator extends ConsumerWidget {
     if (syncState.isLoading) return '同步中';
     if (syncState.hasPendingSync) return '待同步';
     return '已同步';
+  }
+}
+
+// 在ConnectivityService中添加dismissIndicator方法的扩展
+extension ConnectivityServiceExtension on ConnectivityService {
+  void dismissIndicator() {
+    // 此方法将在connectivity_service.dart中实现
   }
 }

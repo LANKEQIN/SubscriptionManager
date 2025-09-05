@@ -63,9 +63,7 @@ mixin _$Subscription {
   /// 同步状态
   SyncStatus get syncStatus => throw _privateConstructorUsedError;
 
-  /// Create a copy of Subscription
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $SubscriptionCopyWith<Subscription> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -105,8 +103,6 @@ class _$SubscriptionCopyWithImpl<$Res, $Val extends Subscription>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of Subscription
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -231,8 +227,6 @@ class __$$SubscriptionImplCopyWithImpl<$Res>
       _$SubscriptionImpl _value, $Res Function(_$SubscriptionImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of Subscription
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -471,9 +465,7 @@ class _$SubscriptionImpl extends _Subscription {
       needsSync,
       syncStatus);
 
-  /// Create a copy of Subscription
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$SubscriptionImplCopyWith<_$SubscriptionImpl> get copyWith =>
@@ -500,73 +492,71 @@ abstract class _Subscription extends Subscription {
       final SyncStatus syncStatus}) = _$SubscriptionImpl;
   const _Subscription._() : super._();
 
-  /// 订阅的唯一标识符
   @override
+
+  /// 订阅的唯一标识符
   String get id;
+  @override
 
   /// 订阅名称
-  @override
   String get name;
+  @override
 
   /// 订阅图标（可选）
-  @override
   String? get icon;
+  @override
 
   /// 订阅类型
-  @override
   String get type;
+  @override
 
   /// 订阅价格
-  @override
   double get price;
+  @override
 
   /// 货币类型，默认为CNY
-  @override
   String get currency;
+  @override
 
   /// 计费周期：每月/每年/一次性
-  @override
   String get billingCycle;
+  @override
 
   /// 下次付款日期
-  @override
   DateTime get nextPaymentDate;
+  @override
 
   /// 是否自动续费
-  @override
   bool get autoRenewal;
+  @override
 
   /// 备注信息（可选）
-  @override
-  String? get notes; // 同步相关字段
+  String? get notes;
+  @override // 同步相关字段
   /// 服务器端ID（用于同步）
-  @override
   String? get serverId;
+  @override
 
   /// 创建时间
-  @override
   DateTime? get createdAt;
+  @override
 
   /// 最后更新时间
-  @override
   DateTime? get updatedAt;
+  @override
 
   /// 最后同步时间
-  @override
   DateTime? get lastSyncedAt;
+  @override
 
   /// 是否需要同步
-  @override
   bool get needsSync;
+  @override
 
   /// 同步状态
-  @override
   SyncStatus get syncStatus;
-
-  /// Create a copy of Subscription
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$SubscriptionImplCopyWith<_$SubscriptionImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

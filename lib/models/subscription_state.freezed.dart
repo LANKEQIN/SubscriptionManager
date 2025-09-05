@@ -44,9 +44,7 @@ mixin _$SubscriptionState {
   /// 错误信息
   String? get error => throw _privateConstructorUsedError;
 
-  /// Create a copy of SubscriptionState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $SubscriptionStateCopyWith<SubscriptionState> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -79,8 +77,6 @@ class _$SubscriptionStateCopyWithImpl<$Res, $Val extends SubscriptionState>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of SubscriptionState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -163,8 +159,6 @@ class __$$SubscriptionStateImplCopyWithImpl<$Res>
       $Res Function(_$SubscriptionStateImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of SubscriptionState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -336,9 +330,7 @@ class _$SubscriptionStateImpl extends _SubscriptionState {
       isLoading,
       error);
 
-  /// Create a copy of SubscriptionState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$SubscriptionStateImplCopyWith<_$SubscriptionStateImpl> get copyWith =>
@@ -359,46 +351,44 @@ abstract class _SubscriptionState extends SubscriptionState {
       final String? error}) = _$SubscriptionStateImpl;
   const _SubscriptionState._() : super._();
 
-  /// 订阅列表
   @override
+
+  /// 订阅列表
   List<Subscription> get subscriptions;
+  @override
 
   /// 月度历史记录
-  @override
   List<MonthlyHistory> get monthlyHistories;
+  @override
 
   /// 主题模式
-  @override
   ThemeMode get themeMode;
+  @override
 
   /// 字体大小
-  @override
   double get fontSize;
+  @override
 
   /// 主题颜色
-  @override
   Color? get themeColor;
+  @override
 
   /// 是否有未读通知
-  @override
   bool get hasUnreadNotifications;
+  @override
 
   /// 基础货币
-  @override
   String get baseCurrency;
+  @override
 
   /// 是否正在加载
-  @override
   bool get isLoading;
+  @override
 
   /// 错误信息
-  @override
   String? get error;
-
-  /// Create a copy of SubscriptionState
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$SubscriptionStateImplCopyWith<_$SubscriptionStateImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

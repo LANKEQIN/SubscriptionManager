@@ -46,9 +46,7 @@ mixin _$UserProfile {
   /// 最后更新时间
   DateTime? get updatedAt => throw _privateConstructorUsedError;
 
-  /// Create a copy of UserProfile
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $UserProfileCopyWith<UserProfile> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -82,8 +80,6 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of UserProfile
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -172,8 +168,6 @@ class __$$UserProfileImplCopyWithImpl<$Res>
       _$UserProfileImpl _value, $Res Function(_$UserProfileImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of UserProfile
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -338,9 +332,7 @@ class _$UserProfileImpl extends _UserProfile {
       createdAt,
       updatedAt);
 
-  /// Create a copy of UserProfile
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$UserProfileImplCopyWith<_$UserProfileImpl> get copyWith =>
@@ -361,50 +353,48 @@ abstract class _UserProfile extends UserProfile {
       final DateTime? updatedAt}) = _$UserProfileImpl;
   const _UserProfile._() : super._();
 
-  /// 用户ID (对应Supabase auth.users.id)
   @override
+
+  /// 用户ID (对应Supabase auth.users.id)
   String get userId;
+  @override
 
   /// 显示名称
-  @override
   String? get displayName;
+  @override
 
   /// 头像URL
-  @override
   String? get avatarUrl;
+  @override
 
   /// 基础货币
-  @override
   String get baseCurrency;
+  @override
 
   /// 主题模式
-  @override
   String get themeMode;
+  @override
 
   /// 字体大小
-  @override
   double get fontSize;
+  @override
 
   /// 主题颜色
-  @override
   String? get themeColor;
+  @override
 
   /// 是否启用同步
-  @override
   bool get syncEnabled;
+  @override
 
   /// 创建时间
-  @override
   DateTime? get createdAt;
+  @override
 
   /// 最后更新时间
-  @override
   DateTime? get updatedAt;
-
-  /// Create a copy of UserProfile
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$UserProfileImplCopyWith<_$UserProfileImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

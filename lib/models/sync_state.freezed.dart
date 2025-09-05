@@ -40,9 +40,7 @@ mixin _$SyncState {
   /// 同步状态描述
   String? get statusMessage => throw _privateConstructorUsedError;
 
-  /// Create a copy of SyncState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $SyncStateCopyWith<SyncState> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -73,8 +71,6 @@ class _$SyncStateCopyWithImpl<$Res, $Val extends SyncState>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of SyncState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -151,8 +147,6 @@ class __$$SyncStateImplCopyWithImpl<$Res>
       _$SyncStateImpl _value, $Res Function(_$SyncStateImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of SyncState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -284,9 +278,7 @@ class _$SyncStateImpl extends _SyncState {
   int get hashCode => Object.hash(runtimeType, isLoading, error, lastSyncTime,
       networkStatus, pendingSyncCount, conflictCount, progress, statusMessage);
 
-  /// Create a copy of SyncState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$SyncStateImplCopyWith<_$SyncStateImpl> get copyWith =>
@@ -305,42 +297,40 @@ abstract class _SyncState extends SyncState {
       final String? statusMessage}) = _$SyncStateImpl;
   const _SyncState._() : super._();
 
-  /// 是否正在同步
   @override
+
+  /// 是否正在同步
   bool get isLoading;
+  @override
 
   /// 同步错误信息
-  @override
   String? get error;
+  @override
 
   /// 最后同步时间
-  @override
   DateTime? get lastSyncTime;
+  @override
 
   /// 网络状态
-  @override
   NetworkStatus get networkStatus;
+  @override
 
   /// 待同步的项目数量
-  @override
   int get pendingSyncCount;
+  @override
 
   /// 冲突的项目数量
-  @override
   int get conflictCount;
+  @override
 
   /// 同步进度 (0.0 - 1.0)
-  @override
   double get progress;
+  @override
 
   /// 同步状态描述
-  @override
   String? get statusMessage;
-
-  /// Create a copy of SyncState
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$SyncStateImplCopyWith<_$SyncStateImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

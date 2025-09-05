@@ -22,8 +22,6 @@ final appDatabaseProvider = Provider<AppDatabase>.internal(
   allTransitiveDependencies: null,
 );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
 typedef AppDatabaseRef = ProviderRef<AppDatabase>;
 String _$cacheBoxHash() => r'cb443ab92359d4d8aacd0f2dd1d658a55a41052a';
 
@@ -41,8 +39,6 @@ final cacheBoxProvider = FutureProvider<Box<CachedData>>.internal(
   allTransitiveDependencies: null,
 );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
 typedef CacheBoxRef = FutureProviderRef<Box<CachedData>>;
 String _$userPrefsBoxHash() => r'0e0f1931233f27f7352bb4940781e79f322d7695';
 
@@ -60,8 +56,6 @@ final userPrefsBoxProvider = FutureProvider<Box<String>>.internal(
   allTransitiveDependencies: null,
 );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
 typedef UserPrefsBoxRef = FutureProviderRef<Box<String>>;
 String _$subscriptionRepositoryHash() =>
     r'485575c4dfd8d01ad8fae6c31b25314c147a1519';
@@ -82,8 +76,6 @@ final subscriptionRepositoryProvider =
   allTransitiveDependencies: null,
 );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
 typedef SubscriptionRepositoryRef = ProviderRef<SubscriptionRepository>;
 String _$monthlyHistoryRepositoryHash() =>
     r'8c2f8c4eb6d7e9d7b3322653a6c0be7005354556';
@@ -104,8 +96,6 @@ final monthlyHistoryRepositoryProvider =
   allTransitiveDependencies: null,
 );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
 typedef MonthlyHistoryRepositoryRef = ProviderRef<MonthlyHistoryRepository>;
 String _$appInitializationHash() => r'b4d9a0e201eee00cc0714275eec92cce8140da26';
 
@@ -124,8 +114,6 @@ final appInitializationProvider = AutoDisposeFutureProvider<bool>.internal(
   allTransitiveDependencies: null,
 );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
 typedef AppInitializationRef = AutoDisposeFutureProviderRef<bool>;
 String _$cacheStatsHash() => r'01f784500ee46884a0c61d26dd49a0033a475729';
 
@@ -144,8 +132,6 @@ final cacheStatsProvider =
   allTransitiveDependencies: null,
 );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
 typedef CacheStatsRef = AutoDisposeFutureProviderRef<Map<String, dynamic>>;
 String _$databaseStatsHash() => r'c7289315ccf3320014d79cc76c808b7574ac2767';
 
@@ -165,8 +151,6 @@ final databaseStatsProvider =
   allTransitiveDependencies: null,
 );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
 typedef DatabaseStatsRef = AutoDisposeFutureProviderRef<Map<String, dynamic>>;
 String _$themeModeProviderHash() => r'c9777daa0a4572448f4fabe7ece594b429689624';
 
@@ -185,8 +169,6 @@ final themeModeProviderProvider = AutoDisposeProvider<ThemeMode>.internal(
   allTransitiveDependencies: null,
 );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
 typedef ThemeModeProviderRef = AutoDisposeProviderRef<ThemeMode>;
 String _$fontSizeProviderHash() => r'4f8dbbab10a15be936deefc15115d2148b4da0db';
 
@@ -205,8 +187,6 @@ final fontSizeProviderProvider = AutoDisposeProvider<double>.internal(
   allTransitiveDependencies: null,
 );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
 typedef FontSizeProviderRef = AutoDisposeProviderRef<double>;
 String _$themeColorProviderHash() =>
     r'8db7d3b7063b26682955c332c1534073dc54b70e';
@@ -226,8 +206,6 @@ final themeColorProviderProvider = AutoDisposeProvider<Color?>.internal(
   allTransitiveDependencies: null,
 );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
 typedef ThemeColorProviderRef = AutoDisposeProviderRef<Color?>;
 String _$baseCurrencyProviderHash() =>
     r'55fed0fe9c0a33b123f3ac7aa158c39e1918bc70';
@@ -247,8 +225,6 @@ final baseCurrencyProviderProvider = AutoDisposeProvider<String>.internal(
   allTransitiveDependencies: null,
 );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
 typedef BaseCurrencyProviderRef = AutoDisposeProviderRef<String>;
 // ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

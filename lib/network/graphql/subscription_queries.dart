@@ -1,5 +1,5 @@
-/// GraphQL 查询和变更定义
-/// 包含所有订阅相关的 GraphQL 操作
+// GraphQL 查询和变更定义
+// 包含所有订阅相关的 GraphQL 操作
 
 /// 获取订阅列表查询
 const String getSubscriptionsQuery = r'''

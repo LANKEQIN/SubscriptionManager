@@ -43,9 +43,7 @@ mixin _$MonthlyHistory {
   /// 最后同步时间
   DateTime? get lastSyncedAt => throw _privateConstructorUsedError;
 
-  /// Create a copy of MonthlyHistory
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $MonthlyHistoryCopyWith<MonthlyHistory> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -78,8 +76,6 @@ class _$MonthlyHistoryCopyWithImpl<$Res, $Val extends MonthlyHistory>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of MonthlyHistory
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -162,8 +158,6 @@ class __$$MonthlyHistoryImplCopyWithImpl<$Res>
       _$MonthlyHistoryImpl _value, $Res Function(_$MonthlyHistoryImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of MonthlyHistory
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -302,9 +296,7 @@ class _$MonthlyHistoryImpl extends _MonthlyHistory {
   int get hashCode => Object.hash(runtimeType, id, year, month, totalAmount,
       currency, subscriptionCount, createdAt, updatedAt, lastSyncedAt);
 
-  /// Create a copy of MonthlyHistory
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$MonthlyHistoryImplCopyWith<_$MonthlyHistoryImpl> get copyWith =>
@@ -325,46 +317,44 @@ abstract class _MonthlyHistory extends MonthlyHistory {
       final DateTime? lastSyncedAt}) = _$MonthlyHistoryImpl;
   const _MonthlyHistory._() : super._();
 
-  /// 历史记录唯一标识符
   @override
+
+  /// 历史记录唯一标识符
   String get id;
+  @override
 
   /// 年份
-  @override
   int get year;
+  @override
 
   /// 月份 (1-12)
-  @override
   int get month;
+  @override
 
   /// 当月总金额
-  @override
   double get totalAmount;
+  @override
 
   /// 货币类型
-  @override
   String get currency;
+  @override
 
   /// 当月订阅数量
-  @override
   int get subscriptionCount;
+  @override
 
   /// 创建时间
-  @override
   DateTime? get createdAt;
+  @override
 
   /// 最后更新时间
-  @override
   DateTime? get updatedAt;
+  @override
 
   /// 最后同步时间
-  @override
   DateTime? get lastSyncedAt;
-
-  /// Create a copy of MonthlyHistory
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$MonthlyHistoryImplCopyWith<_$MonthlyHistoryImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

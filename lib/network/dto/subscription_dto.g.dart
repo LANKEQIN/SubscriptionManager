@@ -43,19 +43,28 @@ SubscriptionDto _$SubscriptionDtoFromJson(Map<String, dynamic> json) =>
       },
     );
 
-Map<String, dynamic> _$SubscriptionDtoToJson(SubscriptionDto instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
-      'price': instance.price,
-      'currency': instance.currency,
-      'billing_cycle': instance.billingCycle,
-      'next_renewal_date': instance.nextRenewalDate.toIso8601String(),
-      'auto_renewal': instance.autoRenewal,
-      if (instance.description case final value?) 'description': value,
-      if (instance.iconName case final value?) 'icon_name': value,
-      if (instance.userId case final value?) 'user_id': value,
-      'is_active': instance.isActive,
-      'created_at': instance.createdAt.toIso8601String(),
-      'updated_at': instance.updatedAt.toIso8601String(),
-    };
+Map<String, dynamic> _$SubscriptionDtoToJson(SubscriptionDto instance) {
+  final val = <String, dynamic>{
+    'id': instance.id,
+    'name': instance.name,
+    'price': instance.price,
+    'currency': instance.currency,
+    'billing_cycle': instance.billingCycle,
+    'next_renewal_date': instance.nextRenewalDate.toIso8601String(),
+    'auto_renewal': instance.autoRenewal,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('description', instance.description);
+  writeNotNull('icon_name', instance.iconName);
+  writeNotNull('user_id', instance.userId);
+  val['is_active'] = instance.isActive;
+  val['created_at'] = instance.createdAt.toIso8601String();
+  val['updated_at'] = instance.updatedAt.toIso8601String();
+  return val;
+}
