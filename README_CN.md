@@ -55,6 +55,7 @@
 - **测试基础设施**：包含单元测试、部件测试和集成测试的全面测试套件
 - **调试工具**：增强的调试功能，包含日志记录和错误报告
 - **热重载**：Flutter热重载功能的快速开发周期
+- **代码混淆**：通过Dart代码混淆增强发布版本的安全性
 
 ### 应用截图
 
@@ -178,6 +179,29 @@ flutter build macos --release
 # Linux
 flutter build linux --release
 ```
+
+#### 带代码混淆的构建
+
+为了增强应用安全性，可以构建启用代码混淆的版本：
+
+```bash
+# Android带混淆
+flutter build apk --obfuscate --split-debug-info=./build/symbols
+flutter build appbundle --obfuscate --split-debug-info=./build/symbols
+
+# iOS带混淆
+flutter build ios --obfuscate --split-debug-info=./build/symbols
+
+# 其他平台带混淆
+flutter build ipa --obfuscate --split-debug-info=./build/symbols
+flutter build windows --obfuscate --split-debug-info=./build/symbols
+```
+
+为方便使用，您也可以使用提供的构建脚本：
+- Windows: `scripts\build-obfuscated.bat`
+- macOS/Linux: `scripts/build-obfuscated.sh`
+
+用于调试混淆构建的符号文件存储在 `./build/symbols` 目录中。请备份这些文件以备将来调试使用。
 
 ### 项目结构
 
