@@ -393,9 +393,8 @@ class SubscriptionFormData {
   factory SubscriptionFormData.fromSubscription(dynamic subscription) {
     return SubscriptionFormData(
       serviceName: subscription.name,
-      icon: subscription.icon != null
-          ? IconData(int.parse(subscription.icon), fontFamily: 'MaterialIcons')
-          : null,
+      icon: subscription.icon,
+      // 不再动态创建IconData，直接存储icon字符串
       subscriptionType: subscription.type,
       price: subscription.price,
       currency: subscription.currency ?? 'CNY',
