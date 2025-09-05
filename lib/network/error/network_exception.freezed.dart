@@ -88,9 +88,7 @@ mixin _$NetworkException {
   }) =>
       throw _privateConstructorUsedError;
 
-  /// Create a copy of NetworkException
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $NetworkExceptionCopyWith<NetworkException> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -114,8 +112,6 @@ class _$NetworkExceptionCopyWithImpl<$Res, $Val extends NetworkException>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of NetworkException
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -166,8 +162,6 @@ class __$$NetworkExceptionImplCopyWithImpl<$Res>
       $Res Function(_$NetworkExceptionImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of NetworkException
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -281,9 +275,7 @@ class _$NetworkExceptionImpl implements _NetworkException {
       stackTrace,
       const DeepCollectionEquality().hash(_responseData));
 
-  /// Create a copy of NetworkException
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$NetworkExceptionImplCopyWith<_$NetworkExceptionImpl> get copyWith =>
@@ -406,11 +398,8 @@ abstract class _NetworkException implements NetworkException {
   int? get statusCode;
   String? get stackTrace;
   Map<String, dynamic>? get responseData;
-
-  /// Create a copy of NetworkException
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$NetworkExceptionImplCopyWith<_$NetworkExceptionImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -440,8 +429,6 @@ class __$$SimpleNetworkExceptionImplCopyWithImpl<$Res>
       $Res Function(_$SimpleNetworkExceptionImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of NetworkException
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -511,9 +498,7 @@ class _$SimpleNetworkExceptionImpl implements _SimpleNetworkException {
   int get hashCode =>
       Object.hash(runtimeType, message, type, originalError, statusCode);
 
-  /// Create a copy of NetworkException
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$SimpleNetworkExceptionImplCopyWith<_$SimpleNetworkExceptionImpl>
@@ -627,11 +612,8 @@ abstract class _SimpleNetworkException implements NetworkException {
   Exception? get originalError;
   @override
   int? get statusCode;
-
-  /// Create a copy of NetworkException
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$SimpleNetworkExceptionImplCopyWith<_$SimpleNetworkExceptionImpl>
       get copyWith => throw _privateConstructorUsedError;
 }
@@ -646,9 +628,7 @@ mixin _$AppNetworkException {
   String? get stackTrace => throw _privateConstructorUsedError;
   Map<String, dynamic>? get responseData => throw _privateConstructorUsedError;
 
-  /// Create a copy of AppNetworkException
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $AppNetworkExceptionCopyWith<AppNetworkException> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -679,8 +659,6 @@ class _$AppNetworkExceptionCopyWithImpl<$Res, $Val extends AppNetworkException>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of AppNetworkException
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -751,8 +729,6 @@ class __$$AppNetworkExceptionImplCopyWithImpl<$Res>
       $Res Function(_$AppNetworkExceptionImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of AppNetworkException
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -866,9 +842,7 @@ class _$AppNetworkExceptionImpl implements _AppNetworkException {
       stackTrace,
       const DeepCollectionEquality().hash(_responseData));
 
-  /// Create a copy of AppNetworkException
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$AppNetworkExceptionImplCopyWith<_$AppNetworkExceptionImpl> get copyWith =>
@@ -900,11 +874,8 @@ abstract class _AppNetworkException implements AppNetworkException {
   String? get stackTrace;
   @override
   Map<String, dynamic>? get responseData;
-
-  /// Create a copy of AppNetworkException
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$AppNetworkExceptionImplCopyWith<_$AppNetworkExceptionImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

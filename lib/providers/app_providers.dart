@@ -9,6 +9,7 @@ import '../repositories/repository_interfaces.dart';
 import '../repositories/subscription_repository_impl.dart';
 import '../repositories/monthly_history_repository_impl.dart';
 import 'subscription_notifier.dart';
+import 'package:subscription_manager/features/subscription_feature/di/subscription_di.dart';
 
 part 'app_providers.g.dart';
 
@@ -146,3 +147,23 @@ String baseCurrencyProvider(Ref ref) {
     orElse: () => 'CNY',
   );
 }
+
+// 合并所有提供商
+final appProviders = [
+  appDatabaseProvider,
+  cacheBoxProvider,
+  userPrefsBoxProvider,
+  subscriptionRepositoryProvider,
+  monthlyHistoryRepositoryProvider,
+  appInitializationProvider,
+  cacheStatsProvider,
+  databaseStatsProvider,
+  themeModeProvider,
+  fontSizeProvider,
+  themeColorProvider,
+  baseCurrencyProvider,
+  subscriptionLocalDatasourceProvider,
+  subscriptionRepositoryProvider,
+  getAllSubscriptionsUseCaseProvider,
+  subscriptionBlocProvider,
+];

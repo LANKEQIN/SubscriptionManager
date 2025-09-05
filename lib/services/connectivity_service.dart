@@ -13,8 +13,9 @@ part 'connectivity_service.g.dart';
 /// 监控网络连接状态并提供连接状态信息
 @riverpod
 class ConnectivityService extends _$ConnectivityService {
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+  late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
   Timer? _networkCheckTimer;
+  final Set<NetworkStatus> _dismissedStatus = <NetworkStatus>{};
   
   @override
   NetworkStatus build() {
@@ -26,7 +27,10 @@ class ConnectivityService extends _$ConnectivityService {
   void _startConnectivityMonitoring() {
     // 监听连接状态变化
     _connectivitySubscription = Connectivity().onConnectivityChanged.listen(
-      _handleConnectivityChange,
+      (results) {
+        final result = results.isNotEmpty ? results.first : ConnectivityResult.none;
+        _handleConnectivityChange(result);
+      },
       onError: (error) {
         debugPrint('连接监控错误: $error');
         state = NetworkStatus.unknown;
@@ -43,8 +47,9 @@ class ConnectivityService extends _$ConnectivityService {
   /// 检查初始网络连接状态
   Future<void> _checkInitialConnectivity() async {
     try {
-      final connectivityResult = await Connectivity().checkConnectivity();
-      await _handleConnectivityChange(connectivityResult);
+      final connectivityResults = await Connectivity().checkConnectivity();
+      final result = connectivityResults.isNotEmpty ? connectivityResults.first : ConnectivityResult.none;
+      await _handleConnectivityChange(result);
     } catch (e) {
       debugPrint('初始连接检查错误: $e');
       state = NetworkStatus.unknown;
@@ -55,7 +60,12 @@ class ConnectivityService extends _$ConnectivityService {
   Future<void> _handleConnectivityChange(ConnectivityResult result) async {
     switch (result) {
       case ConnectivityResult.none:
-        state = NetworkStatus.offline;
+        // 检查是否已关闭离线状态的显示
+        if (!_dismissedStatus.contains(NetworkStatus.offline)) {
+          state = NetworkStatus.offline;
+        } else {
+          state = NetworkStatus.unknown; // 保持隐藏状态
+        }
         _stopNetworkQualityCheck();
         break;
       case ConnectivityResult.mobile:
@@ -66,10 +76,20 @@ class ConnectivityService extends _$ConnectivityService {
         if (hasInternet) {
           // 检查网络质量
           final quality = await _checkNetworkQuality();
-          state = quality;
+          // 检查是否已关闭该状态的显示
+          if (!_dismissedStatus.contains(quality)) {
+            state = quality;
+          } else {
+            state = NetworkStatus.unknown; // 保持隐藏状态
+          }
           _startNetworkQualityCheck();
         } else {
-          state = NetworkStatus.offline;
+          // 检查是否已关闭离线状态的显示
+          if (!_dismissedStatus.contains(NetworkStatus.offline)) {
+            state = NetworkStatus.offline;
+          } else {
+            state = NetworkStatus.unknown; // 保持隐藏状态
+          }
           _stopNetworkQualityCheck();
         }
         break;
@@ -82,9 +102,10 @@ class ConnectivityService extends _$ConnectivityService {
   /// 验证实际的网络连接
   Future<bool> _verifyInternetConnection() async {
     try {
-      return await InternetConnectionChecker().hasConnection;
+      final checker = InternetConnectionChecker.createInstance();
+      return await checker.hasConnection;
     } catch (e) {
-      debugPrint('网络验证错误: $e');
+      debugPrint('网络验证错误: \$e');
       return false;
     }
   }
@@ -95,12 +116,17 @@ class ConnectivityService extends _$ConnectivityService {
       final stopwatch = Stopwatch()..start();
       
       // 简单的ping测试
-      final hasConnection = await InternetConnectionChecker().hasConnection;
+      final checker = InternetConnectionChecker.createInstance();
+      final hasConnection = await checker.hasConnection;
       
       stopwatch.stop();
       
       if (!hasConnection) {
-        return NetworkStatus.offline;
+        // 检查是否已关闭离线状态的显示
+        if (!_dismissedStatus.contains(NetworkStatus.offline)) {
+          return NetworkStatus.offline;
+        }
+        return NetworkStatus.unknown; // 保持隐藏状态
       }
       
       // 根据响应时间判断网络质量
@@ -112,7 +138,7 @@ class ConnectivityService extends _$ConnectivityService {
         return NetworkStatus.online;
       }
     } catch (e) {
-      debugPrint('网络质量检查错误: $e');
+      debugPrint('网络质量检查错误: \$e');
       return NetworkStatus.unknown;
     }
   }
@@ -126,7 +152,8 @@ class ConnectivityService extends _$ConnectivityService {
       (_) async {
         if (state != NetworkStatus.offline) {
           final quality = await _checkNetworkQuality();
-          if (quality != state) {
+          // 检查是否已关闭该状态的显示
+          if (!_dismissedStatus.contains(quality) && quality != state) {
             state = quality;
           }
         }
@@ -142,8 +169,15 @@ class ConnectivityService extends _$ConnectivityService {
   
   /// 手动刷新网络状态
   Future<void> refresh() async {
-    final connectivityResult = await Connectivity().checkConnectivity();
-    await _handleConnectivityChange(connectivityResult);
+    final connectivityResults = await Connectivity().checkConnectivity();
+    final result = connectivityResults.isNotEmpty ? connectivityResults.first : ConnectivityResult.none;
+    await _handleConnectivityChange(result);
+  }
+  
+  /// 关闭当前状态指示器显示
+  void dismissIndicator() {
+    _dismissedStatus.add(state);
+    state = NetworkStatus.unknown; // 设置为unknown以隐藏指示器
   }
   
   /// 检查是否在线

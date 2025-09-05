@@ -36,18 +36,27 @@ CreateSubscriptionRequest _$CreateSubscriptionRequestFromJson(
     );
 
 Map<String, dynamic> _$CreateSubscriptionRequestToJson(
-        CreateSubscriptionRequest instance) =>
-    <String, dynamic>{
-      'name': instance.name,
-      'price': instance.price,
-      'currency': instance.currency,
-      'billing_cycle': instance.billingCycle,
-      'next_renewal_date': instance.nextRenewalDate.toIso8601String(),
-      'auto_renewal': instance.autoRenewal,
-      if (instance.description case final value?) 'description': value,
-      if (instance.iconName case final value?) 'icon_name': value,
-      if (instance.userId case final value?) 'user_id': value,
-    };
+    CreateSubscriptionRequest instance) {
+  final val = <String, dynamic>{
+    'name': instance.name,
+    'price': instance.price,
+    'currency': instance.currency,
+    'billing_cycle': instance.billingCycle,
+    'next_renewal_date': instance.nextRenewalDate.toIso8601String(),
+    'auto_renewal': instance.autoRenewal,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('description', instance.description);
+  writeNotNull('icon_name', instance.iconName);
+  writeNotNull('user_id', instance.userId);
+  return val;
+}
 
 UpdateSubscriptionRequest _$UpdateSubscriptionRequestFromJson(
         Map<String, dynamic> json) =>
@@ -82,21 +91,28 @@ UpdateSubscriptionRequest _$UpdateSubscriptionRequestFromJson(
     );
 
 Map<String, dynamic> _$UpdateSubscriptionRequestToJson(
-        UpdateSubscriptionRequest instance) =>
-    <String, dynamic>{
-      if (instance.name case final value?) 'name': value,
-      if (instance.price case final value?) 'price': value,
-      if (instance.currency case final value?) 'currency': value,
-      if (instance.billingCycle case final value?) 'billing_cycle': value,
-      if (instance.nextRenewalDate?.toIso8601String() case final value?)
-        'next_renewal_date': value,
-      if (instance.autoRenewal case final value?) 'auto_renewal': value,
-      if (instance.description case final value?) 'description': value,
-      if (instance.iconName case final value?) 'icon_name': value,
-      if (instance.isActive case final value?) 'is_active': value,
-      if (instance.updatedAt?.toIso8601String() case final value?)
-        'updated_at': value,
-    };
+    UpdateSubscriptionRequest instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('name', instance.name);
+  writeNotNull('price', instance.price);
+  writeNotNull('currency', instance.currency);
+  writeNotNull('billing_cycle', instance.billingCycle);
+  writeNotNull(
+      'next_renewal_date', instance.nextRenewalDate?.toIso8601String());
+  writeNotNull('auto_renewal', instance.autoRenewal);
+  writeNotNull('description', instance.description);
+  writeNotNull('icon_name', instance.iconName);
+  writeNotNull('is_active', instance.isActive);
+  writeNotNull('updated_at', instance.updatedAt?.toIso8601String());
+  return val;
+}
 
 BatchSubscriptionRequest _$BatchSubscriptionRequestFromJson(
         Map<String, dynamic> json) =>
@@ -151,18 +167,27 @@ SubscriptionSearchRequest _$SubscriptionSearchRequestFromJson(
     );
 
 Map<String, dynamic> _$SubscriptionSearchRequestToJson(
-        SubscriptionSearchRequest instance) =>
-    <String, dynamic>{
-      'query': instance.query,
-      'user_id': instance.userId,
-      if (instance.currency case final value?) 'currency': value,
-      if (instance.billingCycle case final value?) 'billing_cycle': value,
-      if (instance.minPrice case final value?) 'min_price': value,
-      if (instance.maxPrice case final value?) 'max_price': value,
-      if (instance.isActive case final value?) 'is_active': value,
-      if (instance.limit case final value?) 'limit': value,
-      if (instance.offset case final value?) 'offset': value,
-    };
+    SubscriptionSearchRequest instance) {
+  final val = <String, dynamic>{
+    'query': instance.query,
+    'user_id': instance.userId,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('currency', instance.currency);
+  writeNotNull('billing_cycle', instance.billingCycle);
+  writeNotNull('min_price', instance.minPrice);
+  writeNotNull('max_price', instance.maxPrice);
+  writeNotNull('is_active', instance.isActive);
+  writeNotNull('limit', instance.limit);
+  writeNotNull('offset', instance.offset);
+  return val;
+}
 
 SubscriptionStatsRequest _$SubscriptionStatsRequestFromJson(
         Map<String, dynamic> json) =>
@@ -190,13 +215,20 @@ SubscriptionStatsRequest _$SubscriptionStatsRequestFromJson(
     );
 
 Map<String, dynamic> _$SubscriptionStatsRequestToJson(
-        SubscriptionStatsRequest instance) =>
-    <String, dynamic>{
-      'user_id': instance.userId,
-      if (instance.startDate?.toIso8601String() case final value?)
-        'start_date': value,
-      if (instance.endDate?.toIso8601String() case final value?)
-        'end_date': value,
-      if (instance.currency case final value?) 'currency': value,
-      if (instance.groupBy case final value?) 'group_by': value,
-    };
+    SubscriptionStatsRequest instance) {
+  final val = <String, dynamic>{
+    'user_id': instance.userId,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('start_date', instance.startDate?.toIso8601String());
+  writeNotNull('end_date', instance.endDate?.toIso8601String());
+  writeNotNull('currency', instance.currency);
+  writeNotNull('group_by', instance.groupBy);
+  return val;
+}

@@ -25,14 +25,22 @@ SignUpResponse _$SignUpResponseFromJson(Map<String, dynamic> json) =>
       },
     );
 
-Map<String, dynamic> _$SignUpResponseToJson(SignUpResponse instance) =>
-    <String, dynamic>{
-      if (instance.accessToken case final value?) 'accessToken': value,
-      if (instance.refreshToken case final value?) 'refreshToken': value,
-      if (instance.expiresIn case final value?) 'expiresIn': value,
-      if (instance.tokenType case final value?) 'tokenType': value,
-      if (instance.user?.toJson() case final value?) 'user': value,
-    };
+Map<String, dynamic> _$SignUpResponseToJson(SignUpResponse instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('accessToken', instance.accessToken);
+  writeNotNull('refreshToken', instance.refreshToken);
+  writeNotNull('expiresIn', instance.expiresIn);
+  writeNotNull('tokenType', instance.tokenType);
+  writeNotNull('user', instance.user?.toJson());
+  return val;
+}
 
 SignInResponse _$SignInResponseFromJson(Map<String, dynamic> json) =>
     $checkedCreate(
@@ -53,14 +61,22 @@ SignInResponse _$SignInResponseFromJson(Map<String, dynamic> json) =>
       },
     );
 
-Map<String, dynamic> _$SignInResponseToJson(SignInResponse instance) =>
-    <String, dynamic>{
-      if (instance.accessToken case final value?) 'accessToken': value,
-      if (instance.refreshToken case final value?) 'refreshToken': value,
-      if (instance.expiresIn case final value?) 'expiresIn': value,
-      if (instance.tokenType case final value?) 'tokenType': value,
-      if (instance.user?.toJson() case final value?) 'user': value,
-    };
+Map<String, dynamic> _$SignInResponseToJson(SignInResponse instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('accessToken', instance.accessToken);
+  writeNotNull('refreshToken', instance.refreshToken);
+  writeNotNull('expiresIn', instance.expiresIn);
+  writeNotNull('tokenType', instance.tokenType);
+  writeNotNull('user', instance.user?.toJson());
+  return val;
+}
 
 RefreshTokenResponse _$RefreshTokenResponseFromJson(
         Map<String, dynamic> json) =>
@@ -79,13 +95,21 @@ RefreshTokenResponse _$RefreshTokenResponseFromJson(
     );
 
 Map<String, dynamic> _$RefreshTokenResponseToJson(
-        RefreshTokenResponse instance) =>
-    <String, dynamic>{
-      if (instance.accessToken case final value?) 'accessToken': value,
-      if (instance.refreshToken case final value?) 'refreshToken': value,
-      if (instance.expiresIn case final value?) 'expiresIn': value,
-      if (instance.tokenType case final value?) 'tokenType': value,
-    };
+    RefreshTokenResponse instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('accessToken', instance.accessToken);
+  writeNotNull('refreshToken', instance.refreshToken);
+  writeNotNull('expiresIn', instance.expiresIn);
+  writeNotNull('tokenType', instance.tokenType);
+  return val;
+}
 
 UserResponse _$UserResponseFromJson(Map<String, dynamic> json) =>
     $checkedCreate(
@@ -124,14 +148,22 @@ User _$UserFromJson(Map<String, dynamic> json) => $checkedCreate(
       },
     );
 
-Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
-      'id': instance.id,
-      if (instance.email case final value?) 'email': value,
-      if (instance.name case final value?) 'name': value,
-      if (instance.avatarUrl case final value?) 'avatarUrl': value,
-      if (instance.createdAt?.toIso8601String() case final value?)
-        'createdAt': value,
-      if (instance.updatedAt?.toIso8601String() case final value?)
-        'updatedAt': value,
-      if (instance.accessToken case final value?) 'accessToken': value,
-    };
+Map<String, dynamic> _$UserToJson(User instance) {
+  final val = <String, dynamic>{
+    'id': instance.id,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('email', instance.email);
+  writeNotNull('name', instance.name);
+  writeNotNull('avatarUrl', instance.avatarUrl);
+  writeNotNull('createdAt', instance.createdAt?.toIso8601String());
+  writeNotNull('updatedAt', instance.updatedAt?.toIso8601String());
+  writeNotNull('accessToken', instance.accessToken);
+  return val;
+}

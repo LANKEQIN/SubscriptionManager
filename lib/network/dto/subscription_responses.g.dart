@@ -33,15 +33,23 @@ ApiResponse<T> _$ApiResponseFromJson<T>(
 Map<String, dynamic> _$ApiResponseToJson<T>(
   ApiResponse<T> instance,
   Object? Function(T value) toJsonT,
-) =>
-    <String, dynamic>{
-      'success': instance.success,
-      if (instance.message case final value?) 'message': value,
-      if (_$nullableGenericToJson(instance.data, toJsonT) case final value?)
-        'data': value,
-      if (instance.errors case final value?) 'errors': value,
-      if (instance.pagination?.toJson() case final value?) 'pagination': value,
-    };
+) {
+  final val = <String, dynamic>{
+    'success': instance.success,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('message', instance.message);
+  writeNotNull('data', _$nullableGenericToJson(instance.data, toJsonT));
+  writeNotNull('errors', instance.errors);
+  writeNotNull('pagination', instance.pagination?.toJson());
+  return val;
+}
 
 T? _$nullableGenericFromJson<T>(
   Object? input,
@@ -111,11 +119,20 @@ SubscriptionListResponse _$SubscriptionListResponseFromJson(
     );
 
 Map<String, dynamic> _$SubscriptionListResponseToJson(
-        SubscriptionListResponse instance) =>
-    <String, dynamic>{
-      'subscriptions': instance.subscriptions.map((e) => e.toJson()).toList(),
-      if (instance.pagination?.toJson() case final value?) 'pagination': value,
-    };
+    SubscriptionListResponse instance) {
+  final val = <String, dynamic>{
+    'subscriptions': instance.subscriptions.map((e) => e.toJson()).toList(),
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('pagination', instance.pagination?.toJson());
+  return val;
+}
 
 SubscriptionStatsResponse _$SubscriptionStatsResponseFromJson(
         Map<String, dynamic> json) =>
@@ -166,20 +183,27 @@ SubscriptionStatsResponse _$SubscriptionStatsResponseFromJson(
     );
 
 Map<String, dynamic> _$SubscriptionStatsResponseToJson(
-        SubscriptionStatsResponse instance) =>
-    <String, dynamic>{
-      'total_cost': instance.totalCost,
-      'monthly_cost': instance.monthlyCost,
-      'yearly_cost': instance.yearlyCost,
-      'active_subscriptions': instance.activeSubscriptions,
-      'total_subscriptions': instance.totalSubscriptions,
-      'currency_breakdown': instance.currencyBreakdown,
-      if (instance.categoryBreakdown case final value?)
-        'category_breakdown': value,
-      if (instance.monthlyTrend?.map((e) => e.toJson()).toList()
-          case final value?)
-        'monthly_trend': value,
-    };
+    SubscriptionStatsResponse instance) {
+  final val = <String, dynamic>{
+    'total_cost': instance.totalCost,
+    'monthly_cost': instance.monthlyCost,
+    'yearly_cost': instance.yearlyCost,
+    'active_subscriptions': instance.activeSubscriptions,
+    'total_subscriptions': instance.totalSubscriptions,
+    'currency_breakdown': instance.currencyBreakdown,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('category_breakdown', instance.categoryBreakdown);
+  writeNotNull(
+      'monthly_trend', instance.monthlyTrend?.map((e) => e.toJson()).toList());
+  return val;
+}
 
 MonthlyTrendData _$MonthlyTrendDataFromJson(Map<String, dynamic> json) =>
     $checkedCreate(
@@ -225,9 +249,18 @@ BatchOperationResponse _$BatchOperationResponseFromJson(
     );
 
 Map<String, dynamic> _$BatchOperationResponseToJson(
-        BatchOperationResponse instance) =>
-    <String, dynamic>{
-      'affected_count': instance.affectedCount,
-      'failed_ids': instance.failedIds,
-      if (instance.errors case final value?) 'errors': value,
-    };
+    BatchOperationResponse instance) {
+  final val = <String, dynamic>{
+    'affected_count': instance.affectedCount,
+    'failed_ids': instance.failedIds,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('errors', instance.errors);
+  return val;
+}

@@ -54,8 +54,35 @@ class NetworkMonitorService {
     _connectivity.onConnectivityChanged.listen(_onConnectivityChanged);
     
     // 检查初始连接状态
-    final result = await _connectivity.checkConnectivity();
-    await _onConnectivityChanged(result);
+    final results = await _connectivity.checkConnectivity();
+    final result = results.isNotEmpty ? results.first : ConnectivityResult.none;
+    await _handleSingleConnectivityResult(result);
+  }
+  
+  /// 处理单个连接结果（用于初始连接检查）
+  Future<void> _handleSingleConnectivityResult(ConnectivityResult result) async {
+    _currentConnectivity = result;
+    
+    final wasConnected = _isConnected;
+    _isConnected = result != ConnectivityResult.none;
+    
+    // 如果连接状态发生变化，进行实际网络检查
+    if (_isConnected) {
+      _isConnected = await checkInternetConnection();
+    }
+    
+    final status = NetworkStatus(
+      isConnected: _isConnected,
+      connectivityResult: result,
+      timestamp: DateTime.now(),
+    );
+    
+    _statusController.add(status);
+    
+    // 记录连接状态变化
+    if (wasConnected != _isConnected) {
+      AppLogger.i('网络状态变化: ${_isConnected ? "已连接" : "已断开"} ($result)');
+    }
   }
   
   /// 销毁监控服务
@@ -172,7 +199,9 @@ class NetworkMonitorService {
   }
   
   /// 处理连接状态变化
-  Future<void> _onConnectivityChanged(ConnectivityResult result) async {
+  Future<void> _onConnectivityChanged(List<ConnectivityResult> results) async {
+    // 使用列表中的第一个结果作为当前连接状态
+    final result = results.isNotEmpty ? results.first : ConnectivityResult.none;
     _currentConnectivity = result;
     
     final wasConnected = _isConnected;
