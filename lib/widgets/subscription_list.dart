@@ -9,40 +9,41 @@ import '../models/subscription.dart';
 /// 显示所有订阅的列表，支持空状态显示和编辑功能
 
 class SubscriptionList extends ConsumerWidget {
-  const SubscriptionList({super.key});
+  final bool shrinkWrap;
+  
+  const SubscriptionList({super.key, this.shrinkWrap = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final subscriptionState = ref.watch(subscriptionNotifierProvider);
     
-    return Expanded(
-      child: subscriptionState.when(
-        data: (state) {
-          final subscriptions = state.subscriptions;
-          
-          if (subscriptions.isEmpty) {
-            return _buildEmptyState();
-          }
-          
-          return ListView.builder(
-            physics: const BouncingScrollPhysics(), // 弹性滚动物理效果
-            cacheExtent: 200, // 预缓存范围200像素
-            itemCount: subscriptions.length,
-            itemBuilder: (context, index) {
-              final subscription = subscriptions[index];
-              return KeepAliveSubscriptionCard(
-                key: ValueKey(subscription.id), // 使用ValueKey保持widget状态
-                subscription: subscription,
-                onEdit: (subscription) {
-                  _showEditDialog(context, subscription, ref);
-                },
-              );
-            },
-          );
-        },
-        loading: () => const SkeletonListWidget(), // 优化的骨架屏加载
-        error: (error, stack) => ErrorListWidget(error: error), // 优化的错误组件
-      ),
+    return subscriptionState.when(
+      data: (state) {
+        final subscriptions = state.subscriptions;
+        
+        if (subscriptions.isEmpty) {
+          return _buildEmptyState();
+        }
+        
+        return ListView.builder(
+          shrinkWrap: shrinkWrap,
+          physics: shrinkWrap ? const NeverScrollableScrollPhysics() : const BouncingScrollPhysics(),
+          cacheExtent: 200, // 预缓存范围200像素
+          itemCount: subscriptions.length,
+          itemBuilder: (context, index) {
+            final subscription = subscriptions[index];
+            return KeepAliveSubscriptionCard(
+              key: ValueKey(subscription.id), // 使用ValueKey保持widget状态
+              subscription: subscription,
+              onEdit: (subscription) {
+                _showEditDialog(context, subscription, ref);
+              },
+            );
+          },
+        );
+      },
+      loading: () => const SkeletonListWidget(), // 优化的骨架屏加载
+      error: (error, stack) => ErrorListWidget(error: error), // 优化的错误组件
     );
   }
 
