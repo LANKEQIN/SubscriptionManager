@@ -4,6 +4,8 @@ import '../providers/app_providers.dart';
 import '../providers/subscription_notifier.dart';
 import '../widgets/statistics_card.dart';
 import '../utils/currency_constants.dart';
+import '../utils/responsive_layout.dart';
+import 'large_screen_statistics.dart';
 
 class StatisticsScreen extends ConsumerStatefulWidget {
   const StatisticsScreen({super.key});
@@ -32,6 +34,12 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 检查是否为大屏设备
+    if (ResponsiveLayout.isLargeScreen(context)) {
+      return const LargeScreenStatistics();
+    }
+    
+    // 手机设备使用原有布局
     return Scaffold(
       appBar: AppBar(
         title: const Text('统计'),

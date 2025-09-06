@@ -5,6 +5,8 @@ import '../widgets/subscription_list.dart';
 import '../widgets/add_button.dart';
 import '../constants/theme_constants.dart';
 import '../features/subscription_feature/presentation/screens/subscription_main_screen.dart';
+import '../utils/responsive_layout.dart';
+import 'large_screen_home.dart';
 
 /// 主屏幕组件
 /// 显示应用程序的主页，包括统计信息和订阅列表
@@ -17,7 +19,13 @@ class HomeScreen extends StatelessWidget {
     if (FeatureFlags.useFeatureFirst) {
       return const SubscriptionMainScreen();
     }
+    
+    // 检查是否为大屏设备
+    if (ResponsiveLayout.isLargeScreen(context)) {
+      return const LargeScreenHome();
+    }
 
+    // 手机设备使用原有布局
     return Scaffold(
       body: Column(
         children: [

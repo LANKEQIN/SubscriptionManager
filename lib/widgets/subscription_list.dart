@@ -4,14 +4,21 @@ import '../providers/subscription_notifier.dart';
 import 'subscription_card.dart';
 import '../dialogs/edit_subscription_dialog.dart';
 import '../models/subscription.dart';
+import '../utils/responsive_layout.dart';
+import '../utils/icon_utils.dart';
 
 /// 订阅列表组件
 /// 显示所有订阅的列表，支持空状态显示和编辑功能
 
 class SubscriptionList extends ConsumerWidget {
   final bool shrinkWrap;
+  final bool showAsTable;
   
-  const SubscriptionList({super.key, this.shrinkWrap = false});
+  const SubscriptionList({
+    super.key, 
+    this.shrinkWrap = false,
+    this.showAsTable = false,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -25,6 +32,17 @@ class SubscriptionList extends ConsumerWidget {
           return _buildEmptyState();
         }
         
+        // 检查是否为大屏设备且启用表格模式
+        if (showAsTable && ResponsiveLayout.isLargeScreen(context)) {
+          return _buildTableView(subscriptions, ref);
+        }
+        
+        // 检查是否为大屏设备，使用网格布局
+        if (ResponsiveLayout.isLargeScreen(context) && !shrinkWrap) {
+          return _buildGridView(context, subscriptions, ref);
+        }
+        
+        // 默认列表布局
         return ListView.builder(
           shrinkWrap: shrinkWrap,
           physics: shrinkWrap ? const NeverScrollableScrollPhysics() : const BouncingScrollPhysics(),
@@ -92,6 +110,234 @@ class SubscriptionList extends ConsumerWidget {
     );
   }
 
+  /// 构建网格视图（大屏设备）
+  Widget _buildGridView(BuildContext context, List<Subscription> subscriptions, WidgetRef ref) {
+    final columnCount = ResponsiveLayout.getColumnCount(context);
+    
+    return GridView.builder(
+      shrinkWrap: shrinkWrap,
+      physics: shrinkWrap ? const NeverScrollableScrollPhysics() : const BouncingScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: columnCount,
+        childAspectRatio: 1.2,
+        crossAxisSpacing: ResponsiveLayout.getCardSpacing(context),
+        mainAxisSpacing: ResponsiveLayout.getCardSpacing(context),
+      ),
+      itemCount: subscriptions.length,
+      itemBuilder: (context, index) {
+        final subscription = subscriptions[index];
+        return KeepAliveSubscriptionCard(
+          key: ValueKey(subscription.id),
+          subscription: subscription,
+          onEdit: (subscription) {
+            _showEditDialog(context, subscription, ref);
+          },
+        );
+      },
+    );
+  }
+  
+  /// 构建表格视图（大屏设备）
+  Widget _buildTableView(List<Subscription> subscriptions, WidgetRef ref) {
+    return ListView.builder(
+      shrinkWrap: shrinkWrap,
+      physics: shrinkWrap ? const NeverScrollableScrollPhysics() : const BouncingScrollPhysics(),
+      itemCount: subscriptions.length,
+      itemBuilder: (context, index) {
+        final subscription = subscriptions[index];
+        return _buildTableRow(context, subscription, ref, index);
+      },
+    );
+  }
+  
+  /// 构建表格行
+  Widget _buildTableRow(BuildContext context, Subscription subscription, WidgetRef ref, int index) {
+    final theme = Theme.of(context);
+    final isEven = index % 2 == 0;
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: isEven ? theme.colorScheme.surface : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        border: Border(
+          bottom: BorderSide(
+            color: theme.colorScheme.outline.withValues(alpha: 0.1),
+            width: 1,
+          ),
+        ),
+      ),
+      child: InkWell(
+        onTap: () => _showEditDialog(context, subscription, ref),
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            children: [
+              // 服务图标和名称
+              Expanded(
+                flex: 3,
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        IconUtils.getIconData(subscription.iconName),
+                        color: theme.colorScheme.onPrimaryContainer,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            subscription.name,
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          if (subscription.notes?.isNotEmpty == true)
+                            Text(
+                              subscription.notes!,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              // 费用
+              Expanded(
+                flex: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '¥${subscription.price.toStringAsFixed(2)}',
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                    Text(
+                      _getBillingCycleText(subscription.billingCycle),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              // 下次扣费日期
+              Expanded(
+                flex: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _formatDate(subscription.nextPaymentDate),
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                    Text(
+                      '${subscription.daysUntilNextPayment}天后',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: subscription.daysUntilNextPayment <= 7 
+                            ? Colors.orange 
+                            : theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              // 操作按钮
+              Expanded(
+                flex: 1,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      onPressed: () => _showEditDialog(context, subscription, ref),
+                      icon: const Icon(Icons.edit),
+                      iconSize: 20,
+                      tooltip: '编辑',
+                    ),
+                    IconButton(
+                      onPressed: () => _deleteSubscription(context, subscription, ref),
+                      icon: const Icon(Icons.delete),
+                      iconSize: 20,
+                      color: Colors.red,
+                      tooltip: '删除',
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  
+  /// 获取计费周期文本
+  String _getBillingCycleText(String cycle) {
+    switch (cycle) {
+      case 'monthly':
+        return '每月';
+      case 'yearly':
+        return '每年';
+      case 'weekly':
+        return '每周';
+      default:
+        return cycle;
+    }
+  }
+  
+  /// 格式化日期
+  String _formatDate(DateTime date) {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+  
+  /// 删除订阅
+  void _deleteSubscription(BuildContext context, Subscription subscription, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('确认删除'),
+        content: Text('确定要删除订阅「${subscription.name}」吗？'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () {
+              ref.read(subscriptionNotifierProvider.notifier).removeSubscription(subscription.id);
+              Navigator.of(context).pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('订阅删除成功')),
+              );
+            },
+            child: const Text('删除'),
+          ),
+        ],
+      ),
+    );
+  }
+  
   /// 显示编辑对话框
   /// 当用户点击订阅项时弹出编辑对话框
   void _showEditDialog(BuildContext context, Subscription subscription, WidgetRef ref) {

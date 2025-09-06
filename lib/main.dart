@@ -12,6 +12,8 @@ import 'config/theme_builder.dart';
 import 'config/supabase_config.dart';
 import 'services/migration_service.dart';
 import 'widgets/sync_indicator.dart';
+import 'utils/responsive_layout.dart';
+import 'widgets/large_screen_layout.dart';
 
 /// 应用程序入口点
 /// 初始化并运行整个应用程序
@@ -198,6 +200,12 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 检查是否为大屏设备
+    if (ResponsiveLayout.isLargeScreen(context)) {
+      return _buildLargeScreenLayout(context);
+    }
+    
+    // 手机设备使用原有布局
     return Scaffold(
       body: Stack(
         children: [
@@ -238,6 +246,22 @@ class _MainScreenState extends State<MainScreen> {
         ],
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       ),
+    );
+  }
+  
+  /// 构建大屏设备布局
+  Widget _buildLargeScreenLayout(BuildContext context) {
+    final titles = ['首页', '统计', '提醒', '我的'];
+    
+    return LargeScreenLayout(
+      selectedIndex: _currentIndex,
+      onDestinationSelected: (index) {
+        setState(() {
+          _currentIndex = index;
+        });
+      },
+      title: titles[_currentIndex],
+      child: _pages[_currentIndex],
     );
   }
 }
