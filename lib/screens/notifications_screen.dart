@@ -3,12 +3,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/subscription_notifier.dart';
 import '../models/subscription.dart';
 import '../utils/icon_utils.dart';
+import '../utils/responsive_layout.dart';
+import 'large_screen_notifications.dart';
 
 class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // 检查是否为大屏设备
+    if (ResponsiveLayout.isLargeScreen(context)) {
+      return const LargeScreenNotifications();
+    }
+    
     final subscriptionState = ref.watch(subscriptionNotifierProvider);
     
     return Scaffold(

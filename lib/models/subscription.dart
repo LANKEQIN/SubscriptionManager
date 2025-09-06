@@ -151,6 +151,18 @@ class Subscription with _$Subscription {
     return difference.inDays;
   }
 
+  /// 计算下次付款前剩余天数（别名）
+  /// 与daysUntilPayment相同，用于兼容性
+  int get daysUntilNextPayment => daysUntilPayment;
+
+  /// 获取图标名称
+  /// 返回订阅的图标名称
+  String? get iconName => icon;
+
+  /// 获取描述信息
+  /// 返回订阅的备注信息作为描述
+  String? get description => notes;
+
   /// 格式化价格显示
   /// 根据计费周期和货币类型格式化显示价格
   String get formattedPrice {

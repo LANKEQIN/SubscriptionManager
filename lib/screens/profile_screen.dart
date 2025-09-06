@@ -8,7 +8,9 @@ import '../services/connectivity_service.dart';
 import '../services/sync_service.dart';
 import '../models/sync_types.dart';
 import '../models/sync_state.dart';
+import '../utils/responsive_layout.dart';
 import 'auth_screen.dart';
+import 'large_screen_profile.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -20,6 +22,11 @@ class ProfileScreen extends ConsumerStatefulWidget {
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
+    // 检查是否为大屏设备
+    if (ResponsiveLayout.isLargeScreen(context)) {
+      return const LargeScreenProfile();
+    }
+    
     final authState = ref.watch(authServiceProvider);
     final syncState = ref.watch(syncServiceProvider);
     final networkStatus = ref.watch(connectivityServiceProvider);
