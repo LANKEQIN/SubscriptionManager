@@ -1,5 +1,9 @@
 # Subscription Manager 订阅管理器
+
+A subscription management app to track and manage your subscriptions.
+
 本README文件的中文版本可在 [README_CN.md](README_CN.md) 中查看。
+
 <span id="english"></span>
 ## English
 
@@ -95,38 +99,38 @@ Subscription Manager is a cross-platform mobile application built with Flutter t
 
 #### Environment Setup
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/your-username/subscription-manager.git
-   cd subscription-manager
-   ```
+1.  **Clone the repository**
+    ```bash
+    git clone https://github.com/your-username/subscription-manager.git
+    cd subscription-manager
+    ```
 
-2. **Copy environment file**
-   ```bash
-   cp .env.example .env
-   ```
+2.  **Copy environment file**
+    ```bash
+    cp .env.example .env
+    ```
 
-3. **Configure environment variables**
-   Edit `.env` file with your Supabase credentials:
-   ```
-   SUPABASE_URL=your_supabase_url
-   SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
+3.  **Configure environment variables**
+    Edit `.env` file with your Supabase credentials:
+    ```
+    SUPABASE_URL=your_supabase_url
+    SUPABASE_ANON_KEY=your_supabase_anon_key
+    ```
 
-4. **Install dependencies**
-   ```bash
-   flutter pub get
-   ```
+4.  **Install dependencies**
+    ```bash
+    flutter pub get
+    ```
 
-5. **Generate code**
-   ```bash
-   flutter pub run build_runner build --delete-conflicting-outputs
-   ```
+5.  **Generate code**
+    ```bash
+    flutter pub run build_runner build --delete-conflicting-outputs
+    ```
 
-6. **Run the application**
-   ```bash
-   flutter run
-   ```
+6.  **Run the application**
+    ```bash
+    flutter run
+    ```
 
 #### Build for Production
 
@@ -178,191 +182,202 @@ Symbol files for debugging obfuscated builds are stored in the `./build/symbols`
 
 ```
 lib/
-├── main.dart                 # Application entry point
-├── screens/                  # UI screens
-│   ├── home_screen.dart      # Main dashboard
-│   ├── statistics_screen.dart # Charts and analytics
-│   ├── notifications_screen.dart # Renewal notifications
-│   ├── profile_screen.dart   # User settings
-│   └── auth_screen.dart      # Authentication
-├── providers/                # Riverpod state management
-│   ├── app_providers.dart    # Main providers
-│   ├── app_providers.g.dart  # Generated providers
-│   ├── subscription_notifier.dart # Subscription state
-│   └── subscription_notifier.g.dart # Generated notifier
-├── models/                   # Data models (Freezed)
-│   ├── subscription.dart     # Subscription model
-│   ├── subscription.freezed.dart # Generated subscription model
-│   ├── user_profile.dart     # User profile
-│   ├── user_profile.freezed.dart # Generated user profile
-│   ├── sync_state.dart       # Sync status
-│   ├── sync_state.freezed.dart # Generated sync state
-│   ├── subscription_state.dart # Subscription state
-│   ├── subscription_state.freezed.dart # Generated subscription state
-│   ├── monthly_history.dart # Monthly history
-│   ├── monthly_history.freezed.dart # Generated monthly history
-│   └── sync_types.dart      # Sync types
-├── services/                 # Business logic services
-│   ├── sync_service.dart     # Cloud synchronization
-│   ├── sync_service.g.dart   # Generated sync service
-│   ├── auth_service.dart     # Authentication
-│   ├── auth_service.g.dart   # Generated auth service
-│   ├── connectivity_service.dart # Network monitoring
-│   ├── connectivity_service.g.dart # Generated connectivity service
-│   ├── migration_service.dart # Data migration
-│   ├── migration_service.g.dart # Generated migration service
-│   ├── conflict_resolver.dart # Conflict resolution
-│   └── conflict_resolver.g.dart # Generated conflict resolver
-├── repositories/             # Data access layer
-│   ├── hybrid_subscription_repository.dart # Local + remote data
-│   ├── hybrid_subscription_repository.g.dart # Generated hybrid repository
-│   ├── repository_interfaces.dart # Abstract interfaces
-│   ├── subscription_repository_impl.dart # Subscription repository implementation
-│   ├── monthly_history_repository_impl.dart # Monthly history repository
-│   ├── remote_subscription_repository.dart # Remote repository
-│   ├── enhanced_remote_subscription_repository.dart # Enhanced remote repository
-│   └── error_handler.dart   # Error handling
-├── database/                 # Local database (Drift/SQLite)
-│   ├── app_database.dart     # Database definition
-│   ├── app_database.g.dart   # Generated database
-│   └── tables.dart          # Table schemas
-├── cache/                    # Caching layer (Hive)
-│   ├── hive_service.dart     # Hive operations
-│   ├── smart_cache_manager.dart # Cache strategy
-│   ├── cached_data.dart     # Cached data model
-│   └── cached_data.g.dart   # Generated cached data
-├── network/                  # Network layer
-│   ├── api/                  # API clients
-│   │   ├── auth_api.dart     # Auth API
-│   │   ├── auth_api.g.dart   # Generated auth API
-│   │   ├── subscription_api.dart # Subscription API
-│   │   └── subscription_api.g.dart # Generated subscription API
-│   ├── dto/                  # Data transfer objects
-│   │   ├── auth_responses.dart # Auth responses
-│   │   ├── auth_responses.g.dart # Generated auth responses
-│   │   ├── subscription_dto.dart # Subscription DTO
-│   │   ├── subscription_dto.g.dart # Generated subscription DTO
-│   │   ├── subscription_requests.dart # Subscription requests
-│   │   ├── subscription_requests.g.dart # Generated subscription requests
-│   │   ├── subscription_responses.dart # Subscription responses
-│   │   └── subscription_responses.g.dart # Generated subscription responses
-│   ├── graphql/              # GraphQL
-│   │   ├── subscription_queries.dart # Subscription queries
-│   │   └── subscription_service.dart # Subscription service
-│   ├── interceptors/         # Request interceptors
-│   │   ├── auth_interceptor.dart # Auth interceptor
-│   │   ├── error_interceptor.dart # Error interceptor
-│   │   ├── logging_interceptor.dart # Logging interceptor
-│   │   ├── monitoring_interceptor.dart # Monitoring interceptor
-│   │   └── retry_interceptor.dart # Retry interceptor
-│   ├── monitoring/           # Network monitoring
-│   │   └── network_monitor_service.dart # Network monitor service
-│   ├── error/                # Error handling
-│   │   ├── network_error_handler.dart # Network error handler
-│   │   ├── network_exception.dart # Network exception
-│   │   └── network_exception.freezed.dart # Generated network exception
-│   ├── dio_client.dart       # HTTP client
-│   ├── graphql_client.dart   # GraphQL client
-│   └── examples/            # API examples
-├── config/                   # Configuration
-│   ├── supabase_config.dart  # Supabase setup
-│   └── theme_builder.dart    # Theme configuration
-├── dialogs/                  # Modal dialogs
-│   ├── subscription_form.dart # Subscription forms
-│   ├── base_subscription_dialog.dart # Base dialog
-│   ├── add_subscription_dialog.dart # Add subscription dialog
-│   └── edit_subscription_dialog.dart # Edit subscription dialog
-├── utils/                    # Utilities
-│   ├── currency_constants.dart # Currency support
-│   ├── icon_picker.dart      # Icon selection
-│   ├── icon_utils.dart       # Icon utilities
-│   ├── app_logger.dart       # Logging
-│   ├── subscription_constants.dart # Subscription constants
-│   └── user_preferences.dart # User preferences
-├── widgets/                  # Reusable components
-│   ├── subscription_card.dart # Subscription item
-│   ├── sync_indicator.dart   # Sync status indicator
-│   ├── statistics_card.dart  # Stats cards
-│   ├── subscription_list.dart # Subscription list
-│   └── add_button.dart       # Add button
-├── constants/                # Constants
-│   └── theme_constants.dart  # Theme constants
-├── core/                     # Core architecture
-│   ├── data/                 # Data layer
-│   │   ├── datasources/      # Data sources
-│   │   ├── models/           # Data models
-│   │   └── repositories/     # Data repositories
-│   ├── domain/               # Domain layer
-│   │   ├── entities/         # Domain entities
-│   │   ├── repositories/     # Domain repositories
-│   │   └── usecases/         # Use cases
-│   └── presentation/         # Presentation layer
-│       ├── blocs/            # BLoC pattern
-│       ├── screens/          # Screens
-│       └── widgets/          # Widgets
-├── features/                 # Feature modules
-│   ├── subscription_feature/ # Subscription feature
-│   │   ├── data/             # Subscription data
-│   │   ├── di/               # Dependency injection
-│   │   ├── domain/           # Subscription domain
-│   │   └── presentation/     # Subscription presentation
-│   └── user_profile_feature/ # User profile feature
-│       ├── data/             # User profile data
-│       ├── domain/           # User profile domain
-│       └── presentation/     # User profile presentation
-└── fixed_exchange_rate_service.dart # Fixed exchange rate service
+├── cache/
+│   ├── cached_data.dart
+│   ├── cached_data.g.dart
+│   ├── hive_service.dart
+│   └── smart_cache_manager.dart
+├── config/
+│   ├── supabase_config.dart
+│   └── theme_builder.dart
+├── constants/
+│   └── theme_constants.dart
+├── core/
+│   ├── data/
+│   │   ├── datasources/
+│   │   ├── models/
+│   │   └── repositories/
+│   ├── domain/
+│   │   ├── entities/
+│   │   ├── repositories/
+│   │   └── usecases/
+│   └── presentation/
+│       ├── blocs/
+│       ├── screens/
+│       └── widgets/
+├── database/
+│   ├── app_database.dart
+│   ├── app_database.g.dart
+│   └── tables.dart
+├── dialogs/
+│   ├── add_subscription_dialog.dart
+│   ├── base_subscription_dialog.dart
+│   ├── edit_subscription_dialog.dart
+│   └── subscription_form.dart
+├── examples/
+├── features/
+│   ├── subscription_feature/
+│   │   ├── data/
+│   │   ├── di/
+│   │   ├── domain/
+│   │   └── presentation/
+│   └── user_profile_feature/
+│       ├── data/
+│       ├── domain/
+│       └── presentation/
+├── fixed_exchange_rate_service.dart
+├── main.dart
+├── models/
+│   ├── monthly_history.dart
+│   ├── monthly_history.freezed.dart
+│   ├── subscription.dart
+│   ├── subscription.freezed.dart
+│   ├── subscription_state.dart
+│   ├── subscription_state.freezed.dart
+│   ├── sync_state.dart
+│   ├── sync_state.freezed.dart
+│   ├── sync_types.dart
+│   ├── user_profile.dart
+│   └── user_profile.freezed.dart
+├── network/
+│   ├── api/
+│   │   ├── auth_api.dart
+│   │   ├── auth_api.g.dart
+│   │   ├── subscription_api.dart
+│   │   └── subscription_api.g.dart
+│   ├── dio_client.dart
+│   ├── dto/
+│   │   ├── auth_responses.dart
+│   │   ├── auth_responses.g.dart
+│   │   ├── subscription_dto.dart
+│   │   ├── subscription_dto.g.dart
+│   │   ├── subscription_requests.dart
+│   │   ├── subscription_requests.g.dart
+│   │   ├── subscription_responses.dart
+│   │   └── subscription_responses.g.dart
+│   ├── error/
+│   │   ├── network_error_handler.dart
+│   │   ├── network_exception.dart
+│   │   └── network_exception.freezed.dart
+│   ├── examples/
+│   ├── graphql/
+│   │   ├── subscription_queries.dart
+│   │   └── subscription_service.dart
+│   ├── graphql_client.dart
+│   ├── interceptors/
+│   │   ├── auth_interceptor.dart
+│   │   ├── error_interceptor.dart
+│   │   ├── logging_interceptor.dart
+│   │   ├── monitoring_interceptor.dart
+│   │   └── retry_interceptor.dart
+│   ├── monitoring/
+│   │   └── network_monitor_service.dart
+│   └── repositories/
+│       └── enhanced_remote_subscription_repository.dart
+├── providers/
+│   ├── app_providers.dart
+│   ├── app_providers.g.dart
+│   ├── subscription_notifier.dart
+│   └── subscription_notifier.g.dart
+├── repositories/
+│   ├── error_handler.dart
+│   ├── hybrid_subscription_repository.dart
+│   ├── hybrid_subscription_repository.g.dart
+│   ├── monthly_history_repository_impl.dart
+│   ├── remote_subscription_repository.dart
+│   ├── repository_interfaces.dart
+│   └── subscription_repository_impl.dart
+├── screens/
+│   ├── auth_screen.dart
+│   ├── home_app_bar.dart
+│   ├── home_screen.dart
+│   ├── large_screen_home.dart
+│   ├── large_screen_notifications.dart
+│   ├── large_screen_profile.dart
+│   ├── large_screen_statistics.dart
+│   ├── monthly_history.dart
+│   ├── notifications_screen.dart
+│   ├── profile_screen.dart
+│   └── statistics_screen.dart
+├── services/
+│   ├── auth_service.dart
+│   ├── auth_service.g.dart
+│   ├── conflict_resolver.dart
+│   ├── conflict_resolver.g.dart
+│   ├── connectivity_service.dart
+│   ├── connectivity_service.g.dart
+│   ├── migration_service.dart
+│   ├── migration_service.g.dart
+│   ├── sync_service.dart
+│   └── sync_service.g.dart
+├── utils/
+│   ├── app_logger.dart
+│   ├── currency_constants.dart
+│   ├── icon_picker.dart
+│   ├── icon_utils.dart
+│   ├── responsive_layout.dart
+│   ├── subscription_constants.dart
+│   └── user_preferences.dart
+└── widgets/
+    ├── add_button.dart
+    ├── large_screen_layout.dart
+    ├── large_screen_navigation.dart
+    ├── statistics_card.dart
+    ├── subscription_card.dart
+    ├── subscription_list.dart
+    └── sync_indicator.dart
 ```
 
 ### Architecture Overview
 
 This application follows a clean architecture pattern with clear separation of concerns and feature-first modularization:
 
-1. **Presentation Layer**: UI screens, widgets, and dialogs using Riverpod for state management
-   - Screens for main application views
-   - Reusable widget components
-   - Modal dialogs for user interactions
-   - Riverpod providers for reactive state management
+1.  **Presentation Layer**: UI screens, widgets, and dialogs using Riverpod for state management
+    -   Screens for main application views
+    -   Reusable widget components
+    -   Modal dialogs for user interactions
+    -   Riverpod providers for reactive state management
 
-2. **Domain Layer**: Business logic, use cases, and domain models
-   - Freezed immutable data models with pattern matching
-   - Repository interfaces defining data contracts
-   - Business logic services (sync, auth, migration, conflict resolution)
-   - Use cases encapsulating business rules
+2.  **Domain Layer**: Business logic, use cases, and domain models
+    -   Freezed immutable data models with pattern matching
+    -   Repository interfaces defining data contracts
+    -   Business logic services (sync, auth, migration, conflict resolution)
+    -   Use cases encapsulating business rules
 
-3. **Data Layer**: Repositories implementing hybrid data sources
-   - **Local Storage**: Drift ORM with SQLite for persistent data
-   - **Local Cache**: Hive for fast in-memory caching with smart cache management
-   - **Remote Data**: Supabase integration with REST API (Dio + Retrofit) and GraphQL
-   - **Hybrid Repository**: Coordinating local and remote data sources with conflict resolution
+3.  **Data Layer**: Repositories implementing hybrid data sources
+    -   **Local Storage**: Drift ORM with SQLite for persistent data
+    -   **Local Cache**: Hive for fast in-memory caching with smart cache management
+    -   **Remote Data**: Supabase integration with REST API (Dio + Retrofit) and GraphQL
+    -   **Hybrid Repository**: Coordinating local and remote data sources with conflict resolution
 
-4. **Infrastructure Layer**: Core infrastructure components
-   - **Network Layer**: Dio HTTP client with interceptors (auth, logging, error, monitoring, retry)
-   - **Database**: Drift database with code generation and migration support
-   - **Caching**: Hive with smart cache policies and expiration strategies
-   - **Configuration**: Environment variables and Supabase configuration
-   - **Monitoring**: Network monitoring service with performance tracking
+4.  **Infrastructure Layer**: Core infrastructure components
+    -   **Network Layer**: Dio HTTP client with interceptors (auth, logging, error, monitoring, retry)
+    -   **Database**: Drift database with code generation and migration support
+    -   **Caching**: Hive with smart cache policies and expiration strategies
+    -   **Configuration**: Environment variables and Supabase configuration
+    -   **Monitoring**: Network monitoring service with performance tracking
 
 #### Feature-First Modular Architecture:
 
 The application also implements a feature-first modular architecture:
-- **Subscription Feature Module**: Complete subscription management functionality
-- **User Profile Feature Module**: User authentication and profile management
-- Each feature module contains its own data, domain, and presentation layers
-- BLoC pattern used within feature modules for state management
-- Dependency injection configured per feature module
+-   **Subscription Feature Module**: Complete subscription management functionality
+-   **User Profile Feature Module**: User authentication and profile management
+-   Each feature module contains its own data, domain, and presentation layers
+-   BLoC pattern used within feature modules for state management
+-   Dependency injection configured per feature module
 
 #### Key Architectural Features:
 
-- **Hybrid Data Strategy**: Local-first approach with automatic cloud synchronization
-- **Smart Caching**: Multi-level caching with configurable expiration policies
-- **Dependency Injection**: Riverpod providers for loose coupling and testability
-- **Comprehensive Error Handling**: Unified error handling throughout all layers
-- **Full Offline Support**: Complete functionality without internet connection
-- **Automatic Conflict Resolution**: Intelligent data synchronization and conflict resolution
-- **Data Migration**: Support for schema migrations and data transformation
-- **Real-time Updates**: Supabase real-time subscriptions for live data updates
-- **Performance Monitoring**: Network and performance monitoring with metrics collection
-- **Modular Design**: Feature-based modular architecture for scalability
+-   **Hybrid Data Strategy**: Local-first approach with automatic cloud synchronization
+-   **Smart Caching**: Multi-level caching with configurable expiration policies
+-   **Dependency Injection**: Riverpod providers for loose coupling and testability
+-   **Comprehensive Error Handling**: Unified error handling throughout all layers
+-   **Full Offline Support**: Complete functionality without internet connection
+-   **Automatic Conflict Resolution**: Intelligent data synchronization and conflict resolution
+-   **Data Migration**: Support for schema migrations and data transformation
+-   **Real-time Updates**: Supabase real-time subscriptions for live data updates
+-   **Performance Monitoring**: Network and performance monitoring with metrics collection
+-   **Modular Design**: Feature-based modular architecture for scalability
 
 ### Contributing
 
@@ -370,31 +385,29 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 #### Development Setup
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Install dependencies and generate code:
-   ```bash
-   flutter pub get
-   flutter pub run build_runner build --delete-conflicting-outputs
-   ```
-4. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-5. Push to the branch (`git push origin feature/AmazingFeature`)
-6. Open a Pull Request
+1.  Fork the repository
+2.  Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3.  Install dependencies and generate code:
+    ```bash
+    flutter pub get
+    flutter pub run build_runner build --delete-conflicting-outputs
+    ```
+4.  Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+5.  Push to the branch (`git push origin feature/AmazingFeature`)
+6.  Open a Pull Request
 
 #### Code Generation
 
 This project uses several code generation tools:
-- `build_runner` for Freezed, JSON serialization, and Riverpod codegen
-- `drift_dev` for database code generation
-- `retrofit_generator` for API client generation
+-   `build_runner` for Freezed, JSON serialization, and Riverpod codegen
+-   `drift_dev` for database code generation
+-   `retrofit_generator` for API client generation
 
 Always run code generation after modifying:
-- Data models (`@freezed` classes)
-- Database tables
-- API clients
-- Riverpod providers
-
----
+-   Data models (`@freezed` classes)
+-   Database tables
+-   API clients
+-   Riverpod providers
 
 
 
