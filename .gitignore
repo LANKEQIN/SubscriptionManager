@@ -53,3 +53,17 @@ app.*.map.json
 # Supabase local configuration
 supabase/.env
 supabase/.env.local
+.vs/CMakeWorkspaceSettings.json
+.vs/ProjectSettings.json
+.vs/slnx.sqlite
+.vs/VSWorkspaceState.json
+.vs/SubscriptionManager/v18/workspaceFileList.bin
+.vs/SubscriptionManager.slnx/FileContentIndex/1c61435c-43dc-4c37-b276-a0bfd18792c0.vsidx
+.vs/SubscriptionManager.slnx/FileContentIndex/3f7f737a-abd0-49c5-875b-659e5cb57e24.vsidx
+.vs/SubscriptionManager.slnx/FileContentIndex/95d0f398-1408-4a81-a0e0-2bf9f720f2af.vsidx
+.vs/SubscriptionManager.slnx/FileContentIndex/18913f88-5d99-4af1-a4bd-457e92abd9d2.vsidx
+.vs/SubscriptionManager.slnx/FileContentIndex/39929367-f5fe-4c7d-9875-f96173e58525.vsidx
+.vs/SubscriptionManager.slnx/FileContentIndex/df54ff84-860e-4153-a1a1-b35ba3ff2115.vsidx
+.vs/SubscriptionManager.slnx/v18/.wsuo
+.vs/SubscriptionManager.slnx/v18/DocumentLayout.json
+.vs/SubscriptionManager.slnx/v18/Insiders/Browse.VC.db
