@@ -44,6 +44,9 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Kotlin build artifacts
+/android/.kotlin/
+
 # Environment variables and sensitive configuration
 .env
 .env.local
@@ -53,6 +56,36 @@ app.*.map.json
 # Supabase local configuration
 supabase/.env
 supabase/.env.local
+
+# Test coverage reports
+coverage/
+
+# Temporary and cache files
+*.tmp
+*.temp
+.cache/
+
+# Log files
+*.log
+logs/
+
+# IDE and editor files
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
+.vscode/.ropeproject
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+
+# Project specific - remove if this is intentional
+your-project/
 .vs/CMakeWorkspaceSettings.json
 .vs/ProjectSettings.json
 .vs/slnx.sqlite
